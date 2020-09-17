@@ -1,0 +1,49 @@
+﻿<Window x:Class="SP_EFT_ProfileEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SP_EFT_ProfileEditor"
+        mc:Ignorable="d"
+        Title="SP EFT Profile Editor by SkiTles" Height="450" Width="800" Loaded="Window_Loaded">
+    <Grid>
+        <TabControl x:Name="tabControl" Margin="10,5,10,10">
+            <TabItem Header="{Binding [tab_info_title]}" x:Name="tabinfo">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="{Binding [tab_quests_title]}" x:Name="tabquests">
+                <Grid Background="#FFE5E5E5">
+                    <DataGrid x:Name="questsGrid" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Торговец" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=trader}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Название" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=name}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Статус" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=status}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{Binding [tab_settings_title]}" x:Name="tabsettings">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
