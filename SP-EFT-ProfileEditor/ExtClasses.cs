@@ -27,7 +27,10 @@ namespace SP_EFT_ProfileEditor
                 CreateEnLoclae();
             if (!File.Exists(Path.Combine(path, "ru.json")))
                 CreateRuLocale();
-            //create other langs
+            if (!File.Exists(Path.Combine(path, "fr.json")))
+                CreateFrLocale();
+            if (!File.Exists(Path.Combine(path, "ge.json")))
+                CreateGeLocale();
             Lang lang = new Lang { locale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(path, locale + ".json"))) };
             return lang;
         }
@@ -38,14 +41,28 @@ namespace SP_EFT_ProfileEditor
         {
             Dictionary<string, string> locale = new Dictionary<string, string>
             {
-                ["server_select"] = "Select the SPTarkov Server directory. If you cancel this, application will close.",
+                ["server_select"] = "Select the SPTarkov Server directory. The application will close if you click Cancel.",
                 ["invalid_server_location_caption"] = "Error",
-                ["invalid_server_location_text"] = "The selected path does not seem to be a SPTarkov server location. Try again? If you press No, application will close.",
+                ["invalid_server_location_text"] = "The selected path does not seem to be a SPTarkov server location. Try again? The application will close if you click No.",
                 ["tab_info_title"] = "Information",
                 ["tab_quests_title"] = "Quests",
                 ["tab_settings_title"] = "Settings"
             };
             File.WriteAllText(Path.Combine(path, "en.json"), JsonConvert.SerializeObject(locale));
+        }
+
+        static void CreateGeLoclae()
+        {
+            Dictionary<string, string> locale = new Dictionary<string, string>
+            {
+                ["server_select"] = "Wählen Sie das SPTarkov Server-Verzeichnis aus. Die Anwendung wird geschlossen, wenn Sie auf Cancel klicken.",
+                ["invalid_server_location_caption"] = "Error",
+                ["invalid_server_location_text"] = "Der ausgewählte Pfad scheint kein SPTarkov-Serverstandort zu sein. Versuch es noch einmal? Die Anwendung wird geschlossen, wenn Sie auf Nein klicken.",
+                ["tab_info_title"] = "Information",
+                ["tab_quests_title"] = "Quests",
+                ["tab_settings_title"] = "Einstellungen"
+            };
+            File.WriteAllText(Path.Combine(path, "ge.json"), JsonConvert.SerializeObject(locale));
         }
 
         static void CreateRuLocale()
@@ -60,6 +77,20 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_title"] = "Настройки"
             };
             File.WriteAllText(Path.Combine(path, "ru.json"), JsonConvert.SerializeObject(locale));
+        }
+
+        static void CreateFrLocale()
+        {
+            Dictionary<string, string> locale = new Dictionary<string, string>
+            {
+                ["server_select"] = "Sélectionnez le répertoire du serveur SPTarkov. L'application se fermera si vous cliquez sur Cancel.",
+                ["invalid_server_location_caption"] = "Erreur",
+                ["invalid_server_location_text"] = "Le chemin sélectionné ne semble pas être un emplacement de serveur SPTarkov. Réessayer? L'application se fermera si vous cliquez sur No.",
+                ["tab_info_title"] = "Information",
+                ["tab_quests_title"] = "Quêtes",
+                ["tab_settings_title"] = "Paramètres"
+            };
+            File.WriteAllText(Path.Combine(path, "fr.json"), JsonConvert.SerializeObject(locale));
         }
     }
 
