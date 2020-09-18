@@ -16,10 +16,10 @@ namespace SP_EFT_ProfileEditor
         Dictionary<string, string> Langs = new Dictionary<string, string>
         {
             ["en"] = "English",
-            ["ru"] = "Русский"
+            ["ru"] = "Русский",
+            ["fr"] = "Français",
+            ["ge"] = "Deutsch "
         };
-
-        //we need = fr, ge
 
         public LanguageSelectWindows()
         {
