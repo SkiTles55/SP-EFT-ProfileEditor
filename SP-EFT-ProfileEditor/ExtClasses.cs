@@ -3,13 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Data;
 
 namespace SP_EFT_ProfileEditor
 {
     public class Lang
     {
         public static string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "languages");
-        public static Lang Load(string locale)
+        public static Lang Load()
         {
             if (!Directory.Exists(path))
             {
@@ -31,66 +34,108 @@ namespace SP_EFT_ProfileEditor
                 CreateFrLocale();
             if (!File.Exists(Path.Combine(path, "ge.json")))
                 CreateGeLocale();
-            Lang lang = new Lang { locale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(path, locale + ".json"))) };
+            PEOptions eOptions = PEOptions.Load();
+            if (string.IsNullOrEmpty(eOptions.Language))
+                eOptions.Language = "en";
+            Lang lang = new Lang { locale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(path, eOptions.Language + ".json"))), options = eOptions};
+            if (!string.IsNullOrEmpty(eOptions.EftServerPath) && Directory.Exists(eOptions.EftServerPath))
+            {
+                lang.Profiles = Directory.GetDirectories(eOptions.EftServerPath + "\\user\\profiles").Select(x => new DirectoryInfo(x).Name).ToList();
+                if (lang.Profiles.Count > 0 && (string.IsNullOrEmpty(eOptions.DefaultProfile) || !lang.Profiles.Contains(eOptions.DefaultProfile)))
+                    eOptions.DefaultProfile = lang.Profiles.FirstOrDefault();
+            }
+            eOptions.Save();
             return lang;
         }
 
         public Dictionary<string, string> locale { get; set; }
 
+        public PEOptions options { get; set; }
+
+        public List<string> Profiles { get; set; }
+
         static void CreateEnLoclae()
         {
             Dictionary<string, string> locale = new Dictionary<string, string>
             {
-                ["server_select"] = "Select the SPTarkov Server directory. The application will close if you click Cancel.",
+                ["button_yes"] = "Yes",
+                ["button_no"] = "No",
+                ["server_select"] = "Select the SPTarkov Server directory.",
                 ["invalid_server_location_caption"] = "Error",
-                ["invalid_server_location_text"] = "The selected path does not seem to be a SPTarkov server location. Try again? The application will close if you click No.",
+                ["invalid_server_location_text"] = "The selected path does not seem to be a SPTarkov server location.",
+                ["tab_server_location_select"] = "Select",
                 ["tab_info_title"] = "Information",
                 ["tab_quests_title"] = "Quests",
-                ["tab_settings_title"] = "Settings"
+                ["tab_settings_title"] = "Settings",
+                ["tab_settings_lang"] = "Language",
+                ["tab_settings_server"] = "SPTarkov Server directory",
+                ["tab_settings_account"] = "Account",
+                ["tab_serversettings_title"] = "Server settings"
             };
-            File.WriteAllText(Path.Combine(path, "en.json"), JsonConvert.SerializeObject(locale));
+            File.WriteAllText(Path.Combine(path, "en.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }
 
-        static void CreateGeLoclae()
+        static void CreateGeLocale()
         {
             Dictionary<string, string> locale = new Dictionary<string, string>
             {
-                ["server_select"] = "Wählen Sie das SPTarkov Server-Verzeichnis aus. Die Anwendung wird geschlossen, wenn Sie auf Cancel klicken.",
+                ["button_yes"] = "Ja",
+                ["button_no"] = "Nein",
+                ["server_select"] = "Wählen Sie das SPTarkov Server-Verzeichnis aus.",
                 ["invalid_server_location_caption"] = "Error",
-                ["invalid_server_location_text"] = "Der ausgewählte Pfad scheint kein SPTarkov-Serverstandort zu sein. Versuch es noch einmal? Die Anwendung wird geschlossen, wenn Sie auf Nein klicken.",
+                ["invalid_server_location_text"] = "Der ausgewählte Pfad scheint kein SPTarkov-Serverstandort zu sein.",
+                ["tab_server_location_select"] = "Wählen",
                 ["tab_info_title"] = "Information",
                 ["tab_quests_title"] = "Quests",
-                ["tab_settings_title"] = "Einstellungen"
+                ["tab_settings_title"] = "Einstellungen",
+                ["tab_settings_lang"] = "Sprache",
+                ["tab_settings_server"] = "SPTarkov Server verzeichnis",
+                ["tab_settings_account"] = "Konto",
+                ["tab_serversettings_title"] = "Server einstellungen"
             };
-            File.WriteAllText(Path.Combine(path, "ge.json"), JsonConvert.SerializeObject(locale));
+            File.WriteAllText(Path.Combine(path, "ge.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }
 
         static void CreateRuLocale()
         {
             Dictionary<string, string> locale = new Dictionary<string, string>
             {
-                ["server_select"] = "Выберите папку с сервером SPTarkov. Приложение закроется если вы нажмете отмену.",
+                ["button_yes"] = "Да",
+                ["button_no"] = "Нет",
+                ["server_select"] = "Выберите папку с сервером SPTarkov.",
                 ["invalid_server_location_caption"] = "Ошибка",
-                ["invalid_server_location_text"] = "Сервер SPTarkov не найден. Попробовать снова? Приложение закроется если вы нажмете Нет.",
+                ["invalid_server_location_text"] = "Сервер SPTarkov не найден. Попробовать снова?",
+                ["tab_server_location_select"] = "Выбрать",
                 ["tab_info_title"] = "Информация",
                 ["tab_quests_title"] = "Квесты",
-                ["tab_settings_title"] = "Настройки"
+                ["tab_settings_title"] = "Настройки",
+                ["tab_settings_lang"] = "Язык",
+                ["tab_settings_server"] = "Каталог SPTarkov Server",
+                ["tab_settings_account"] = "Аккаунт",
+                ["tab_serversettings_title"] = "Настройки сервера"
             };
-            File.WriteAllText(Path.Combine(path, "ru.json"), JsonConvert.SerializeObject(locale));
+            File.WriteAllText(Path.Combine(path, "ru.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }
 
         static void CreateFrLocale()
         {
             Dictionary<string, string> locale = new Dictionary<string, string>
             {
-                ["server_select"] = "Sélectionnez le répertoire du serveur SPTarkov. L'application se fermera si vous cliquez sur Cancel.",
+                ["button_yes"] = "Oui",
+                ["button_no"] = "Non",
+                ["server_select"] = "Sélectionnez le répertoire du serveur SPTarkov.",
                 ["invalid_server_location_caption"] = "Erreur",
-                ["invalid_server_location_text"] = "Le chemin sélectionné ne semble pas être un emplacement de serveur SPTarkov. Réessayer? L'application se fermera si vous cliquez sur No.",
+                ["invalid_server_location_text"] = "Le chemin sélectionné ne semble pas être un emplacement de serveur SPTarkov. Réessayer?",
+                ["tab_server_location_select"] = "Sélect",
                 ["tab_info_title"] = "Information",
                 ["tab_quests_title"] = "Quêtes",
-                ["tab_settings_title"] = "Paramètres"
+                ["tab_settings_title"] = "Paramètres",
+                ["tab_settings_lang"] = "Langue",
+                ["tab_settings_server"] = "Répertoire du serveur SPTarkov",
+                ["tab_settings_account"] = "Compte",
+                ["tab_serversettings_title"] = "Paramètres du serveur"
             };
-            File.WriteAllText(Path.Combine(path, "fr.json"), JsonConvert.SerializeObject(locale));
+            File.WriteAllText(Path.Combine(path, "fr.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }
     }
 
@@ -112,7 +157,7 @@ namespace SP_EFT_ProfileEditor
             catch (Exception ex)
             {
                 Debug.Print($"Error loading PEOptions.json: {ex.GetType().Name}: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
-                return new PEOptions { Language = "en" };
+                return new PEOptions();
             }
 
             return peo;
@@ -126,8 +171,35 @@ namespace SP_EFT_ProfileEditor
 
         public void Save()
         {
-            string json = JsonConvert.SerializeObject(this);
+            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(PeoPath, json);
+        }
+    }
+
+    public class PathBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (value == null) return Visibility.Visible;
+
+            if (string.IsNullOrWhiteSpace(value.ToString())) return Visibility.Visible;
+            if (!Directory.Exists(value.ToString())) return Visibility.Visible;
+            if (!File.Exists(Path.Combine(value.ToString(), "Server.exe"))) return Visibility.Visible;
+            if (!Directory.Exists(Path.Combine(value.ToString(), "db"))) return Visibility.Visible;
+            if (!Directory.Exists(Path.Combine(value.ToString(), @"db\items"))) return Visibility.Visible;
+            if (!Directory.Exists(Path.Combine(value.ToString(), @"db\locales"))) return Visibility.Visible;
+            if (!Directory.Exists(Path.Combine(value.ToString(), @"user\configs"))) return Visibility.Visible;
+            if (!File.Exists(Path.Combine(value.ToString(), @"user\configs\accounts.json"))) return Visibility.Visible;
+            if (!Directory.Exists(Path.Combine(value.ToString(), @"user\profiles"))) return Visibility.Visible;
+
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
         }
     }
     /*

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using MahApps.Metro.Controls;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,16 +15,25 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using Newtonsoft.Json;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace SP_EFT_ProfileEditor
 {
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
-        public static PEOptions Options { get; set; }
+        //public static PEOptions Options { get; set; }
         Lang Lang = new Lang();
+
+        Dictionary<string, string> Langs = new Dictionary<string, string>
+        {
+            ["en"] = "English",
+            ["ru"] = "Русский",
+            ["fr"] = "Français",
+            ["ge"] = "Deutsch "
+        };
 
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialogSPT;
 
@@ -51,52 +61,21 @@ namespace SP_EFT_ProfileEditor
                 catch { }
             //need to find names in db quests folder
             }
-            */        
+            */
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Options = PEOptions.Load();
-            if (string.IsNullOrWhiteSpace(Options.Language))
-                ChooseLanguage();
-            Lang = Lang.Load(Options.Language);
-            DataContext = Lang.locale;
-            if (string.IsNullOrWhiteSpace(Options.EftServerPath) || !Directory.Exists(Options.EftServerPath))
-                if (!ChooseEftServerDir())
-                    System.Windows.Application.Current.Shutdown();
-        }
-
-        private bool ChooseEftServerDir()
-        {
-            folderBrowserDialogSPT = new System.Windows.Forms.FolderBrowserDialog
+            Lang = Lang.Load();
+            if (string.IsNullOrWhiteSpace(Lang.options.Language)
+                || (string.IsNullOrWhiteSpace(Lang.options.EftServerPath) || !Directory.Exists(Lang.options.EftServerPath) || PathIsEftServerBase(Lang.options.EftServerPath))
+                || (string.IsNullOrWhiteSpace(Lang.options.DefaultProfile) || !Directory.Exists(Lang.options.DefaultProfile)))
             {
-                Description = Lang.locale["server_select"],
-                RootFolder = System.Environment.SpecialFolder.MyComputer,
-                ShowNewFolderButton = false
-            };            
-            bool pathOK = false;
-            do
-            {
-                if (!string.IsNullOrWhiteSpace(Options.EftServerPath) && Directory.Exists(Options.EftServerPath))
-                    folderBrowserDialogSPT.SelectedPath = Options.EftServerPath;
-                if (folderBrowserDialogSPT.ShowDialog() != System.Windows.Forms.DialogResult.OK) return false;
-                if (PathIsEftServerBase(folderBrowserDialogSPT.SelectedPath)) pathOK = true;
-            } while (
-                !pathOK &&
-                (System.Windows.Forms.MessageBox.Show(Lang.locale["invalid_server_location_text"], Lang.locale["invalid_server_location_caption"], System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Yes)
-            );
-
-            if (pathOK)
-            {
-                Options.EftServerPath = folderBrowserDialogSPT.SelectedPath;
-                Options.Save();
+                SettingsBorder.Visibility = Visibility.Visible;
+                langSelectBox.ItemsSource = Langs;
+                langSelectBox.SelectedItem = new KeyValuePair<string, string>(Lang.options.Language, Langs[Lang.options.Language]);
             }
-            else
-            {
-                System.Windows.Application.Current.Shutdown();
-            }
-
-            return pathOK;
+            DataContext = Lang;
         }
 
         private bool PathIsEftServerBase(string sptPath)
@@ -114,13 +93,53 @@ namespace SP_EFT_ProfileEditor
             return true;
         }
 
-        private void ChooseLanguage()
+        private void langSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //Options.Language = LanguageSelectWindows.ShowDialog(this, AvailableLanguages, Options.Language);
-            LanguageSelectWindows languageSelect = new LanguageSelectWindows();
-            languageSelect.ShowDialog();
-            Options.Language = languageSelect.SelectedLang;
-            Options.Save();
+            Lang.options.Language = langSelectBox.SelectedValue.ToString();
+            Lang.options.Save();
+            Lang = Lang.Load();
+            DataContext = Lang;
+        }
+
+        private async void serverSelect_Click(object sender, RoutedEventArgs e)
+        {
+            MetroDialogSettings dialogSettings = new MetroDialogSettings
+            {
+                DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"]
+            };
+            folderBrowserDialogSPT = new FolderBrowserDialog
+            {
+                Description = Lang.locale["server_select"],
+                RootFolder = Environment.SpecialFolder.MyComputer,
+                ShowNewFolderButton = false
+            };
+            bool pathOK = false;
+            do
+            {
+                if (!string.IsNullOrWhiteSpace(Lang.options.EftServerPath) && Directory.Exists(Lang.options.EftServerPath))
+                    folderBrowserDialogSPT.SelectedPath = Lang.options.EftServerPath;
+                if (folderBrowserDialogSPT.ShowDialog() != System.Windows.Forms.DialogResult.OK) pathOK = false;
+                if (PathIsEftServerBase(folderBrowserDialogSPT.SelectedPath)) pathOK = true;
+            } while (
+                !pathOK &&
+                (await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["invalid_server_location_text"], MessageDialogStyle.AffirmativeAndNegative, dialogSettings) == MessageDialogResult.Affirmative)
+            );
+
+            if (pathOK)
+            {
+                Lang.options.EftServerPath = folderBrowserDialogSPT.SelectedPath;
+                Lang.options.Save();
+                Lang = Lang.Load();
+                DataContext = Lang;
+            }
+        }
+
+        private void profileSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Lang.options.DefaultProfile = profileSelectBox.SelectedValue.ToString();
+            Lang.options.Save();
+            Lang = Lang.Load();
+            DataContext = Lang;
         }
     }
 }
