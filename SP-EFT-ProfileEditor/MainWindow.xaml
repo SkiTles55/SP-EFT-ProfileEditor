@@ -10,9 +10,10 @@
         GlowBrush="{DynamicResource MahApps.Brushes.Accent}"
         BorderThickness="2"
         SaveWindowPosition="True"
-        Title="SP EFT Profile Editor by SkiTles" Height="450" Width="800" Loaded="Window_Loaded">
+        Title="SP EFT Profile Editor by SkiTles" MinHeight="600" MinWidth="800" Loaded="Window_Loaded">
     <Window.Resources>
         <local:PathBoolConverter x:Key="PathBoolConverter" />
+        <local:ProfileBoolConverter x:Key="ProfileBoolConverter" />
     </Window.Resources>
     <Grid>
         <TabControl x:Name="tabControl" Margin="10,5,10,10">
@@ -53,23 +54,29 @@
             </TabItem>
         </TabControl>
         <Border x:Name="SettingsBorder" Background="{DynamicResource MahApps.Brushes.Accent4}" BorderThickness="1">
-            <Border Margin="200,80" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" Background="{DynamicResource MahApps.Brushes.Window.Background}">
+            <Border BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" Background="{DynamicResource MahApps.Brushes.Window.Background}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
+                        <ColumnDefinition Width="140" />
                         <ColumnDefinition Width="40"/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="220"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Grid.Row="0" Content="{Binding locale[tab_settings_title]}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold"/>
+                    <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_title]}"/>
+                        </Label.Content>
+                    </Label>
                     <Label Grid.Column="0" Grid.Row="1" Content="{Binding locale[tab_settings_lang]}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
                     <ComboBox x:Name="langSelectBox" Grid.Column="2" Grid.Row="1" Margin="10,5,10,0" VerticalAlignment="Center" SelectedValuePath="Key" DisplayMemberPath="Value" SelectionChanged="langSelectBox_SelectionChanged" />
                     <Label Grid.Column="0" Grid.Row="2" Content="{Binding locale[tab_settings_server]}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                    <Label Grid.Column="0" Grid.Row="2" Content="Répertoire du serveur SPTarkov" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
                     <Label  Grid.Column="1" Grid.Row="2" Foreground="Red" Visibility="{ Binding options.EftServerPath, Converter={StaticResource PathBoolConverter}}" ToolTip="{Binding locale[invalid_server_location_text]}" VerticalAlignment="Center" HorizontalAlignment="Center">
                         <iconPacks:PackIconFontAwesome Kind="ExclamationTriangleSolid" Width="24" Height="24"/>
                     </Label>
@@ -78,7 +85,21 @@
                         <Button x:Name="serverSelect" Content="Select" Margin="5,0,0,0" Click="serverSelect_Click"/>
                     </StackPanel>
                     <Label Grid.Column="0" Grid.Row="3" Content="{Binding locale[tab_settings_account]}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                    <Label Grid.Column="1" Grid.Row="3" Foreground="Red" Visibility="{ Binding options.EftServerPath, Converter={StaticResource ProfileBoolConverter}}" ToolTip="{Binding locale[no_accounts]}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <iconPacks:PackIconFontAwesome Kind="ExclamationTriangleSolid" Width="24" Height="24"/>
+                    </Label>
                     <ComboBox x:Name="profileSelectBox" Grid.Column="2" Grid.Row="3" Margin="10,5,10,0" VerticalAlignment="Center" ItemsSource="{Binding Profiles}" SelectedItem="{Binding options.DefaultProfile}" SelectionChanged="profileSelectBox_SelectionChanged"/>
+                    <Label Grid.Column="0" Grid.Row="4" Content="{Binding locale[tab_settings_colorscheme]}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                    <ComboBox x:Name="StyleChoicer" Grid.Column="2" Grid.Row="4" Margin="10,5,10,0" VerticalAlignment="Center" SelectionChanged="StyleChoicer_SelectionChanged" >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Rectangle Width="30" Height="15" Fill="{Binding Path=Color}"/>
+                                    <Label Content="{Binding Path=Name}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </Grid>
             </Border>            
         </Border>

@@ -40,7 +40,7 @@ namespace SP_EFT_ProfileEditor
             Lang lang = new Lang { locale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(path, eOptions.Language + ".json"))), options = eOptions};
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && Directory.Exists(eOptions.EftServerPath))
             {
-                lang.Profiles = Directory.GetDirectories(eOptions.EftServerPath + "\\user\\profiles").Select(x => new DirectoryInfo(x).Name).ToList();
+                lang.Profiles = Directory.GetDirectories(eOptions.EftServerPath + "\\user\\profiles").Where(x => File.Exists(x + "\\character.json")).Select(x => new DirectoryInfo(x).Name).ToList();
                 if (lang.Profiles.Count > 0 && (string.IsNullOrEmpty(eOptions.DefaultProfile) || !lang.Profiles.Contains(eOptions.DefaultProfile)))
                     eOptions.DefaultProfile = lang.Profiles.FirstOrDefault();
             }
@@ -63,6 +63,7 @@ namespace SP_EFT_ProfileEditor
                 ["server_select"] = "Select the SPTarkov Server directory.",
                 ["invalid_server_location_caption"] = "Error",
                 ["invalid_server_location_text"] = "The selected path does not seem to be a SPTarkov server location.",
+                ["no_accounts"] = "Failed to get accounts. No accounts?!",
                 ["tab_server_location_select"] = "Select",
                 ["tab_info_title"] = "Information",
                 ["tab_quests_title"] = "Quests",
@@ -70,6 +71,7 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_lang"] = "Language",
                 ["tab_settings_server"] = "SPTarkov Server directory",
                 ["tab_settings_account"] = "Account",
+                ["tab_settings_colorscheme"] = "Color scheme",
                 ["tab_serversettings_title"] = "Server settings"
             };
             File.WriteAllText(Path.Combine(path, "en.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
@@ -84,6 +86,7 @@ namespace SP_EFT_ProfileEditor
                 ["server_select"] = "Wählen Sie das SPTarkov Server-Verzeichnis aus.",
                 ["invalid_server_location_caption"] = "Error",
                 ["invalid_server_location_text"] = "Der ausgewählte Pfad scheint kein SPTarkov-Serverstandort zu sein.",
+                ["no_accounts"] = "Konten konnten nicht abgerufen werden. Keine Konten?!",
                 ["tab_server_location_select"] = "Wählen",
                 ["tab_info_title"] = "Information",
                 ["tab_quests_title"] = "Quests",
@@ -91,6 +94,7 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_lang"] = "Sprache",
                 ["tab_settings_server"] = "SPTarkov Server verzeichnis",
                 ["tab_settings_account"] = "Konto",
+                ["tab_settings_colorscheme"] = "Farbschema",
                 ["tab_serversettings_title"] = "Server einstellungen"
             };
             File.WriteAllText(Path.Combine(path, "ge.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
@@ -105,6 +109,7 @@ namespace SP_EFT_ProfileEditor
                 ["server_select"] = "Выберите папку с сервером SPTarkov.",
                 ["invalid_server_location_caption"] = "Ошибка",
                 ["invalid_server_location_text"] = "Сервер SPTarkov не найден. Попробовать снова?",
+                ["no_accounts"] = "Не удалось получить аккаунты. Нет аккаунтов?!",
                 ["tab_server_location_select"] = "Выбрать",
                 ["tab_info_title"] = "Информация",
                 ["tab_quests_title"] = "Квесты",
@@ -112,6 +117,7 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_lang"] = "Язык",
                 ["tab_settings_server"] = "Каталог SPTarkov Server",
                 ["tab_settings_account"] = "Аккаунт",
+                ["tab_settings_colorscheme"] = "Цветовая схема",
                 ["tab_serversettings_title"] = "Настройки сервера"
             };
             File.WriteAllText(Path.Combine(path, "ru.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
@@ -126,6 +132,7 @@ namespace SP_EFT_ProfileEditor
                 ["server_select"] = "Sélectionnez le répertoire du serveur SPTarkov.",
                 ["invalid_server_location_caption"] = "Erreur",
                 ["invalid_server_location_text"] = "Le chemin sélectionné ne semble pas être un emplacement de serveur SPTarkov. Réessayer?",
+                ["no_accounts"] = "Échec de l'obtention de comptes. Pas de comptes?!",
                 ["tab_server_location_select"] = "Sélect",
                 ["tab_info_title"] = "Information",
                 ["tab_quests_title"] = "Quêtes",
@@ -133,6 +140,7 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_lang"] = "Langue",
                 ["tab_settings_server"] = "Répertoire du serveur SPTarkov",
                 ["tab_settings_account"] = "Compte",
+                ["tab_settings_colorscheme"] = "Schéma de couleur",
                 ["tab_serversettings_title"] = "Paramètres du serveur"
             };
             File.WriteAllText(Path.Combine(path, "fr.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
@@ -169,6 +177,8 @@ namespace SP_EFT_ProfileEditor
 
         public string DefaultProfile { get; set; }
 
+        public string ColorScheme { get; set; }
+
         public void Save()
         {
             string json = JsonConvert.SerializeObject(this, Formatting.Indented);
@@ -201,6 +211,32 @@ namespace SP_EFT_ProfileEditor
         {
             throw new NotSupportedException();
         }
+    }
+
+    public class ProfileBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (value == null) return Visibility.Visible;
+            if (Directory.GetDirectories(value.ToString() + "\\user\\profiles").Where(x => File.Exists(x + "\\character.json")).Count() < 1) return Visibility.Visible;
+
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    public class AccentItem
+    {
+        public string Name { get; set; }
+        public string Color { get; set; }
+
+        public string Scheme { get; set; }
     }
     /*
     public class AccountInfo

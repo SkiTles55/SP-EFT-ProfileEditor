@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using Newtonsoft.Json;
 using MahApps.Metro.Controls.Dialogs;
+using ControlzEx.Theming;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -74,6 +75,16 @@ namespace SP_EFT_ProfileEditor
                 SettingsBorder.Visibility = Visibility.Visible;
                 langSelectBox.ItemsSource = Langs;
                 langSelectBox.SelectedItem = new KeyValuePair<string, string>(Lang.options.Language, Langs[Lang.options.Language]);
+            }
+            if (!string.IsNullOrEmpty(Lang.options.ColorScheme))
+            {
+                ThemeManager.Current.ChangeTheme(this, Lang.options.ColorScheme);
+            }
+            foreach (var style in ThemeManager.Current.Themes.OrderBy(x => x.DisplayName))
+            {
+                var newItem = new AccentItem { Name = style.DisplayName, Color = style.PrimaryAccentColor.ToString(), Scheme = style.Name };
+                StyleChoicer.Items.Add(newItem);
+                if (ThemeManager.Current.DetectTheme(this).DisplayName == newItem.Name) StyleChoicer.SelectedItem = newItem;
             }
             DataContext = Lang;
         }
@@ -137,6 +148,17 @@ namespace SP_EFT_ProfileEditor
         private void profileSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Lang.options.DefaultProfile = profileSelectBox.SelectedValue.ToString();
+            Lang.options.Save();
+            Lang = Lang.Load();
+            DataContext = Lang;
+        }
+
+        private void StyleChoicer_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedAccent = StyleChoicer.SelectedItem as AccentItem;
+            if (selectedAccent.Name == ThemeManager.Current.DetectTheme(this).DisplayName) return;
+            ThemeManager.Current.ChangeTheme(this, selectedAccent.Scheme);
+            Lang.options.ColorScheme = selectedAccent.Scheme;
             Lang.options.Save();
             Lang = Lang.Load();
             DataContext = Lang;
