@@ -15,10 +15,91 @@
         <local:PathBoolConverter x:Key="PathBoolConverter" />
         <local:ProfileBoolConverter x:Key="ProfileBoolConverter" />
     </Window.Resources>
+    <mah:MetroWindow.RightWindowCommands>
+        <mah:WindowCommands>
+            <Button Content="{Binding locale[button_settings]}" Click="Button_Click">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconFontAwesome Width="22"
+                                        Height="22"
+                                        VerticalAlignment="Center"
+                                        Kind="WrenchSolid" />
+                            <TextBlock Margin="4 0 0 0"
+                         VerticalAlignment="Center"
+                         Text="{Binding}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+        </mah:WindowCommands>
+    </mah:MetroWindow.RightWindowCommands>
     <Grid>
         <TabControl x:Name="tabControl" Margin="10,5,10,10">
             <TabItem Header="{Binding locale[tab_info_title]}" x:Name="tabinfo">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Margin="0,0,10,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="ID"/>
+                        </Label.Content>
+                    </Label>
+                    <TextBox x:Name="infotab_ID" Grid.Column="1" Grid.Row="0" TextWrapping="Wrap" Text="{Binding Character.Aid}" Margin="10,0" VerticalAlignment="Center" IsEnabled="False"/>
+                    <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="Nickname"/>
+                        </Label.Content>
+                    </Label>
+                    <TextBox x:Name="infotab_Nickname" Grid.Column="1" Grid.Row="1" TextWrapping="Wrap" Text="{Binding Character.Info.Nickname, Mode=TwoWay}" Margin="10,0" VerticalAlignment="Center"/>
+                    <Label Grid.Column="0" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="Side"/>
+                        </Label.Content>
+                    </Label>
+                    <ComboBox x:Name="infotab_Side" Grid.Column="1" Grid.Row="2" Margin="10,0" VerticalAlignment="Center"></ComboBox>
+                    <Label Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="Voice"/>
+                        </Label.Content>
+                    </Label>
+                    <ComboBox x:Name="infotab_Voice" Grid.Column="1" Grid.Row="3" Margin="10,0" VerticalAlignment="Center"></ComboBox>
+                    <Label Grid.Column="0" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="Level"/>
+                        </Label.Content>
+                    </Label>
+                    <Label Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock x:Name="infotab_Level" TextWrapping="Wrap" Text=""/>
+                        </Label.Content>
+                    </Label>
+                    <Label Grid.Column="0" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="Experience"/>
+                        </Label.Content>
+                    </Label>
+                    <Slider x:Name="infotab_Experience" Grid.Column="1" Grid.Row="5" Margin="10,0" VerticalAlignment="Center"/>
+                    <Label Grid.Column="0" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="GameVersion"/>
+                        </Label.Content>
+                    </Label>
+                    <TextBox x:Name="infotab_GameVersion" Grid.Column="1" Grid.Row="6" TextWrapping="Wrap" Text="" Margin="10,0" VerticalAlignment="Center" IsEnabled="False"/>
+                    <Button x:Name="test" Grid.Column="1" Grid.Row="7" Content="Save changes" Margin="10" Click="test_Click"/>
+                </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_quests_title]}" x:Name="tabquests">
                 <Grid Background="#FFE5E5E5">
@@ -50,46 +131,62 @@
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_serversettings_title]}" x:Name="tabsettings">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid/>
             </TabItem>
         </TabControl>
-        <Border x:Name="SettingsBorder" Background="{DynamicResource MahApps.Brushes.Accent4}" BorderThickness="1">
+        <Border x:Name="SettingsBorder" Background="{DynamicResource MahApps.Brushes.Accent4}" BorderThickness="1" Visibility="Collapsed">
             <Border BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" Background="{DynamicResource MahApps.Brushes.Window.Background}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="140" />
                         <ColumnDefinition Width="40"/>
-                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="270"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold">
+                    <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_title]}"/>
                         </Label.Content>
                     </Label>
-                    <Label Grid.Column="0" Grid.Row="1" Content="{Binding locale[tab_settings_lang]}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                    <Button x:Name="TabSettingsClose" Grid.Column="2" Grid.Row="0" Content="{Binding locale[button_close]}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Width="80" Click="TabSettingsClose_Click"/>
+                    <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_lang]}"/>
+                        </Label.Content>
+                    </Label>
                     <ComboBox x:Name="langSelectBox" Grid.Column="2" Grid.Row="1" Margin="10,5,10,0" VerticalAlignment="Center" SelectedValuePath="Key" DisplayMemberPath="Value" SelectionChanged="langSelectBox_SelectionChanged" />
-                    <Label Grid.Column="0" Grid.Row="2" Content="{Binding locale[tab_settings_server]}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
-                    <Label Grid.Column="0" Grid.Row="2" Content="Répertoire du serveur SPTarkov" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                    <Label Grid.Column="0" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_server]}"/>
+                        </Label.Content>
+                    </Label>
                     <Label  Grid.Column="1" Grid.Row="2" Foreground="Red" Visibility="{ Binding options.EftServerPath, Converter={StaticResource PathBoolConverter}}" ToolTip="{Binding locale[invalid_server_location_text]}" VerticalAlignment="Center" HorizontalAlignment="Center">
                         <iconPacks:PackIconFontAwesome Kind="ExclamationTriangleSolid" Width="24" Height="24"/>
                     </Label>
                     <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0" >
-                        <TextBox x:Name="serverPath" TextWrapping="Wrap" Text="{Binding options.EftServerPath}" IsEnabled="False"/>
-                        <Button x:Name="serverSelect" Content="Select" Margin="5,0,0,0" Click="serverSelect_Click"/>
+                        <TextBox x:Name="serverPath" TextWrapping="Wrap" Text="{Binding options.EftServerPath}" IsEnabled="False" Width="165"/>
+                        <Button x:Name="serverSelect" Content="{Binding locale[button_select]}" Margin="5,0,0,0" Click="serverSelect_Click" Width="80"/>
                     </StackPanel>
-                    <Label Grid.Column="0" Grid.Row="3" Content="{Binding locale[tab_settings_account]}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                    <Label Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_account]}"/>
+                        </Label.Content>
+                    </Label>
                     <Label Grid.Column="1" Grid.Row="3" Foreground="Red" Visibility="{ Binding options.EftServerPath, Converter={StaticResource ProfileBoolConverter}}" ToolTip="{Binding locale[no_accounts]}" VerticalAlignment="Center" HorizontalAlignment="Center">
                         <iconPacks:PackIconFontAwesome Kind="ExclamationTriangleSolid" Width="24" Height="24"/>
                     </Label>
                     <ComboBox x:Name="profileSelectBox" Grid.Column="2" Grid.Row="3" Margin="10,5,10,0" VerticalAlignment="Center" ItemsSource="{Binding Profiles}" SelectedItem="{Binding options.DefaultProfile}" SelectionChanged="profileSelectBox_SelectionChanged"/>
-                    <Label Grid.Column="0" Grid.Row="4" Content="{Binding locale[tab_settings_colorscheme]}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                    <Label Grid.Column="0" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_colorscheme]}"/>
+                        </Label.Content>
+                    </Label>
                     <ComboBox x:Name="StyleChoicer" Grid.Column="2" Grid.Row="4" Margin="10,5,10,0" VerticalAlignment="Center" SelectionChanged="StyleChoicer_SelectionChanged" >
                         <ComboBox.ItemTemplate>
                             <DataTemplate>

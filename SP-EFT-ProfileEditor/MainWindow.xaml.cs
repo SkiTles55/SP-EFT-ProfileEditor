@@ -17,6 +17,7 @@ using System.Windows.Navigation;
 using Newtonsoft.Json;
 using MahApps.Metro.Controls.Dialogs;
 using ControlzEx.Theming;
+using System.ComponentModel;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -25,8 +26,8 @@ namespace SP_EFT_ProfileEditor
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        //public static PEOptions Options { get; set; }
         Lang Lang = new Lang();
+        private BackgroundWorker LoadDataWorker;
 
         Dictionary<string, string> Langs = new Dictionary<string, string>
         {
@@ -36,7 +37,13 @@ namespace SP_EFT_ProfileEditor
             ["ge"] = "Deutsch "
         };
 
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialogSPT;
+        List<string> Sides = new List<string>
+        {
+            "Bear",
+            "Usec"
+        };
+
+        private FolderBrowserDialog folderBrowserDialogSPT;
 
         //public static Dictionary<string, string> QuestNames { get; private set; } = new Dictionary<string, string>();
         //public static Dictionary<string, string> TraderNames { get; private set; } = new Dictionary<string, string>();
@@ -44,6 +51,10 @@ namespace SP_EFT_ProfileEditor
         public MainWindow()
         {
             InitializeComponent();
+            infotab_Side.ItemsSource = Sides;
+            LoadDataWorker = new BackgroundWorker();
+            LoadDataWorker.DoWork += LoadDataWorker_DoWork;
+            LoadDataWorker.RunWorkerCompleted += LoadDataWorker_RunWorkerCompleted;
             /*
             var Profiles = Directory.GetDirectories(ServerPath + "\\user\\profiles");
             //check for many profiles
@@ -65,17 +76,28 @@ namespace SP_EFT_ProfileEditor
             */
         }
 
+        private void LoadDataWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            //do something
+        }
+
+        private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            //do something
+        }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            bool readyToLoad = false;
             Lang = Lang.Load();
-            if (string.IsNullOrWhiteSpace(Lang.options.Language)
-                || (string.IsNullOrWhiteSpace(Lang.options.EftServerPath) || !Directory.Exists(Lang.options.EftServerPath) || PathIsEftServerBase(Lang.options.EftServerPath))
-                || (string.IsNullOrWhiteSpace(Lang.options.DefaultProfile) || !Directory.Exists(Lang.options.DefaultProfile)))
-            {
+            if (string.IsNullOrWhiteSpace(Lang.options.Language) || string.IsNullOrWhiteSpace(Lang.options.EftServerPath)
+                || !Directory.Exists(Lang.options.EftServerPath) || !PathIsEftServerBase(Lang.options.EftServerPath)
+                || string.IsNullOrWhiteSpace(Lang.options.DefaultProfile) || !Directory.Exists(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile)) || !File.Exists(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile, "character.json")))
                 SettingsBorder.Visibility = Visibility.Visible;
-                langSelectBox.ItemsSource = Langs;
-                langSelectBox.SelectedItem = new KeyValuePair<string, string>(Lang.options.Language, Langs[Lang.options.Language]);
-            }
+            else
+                readyToLoad = true;
+            langSelectBox.ItemsSource = Langs;
+            langSelectBox.SelectedItem = new KeyValuePair<string, string>(Lang.options.Language, Langs[Lang.options.Language]);
             if (!string.IsNullOrEmpty(Lang.options.ColorScheme))
             {
                 ThemeManager.Current.ChangeTheme(this, Lang.options.ColorScheme);
@@ -87,6 +109,8 @@ namespace SP_EFT_ProfileEditor
                 if (ThemeManager.Current.DetectTheme(this).DisplayName == newItem.Name) StyleChoicer.SelectedItem = newItem;
             }
             DataContext = Lang;
+            if (readyToLoad)
+                LoadDataWorker.RunWorkerAsync();
         }
 
         private bool PathIsEftServerBase(string sptPath)
@@ -162,6 +186,21 @@ namespace SP_EFT_ProfileEditor
             Lang.options.Save();
             Lang = Lang.Load();
             DataContext = Lang;
+        }
+
+        private void TabSettingsClose_Click(object sender, RoutedEventArgs e) => SettingsBorder.Visibility = Visibility.Collapsed;
+
+        private void Button_Click(object sender, RoutedEventArgs e) => SettingsBorder.Visibility = Visibility.Visible;
+
+        private void test_Click(object sender, RoutedEventArgs e)
+        {/*
+            JsonSerializerSettings seriSettings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore
+            };
+            string json = JsonConvert.SerializeObject(Lang.Character, seriSettings);
+            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testprofile.json"), json);*/
         }
     }
 }

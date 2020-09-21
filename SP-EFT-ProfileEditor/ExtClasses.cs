@@ -44,6 +44,8 @@ namespace SP_EFT_ProfileEditor
                 if (lang.Profiles.Count > 0 && (string.IsNullOrEmpty(eOptions.DefaultProfile) || !lang.Profiles.Contains(eOptions.DefaultProfile)))
                     eOptions.DefaultProfile = lang.Profiles.FirstOrDefault();
             }
+            if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !string.IsNullOrEmpty(eOptions.DefaultProfile))
+                lang.Character = JsonConvert.DeserializeObject<Character>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile, "character.json")));
             eOptions.Save();
             return lang;
         }
@@ -54,12 +56,17 @@ namespace SP_EFT_ProfileEditor
 
         public List<string> Profiles { get; set; }
 
+        public Character Character { get; set; }
+
         static void CreateEnLoclae()
         {
             Dictionary<string, string> locale = new Dictionary<string, string>
             {
                 ["button_yes"] = "Yes",
                 ["button_no"] = "No",
+                ["button_close"] = "Close",
+                ["button_select"] = "Select",
+                ["button_settings"] = "SETTINGS",
                 ["server_select"] = "Select the SPTarkov Server directory.",
                 ["invalid_server_location_caption"] = "Error",
                 ["invalid_server_location_text"] = "The selected path does not seem to be a SPTarkov server location.",
@@ -83,6 +90,9 @@ namespace SP_EFT_ProfileEditor
             {
                 ["button_yes"] = "Ja",
                 ["button_no"] = "Nein",
+                ["button_close"] = "Schließen",
+                ["button_select"] = "Wählen",
+                ["button_settings"] = "EINSTELLUNGEN",
                 ["server_select"] = "Wählen Sie das SPTarkov Server-Verzeichnis aus.",
                 ["invalid_server_location_caption"] = "Error",
                 ["invalid_server_location_text"] = "Der ausgewählte Pfad scheint kein SPTarkov-Serverstandort zu sein.",
@@ -106,6 +116,9 @@ namespace SP_EFT_ProfileEditor
             {
                 ["button_yes"] = "Да",
                 ["button_no"] = "Нет",
+                ["button_close"] = "Закрыть",
+                ["button_select"] = "Выбрать",
+                ["button_settings"] = "НАСТРОЙКИ",
                 ["server_select"] = "Выберите папку с сервером SPTarkov.",
                 ["invalid_server_location_caption"] = "Ошибка",
                 ["invalid_server_location_text"] = "Сервер SPTarkov не найден. Попробовать снова?",
@@ -129,6 +142,9 @@ namespace SP_EFT_ProfileEditor
             {
                 ["button_yes"] = "Oui",
                 ["button_no"] = "Non",
+                ["button_close"] = "Fermer",
+                ["button_select"] = "Sélectionner",
+                ["button_settings"] = "PARAMÈTRES",
                 ["server_select"] = "Sélectionnez le répertoire du serveur SPTarkov.",
                 ["invalid_server_location_caption"] = "Erreur",
                 ["invalid_server_location_text"] = "Le chemin sélectionné ne semble pas être un emplacement de serveur SPTarkov. Réessayer?",
