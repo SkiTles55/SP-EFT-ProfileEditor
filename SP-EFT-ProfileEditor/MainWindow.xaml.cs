@@ -111,12 +111,13 @@ namespace SP_EFT_ProfileEditor
                 StyleChoicer.Items.Add(newItem);
                 if (ThemeManager.Current.DetectTheme(this).DisplayName == newItem.Name) StyleChoicer.SelectedItem = newItem;
             }
+            /*
             infotab_Voice.ItemsSource = new List<string>
             {
                 Lang.Character.Info.Side + "_1",
                 Lang.Character.Info.Side + "_2",
                 Lang.Character.Info.Side + "_3"
-            };
+            };*/ //need change
             DataContext = Lang;
             if (readyToLoad)
                 LoadDataWorker.RunWorkerAsync();
@@ -213,7 +214,7 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void infotab_Side_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+        {/*
             infotab_Voice.ItemsSource = new List<string>
             {
                 Lang.Character.Info.Side + "_1",
@@ -221,12 +222,23 @@ namespace SP_EFT_ProfileEditor
                 Lang.Character.Info.Side + "_3"
             };
             if (!infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
-                infotab_Voice.SelectedIndex = 0;
+                infotab_Voice.SelectedIndex = 0;*/
         }
 
         private void infotab_Experience_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             //change lvl
+            long exp = 0;
+            for (int i = 0; i < Lang.ExpTable.Count(); i++)
+            {
+                if (Lang.Character.Info.Experience < exp)
+                {
+                    break;
+                }
+
+                Lang.Character.Info.Level = i;
+                exp += Lang.ExpTable[i];
+            }
         }
     }
 }

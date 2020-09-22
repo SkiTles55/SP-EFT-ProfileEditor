@@ -14,6 +14,7 @@
     <Window.Resources>
         <local:PathBoolConverter x:Key="PathBoolConverter" />
         <local:ProfileBoolConverter x:Key="ProfileBoolConverter" />
+        <local:ButtonBoolConverter x:Key="ButtonBoolConverter"/>
     </Window.Resources>
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
@@ -47,6 +48,8 @@
                         <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150"/>
@@ -54,31 +57,31 @@
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="ID"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_id]}"/>
                         </Label.Content>
                     </Label>
                     <TextBox x:Name="infotab_ID" Grid.Column="1" Grid.Row="0" TextWrapping="Wrap" Text="{Binding Character.Aid}" Margin="10,0" VerticalAlignment="Center" IsEnabled="False"/>
                     <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="Nickname"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_nickname]}"/>
                         </Label.Content>
                     </Label>
                     <TextBox x:Name="infotab_Nickname" Grid.Column="1" Grid.Row="1" TextWrapping="Wrap" Text="{Binding Character.Info.Nickname, Mode=TwoWay}" Margin="10,0" VerticalAlignment="Center"/>
                     <Label Grid.Column="0" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="Side"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_side]}"/>
                         </Label.Content>
                     </Label>
                     <ComboBox x:Name="infotab_Side" Grid.Column="1" Grid.Row="2" Margin="10,0" VerticalAlignment="Center" SelectedItem="{Binding Character.Info.Side, Mode=TwoWay}" SelectionChanged="infotab_Side_SelectionChanged"/>
                     <Label Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="Voice"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_voice]}"/>
                         </Label.Content>
                     </Label>
                     <ComboBox x:Name="infotab_Voice" Grid.Column="1" Grid.Row="3" Margin="10,0" VerticalAlignment="Center" SelectedItem="{Binding Character.Info.Voice, Mode=TwoWay}"/>
                     <Label Grid.Column="0" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="Level"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_level]}"/>
                         </Label.Content>
                     </Label>
                     <Label Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
@@ -88,21 +91,43 @@
                     </Label>
                     <Label Grid.Column="0" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="Experience"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_experience]}"/>
                         </Label.Content>
                     </Label>
-                    <Slider x:Name="infotab_Experience" Grid.Column="1" Grid.Row="5" Margin="10,0" VerticalAlignment="Center" Maximum="23199001" TickPlacement="BottomRight" TickFrequency="100000" Value="{Binding Character.Info.Experience}" ValueChanged="infotab_Experience_ValueChanged"/>
+                    <Grid Grid.Column="1" Grid.Row="5" Margin="10,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" >
+                            <Label.Content>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding ElementName=infotab_Experience, Path=Value}"/>
+                            </Label.Content>
+                        </Label>
+                        <Slider x:Name="infotab_Experience" Grid.Column="1" Maximum="23199001" TickPlacement="BottomRight" TickFrequency="100000" Value="{Binding Character.Info.Experience, Mode=TwoWay}" ValueChanged="infotab_Experience_ValueChanged" VerticalAlignment="Center"/>
+                    </Grid>
                     <Label Grid.Column="0" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="GameVersion"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_gameversion]}"/>
                         </Label.Content>
                     </Label>
                     <TextBox x:Name="infotab_GameVersion" Grid.Column="1" Grid.Row="6" TextWrapping="Wrap" Text="{Binding Character.Info.GameVersion}" Margin="10,0" VerticalAlignment="Center" IsEnabled="False"/>
-                    <Button x:Name="test" Grid.Column="1" Grid.Row="7" Content="Save changes" Margin="10" Click="test_Click"/>
+                    <Label Grid.Column="0" Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="Большие карманы"/>
+                        </Label.Content>
+                    </Label>
+                    <mah:ToggleSwitch x:Name="BigPocketsSwitcher" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" Margin="10,0" OnContent="" OffContent="" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                    <Label Grid.Column="0" Grid.Row="8" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="Убежище"/>
+                        </Label.Content>
+                    </Label>
+                    <Button x:Name="test" Grid.Column="1" Grid.Row="9" Content="Save changes" Margin="10" Click="test_Click"/>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_quests_title]}" x:Name="tabquests">
-                <Grid Background="#FFE5E5E5">
+                <Grid>
                     <DataGrid x:Name="questsGrid" AutoGenerateColumns="False">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Торговец" Width="*">
@@ -154,7 +179,7 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_title]}"/>
                         </Label.Content>
                     </Label>
-                    <Button x:Name="TabSettingsClose" Grid.Column="2" Grid.Row="0" Content="{Binding locale[button_close]}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Width="80" Click="TabSettingsClose_Click"/>
+                    <Button x:Name="TabSettingsClose" Grid.Column="2" Grid.Row="0" Content="{Binding locale[button_close]}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Width="80" Click="TabSettingsClose_Click" IsEnabled="{Binding options.EftServerPath, Converter={StaticResource ButtonBoolConverter}}"/>
                     <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_lang]}"/>

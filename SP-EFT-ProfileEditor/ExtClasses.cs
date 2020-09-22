@@ -34,10 +34,12 @@ namespace SP_EFT_ProfileEditor
                 CreateFrLocale();
             if (!File.Exists(Path.Combine(path, "ge.json")))
                 CreateGeLocale();
+            if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "exptable.json")))
+                CreateExpTable();
             PEOptions eOptions = PEOptions.Load();
             if (string.IsNullOrEmpty(eOptions.Language))
                 eOptions.Language = "en";
-            Lang lang = new Lang { locale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(path, eOptions.Language + ".json"))), options = eOptions};
+            Lang lang = new Lang { locale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(path, eOptions.Language + ".json"))), options = eOptions, ExpTable = JsonConvert.DeserializeObject<List<long>>(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "exptable.json"))) };
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && Directory.Exists(eOptions.EftServerPath))
             {
                 lang.Profiles = Directory.GetDirectories(eOptions.EftServerPath + "\\user\\profiles").Where(x => File.Exists(x + "\\character.json")).Select(x => new DirectoryInfo(x).Name).ToList();
@@ -58,6 +60,23 @@ namespace SP_EFT_ProfileEditor
 
         public Character Character { get; set; }
 
+        public List<long> ExpTable { get; set; }
+
+        static void CreateExpTable()
+        {
+            List<long> table = new List<long>
+            {
+                0,
+                1000,
+                2743,3999,5256,6494,7658,8851,10025,11098,12226,13336,16814,19924,23053,26283,29219,32045,34466,37044
+                ,39162,41492,44002,46900,51490,56080,60670,65260,69850,74440,79030,83620,90964,98308,105652,112996,120340
+                ,127684,135028,142372,149716,157060,167158,177256,187354,197452,207550,217648,227746,237844,247942,258040
+                ,271810,285580,299350,313120,323450,362111,369536,386978,407174,430124,457664,494384,549464,622904,760604
+                ,1036004,1449104,10000000
+            };
+            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "exptable.json"), JsonConvert.SerializeObject(table, Formatting.Indented));
+        }
+
         static void CreateEnLoclae()
         {
             Dictionary<string, string> locale = new Dictionary<string, string>
@@ -73,6 +92,13 @@ namespace SP_EFT_ProfileEditor
                 ["no_accounts"] = "Failed to get accounts. No accounts?!",
                 ["tab_server_location_select"] = "Select",
                 ["tab_info_title"] = "Information",
+                ["tab_info_id"] = "ID",
+                ["tab_info_nickname"] = "Nickname",
+                ["tab_info_side"] = "Side",
+                ["tab_info_voice"] = "Voice",
+                ["tab_info_level"] = "Level",
+                ["tab_info_experience"] = "Experience",
+                ["tab_info_gameversion"] = "Game Version",
                 ["tab_quests_title"] = "Quests",
                 ["tab_settings_title"] = "Settings",
                 ["tab_settings_lang"] = "Language",
@@ -99,6 +125,13 @@ namespace SP_EFT_ProfileEditor
                 ["no_accounts"] = "Konten konnten nicht abgerufen werden. Keine Konten?!",
                 ["tab_server_location_select"] = "Wählen",
                 ["tab_info_title"] = "Information",
+                ["tab_info_id"] = "ID",
+                ["tab_info_nickname"] = "Spitzname",
+                ["tab_info_side"] = "Seite",
+                ["tab_info_voice"] = "Abstimmung",
+                ["tab_info_level"] = "Niveau",
+                ["tab_info_experience"] = "Erfahrung",
+                ["tab_info_gameversion"] = "Spielversion",
                 ["tab_quests_title"] = "Quests",
                 ["tab_settings_title"] = "Einstellungen",
                 ["tab_settings_lang"] = "Sprache",
@@ -125,6 +158,13 @@ namespace SP_EFT_ProfileEditor
                 ["no_accounts"] = "Не удалось получить аккаунты. Нет аккаунтов?!",
                 ["tab_server_location_select"] = "Выбрать",
                 ["tab_info_title"] = "Информация",
+                ["tab_info_id"] = "ID",
+                ["tab_info_nickname"] = "Никнейм",
+                ["tab_info_side"] = "Сторона",
+                ["tab_info_voice"] = "Голос",
+                ["tab_info_level"] = "Уровень",
+                ["tab_info_experience"] = "Опыт",
+                ["tab_info_gameversion"] = "Версия игры",
                 ["tab_quests_title"] = "Квесты",
                 ["tab_settings_title"] = "Настройки",
                 ["tab_settings_lang"] = "Язык",
@@ -151,6 +191,13 @@ namespace SP_EFT_ProfileEditor
                 ["no_accounts"] = "Échec de l'obtention de comptes. Pas de comptes?!",
                 ["tab_server_location_select"] = "Sélect",
                 ["tab_info_title"] = "Information",
+                ["tab_info_id"] = "ID",
+                ["tab_info_nickname"] = "Surnom",
+                ["tab_info_side"] = "Côté",
+                ["tab_info_voice"] = "Voter",
+                ["tab_info_level"] = "Niveau",
+                ["tab_info_experience"] = "Expérience",
+                ["tab_info_gameversion"] = "Version du jeu",
                 ["tab_quests_title"] = "Quêtes",
                 ["tab_settings_title"] = "Paramètres",
                 ["tab_settings_lang"] = "Langue",
@@ -220,6 +267,33 @@ namespace SP_EFT_ProfileEditor
             if (!Directory.Exists(Path.Combine(value.ToString(), @"user\profiles"))) return Visibility.Visible;
 
             return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    public class ButtonBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (value == null) return false;
+            if (string.IsNullOrWhiteSpace(value.ToString())) return false;
+            if (!Directory.Exists(value.ToString())) return false;
+            if (!File.Exists(Path.Combine(value.ToString(), "Server.exe"))) return false;
+            if (!Directory.Exists(Path.Combine(value.ToString(), "db"))) return false;
+            if (!Directory.Exists(Path.Combine(value.ToString(), @"db\items"))) return false;
+            if (!Directory.Exists(Path.Combine(value.ToString(), @"db\locales"))) return false;
+            if (!Directory.Exists(Path.Combine(value.ToString(), @"user\configs"))) return false;
+            if (!File.Exists(Path.Combine(value.ToString(), @"user\configs\accounts.json"))) return false;
+            if (!Directory.Exists(Path.Combine(value.ToString(), @"user\profiles"))) return false;
+            if (Directory.GetDirectories(value.ToString() + "\\user\\profiles").Where(x => File.Exists(x + "\\character.json")).Count() < 1) return false;
+
+            return true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter,
