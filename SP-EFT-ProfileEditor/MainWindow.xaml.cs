@@ -47,6 +47,9 @@ namespace SP_EFT_ProfileEditor
 
         //public static Dictionary<string, string> QuestNames { get; private set; } = new Dictionary<string, string>();
         //public static Dictionary<string, string> TraderNames { get; private set; } = new Dictionary<string, string>();
+        
+        //https://dev.offline-tarkov.com/sp-tarkov/server/src/branch/development/project/core/util/utility.js - generate id's
+        //https://dev.offline-tarkov.com/sp-tarkov/server/src/branch/development/project/src/classes/profile.js - level calculate
 
         public MainWindow()
         {
