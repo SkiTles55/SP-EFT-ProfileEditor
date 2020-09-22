@@ -271,7 +271,7 @@ namespace SP_EFT_ProfileEditor
                     public string R { get; set; } // "Horizontal", "Vertical" or missing
 
                     [JsonProperty("isSearched")]
-                    public bool IsSearched { get; set; }
+                    public bool? IsSearched { get; set; }
                 }
 
                 public class Character_Inventory_Item_Upd
