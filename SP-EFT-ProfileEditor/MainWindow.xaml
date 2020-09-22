@@ -91,7 +91,7 @@
                             <TextBlock TextWrapping="Wrap" Text="Experience"/>
                         </Label.Content>
                     </Label>
-                    <Slider x:Name="infotab_Experience" Grid.Column="1" Grid.Row="5" Margin="10,0" VerticalAlignment="Center"/>
+                    <Slider x:Name="infotab_Experience" Grid.Column="1" Grid.Row="5" Margin="10,0" VerticalAlignment="Center" Maximum="23199001" TickPlacement="BottomRight" TickFrequency="100000" Value="{Binding Character.Info.Experience}" ValueChanged="infotab_Experience_ValueChanged"/>
                     <Label Grid.Column="0" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
                             <TextBlock TextWrapping="Wrap" Text="GameVersion"/>

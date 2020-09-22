@@ -220,5 +220,10 @@ namespace SP_EFT_ProfileEditor
             if (!infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
                 infotab_Voice.SelectedIndex = 0;
         }
+
+        private void infotab_Experience_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            //change lvl
+        }
     }
 }
