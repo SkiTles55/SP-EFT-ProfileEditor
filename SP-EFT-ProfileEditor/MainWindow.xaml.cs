@@ -62,25 +62,6 @@ namespace SP_EFT_ProfileEditor
             LoadDataWorker = new BackgroundWorker();
             LoadDataWorker.DoWork += LoadDataWorker_DoWork;
             LoadDataWorker.RunWorkerCompleted += LoadDataWorker_RunWorkerCompleted;
-            /*
-            var Profiles = Directory.GetDirectories(ServerPath + "\\user\\profiles");
-            //check for many profiles
-            AccountInfo Profile = JsonConvert.DeserializeObject<AccountInfo>(File.ReadAllText(Profiles.FirstOrDefault() + "\\character.json"));
-            QuestNames = new Dictionary<string, string>();
-            foreach (var qn in Directory.GetFiles(ServerPath + "\\db\\locales\\ru\\quest"))
-                QuestNames.Add(Path.GetFileNameWithoutExtension(qn), JsonConvert.DeserializeObject<QuestLocale>(File.ReadAllText(qn)).name);
-            TraderNames = new Dictionary<string, string>();
-            foreach (var tn in  Directory.GetDirectories(ServerPath + "\\db\\assort"))
-                TraderNames.Add(Path.GetFileName(tn), JsonConvert.DeserializeObject<TraderLocale>(File.ReadAllText(tn + "\\base.json")).nickname);
-            foreach (var q in Profile.Quests)
-            {
-                try {
-                    questsGrid.Items.Add(new QuestInfo { status = q.status, trader = TraderNames[q.qid], name = QuestNames[q.qid] });
-                }
-                catch { }
-            //need to find names in db quests folder
-            }
-            */
         }
 
         private void LoadDataWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -102,6 +83,22 @@ namespace SP_EFT_ProfileEditor
                     }
                 }
             }
+            /*
+            QuestNames = new Dictionary<string, string>();
+            foreach (var qn in Directory.GetFiles(ServerPath + "\\db\\locales\\ru\\quest"))
+                QuestNames.Add(Path.GetFileNameWithoutExtension(qn), JsonConvert.DeserializeObject<QuestLocale>(File.ReadAllText(qn)).name);
+            TraderNames = new Dictionary<string, string>();
+            foreach (var tn in  Directory.GetDirectories(ServerPath + "\\db\\assort"))
+                TraderNames.Add(Path.GetFileName(tn), JsonConvert.DeserializeObject<TraderLocale>(File.ReadAllText(tn + "\\base.json")).nickname);
+            foreach (var q in Profile.Quests)
+            {
+                try {
+                    questsGrid.Items.Add(new QuestInfo { status = q.status, trader = TraderNames[q.qid], name = QuestNames[q.qid] });
+                }
+                catch { }
+            //need to find names in db quests folder
+            }
+            */
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
