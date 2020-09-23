@@ -18,6 +18,8 @@ using Newtonsoft.Json;
 using MahApps.Metro.Controls.Dialogs;
 using ControlzEx.Theming;
 using System.ComponentModel;
+using System.Windows.Controls.Primitives;
+using System.Diagnostics;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -28,6 +30,8 @@ namespace SP_EFT_ProfileEditor
     {
         Lang Lang = new Lang();
         private BackgroundWorker LoadDataWorker;
+
+        private List<Quest> Quests;
 
         Dictionary<string, string> Langs = new Dictionary<string, string>
         {
@@ -81,12 +85,23 @@ namespace SP_EFT_ProfileEditor
 
         private void LoadDataWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            //do something
+            if (Quests != null)
+                questsGrid.ItemsSource = Quests;
         }
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            //do something
+            Quests = new List<Quest>();
+            foreach (var TraderPath in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "db", "assort")))
+            {
+                if (Directory.Exists(Path.Combine(TraderPath, "quests")))
+                {
+                    foreach (var QuestInfo in Directory.GetFiles(Path.Combine(TraderPath, "quests")))
+                    {
+                        Quests.Add(new Quest { name = "just test", qid = Path.GetFileNameWithoutExtension(QuestInfo), trader = "just test" });
+                    }
+                }
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -111,13 +126,6 @@ namespace SP_EFT_ProfileEditor
                 StyleChoicer.Items.Add(newItem);
                 if (ThemeManager.Current.DetectTheme(this).DisplayName == newItem.Name) StyleChoicer.SelectedItem = newItem;
             }
-            /*
-            infotab_Voice.ItemsSource = new List<string>
-            {
-                Lang.Character.Info.Side + "_1",
-                Lang.Character.Info.Side + "_2",
-                Lang.Character.Info.Side + "_3"
-            };*/ //need change
             DataContext = Lang;
             if (readyToLoad)
                 LoadDataWorker.RunWorkerAsync();
@@ -141,7 +149,7 @@ namespace SP_EFT_ProfileEditor
         private void langSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Lang.options.Language = langSelectBox.SelectedValue.ToString();
-            Lang.options.Save();
+            Lang.SaveOptions();
             Lang = Lang.Load();
             DataContext = Lang;
         }
@@ -173,7 +181,7 @@ namespace SP_EFT_ProfileEditor
             if (pathOK)
             {
                 Lang.options.EftServerPath = folderBrowserDialogSPT.SelectedPath;
-                Lang.options.Save();
+                Lang.SaveOptions();
                 Lang = Lang.Load();
                 DataContext = Lang;
             }
@@ -182,7 +190,7 @@ namespace SP_EFT_ProfileEditor
         private void profileSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Lang.options.DefaultProfile = profileSelectBox.SelectedValue.ToString();
-            Lang.options.Save();
+            Lang.SaveOptions();
             Lang = Lang.Load();
             DataContext = Lang;
         }
@@ -193,7 +201,7 @@ namespace SP_EFT_ProfileEditor
             if (selectedAccent.Name == ThemeManager.Current.DetectTheme(this).DisplayName) return;
             ThemeManager.Current.ChangeTheme(this, selectedAccent.Scheme);
             Lang.options.ColorScheme = selectedAccent.Scheme;
-            Lang.options.Save();
+            Lang.SaveOptions();
             Lang = Lang.Load();
             DataContext = Lang;
         }
@@ -203,42 +211,28 @@ namespace SP_EFT_ProfileEditor
         private void Button_Click(object sender, RoutedEventArgs e) => SettingsBorder.Visibility = Visibility.Visible;
 
         private void test_Click(object sender, RoutedEventArgs e)
-        {/*
+        {
             JsonSerializerSettings seriSettings = new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,
                 NullValueHandling = NullValueHandling.Ignore
             };
+            Lang.Character.Info.LowerNickname = Lang.Character.Info.Nickname.ToLower();
             string json = JsonConvert.SerializeObject(Lang.Character, seriSettings);
-            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testprofile.json"), json);*/
+            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testprofile.json"), json);
+            System.Windows.Forms.MessageBox.Show("profile saved!");
         }
 
         private void infotab_Side_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {/*
-            infotab_Voice.ItemsSource = new List<string>
-            {
-                Lang.Character.Info.Side + "_1",
-                Lang.Character.Info.Side + "_2",
-                Lang.Character.Info.Side + "_3"
-            };
+        {
             if (!infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
-                infotab_Voice.SelectedIndex = 0;*/
+                infotab_Voice.SelectedIndex = 0;
         }
 
-        private void infotab_Experience_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void infotab_Level_TextChanged(object sender, TextChangedEventArgs e)
         {
-            //change lvl
-            long exp = 0;
-            for (int i = 0; i < Lang.ExpTable.Count(); i++)
-            {
-                if (Lang.Character.Info.Experience < exp)
-                {
-                    break;
-                }
-
-                Lang.Character.Info.Level = i;
-                exp += Lang.ExpTable[i];
-            }
+            var textBox = sender as System.Windows.Controls.TextBox;
+            Lang.Character.Info.Level = Convert.ToInt32(textBox.Text);
         }
     }
 }

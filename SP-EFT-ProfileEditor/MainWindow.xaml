@@ -15,6 +15,8 @@
         <local:PathBoolConverter x:Key="PathBoolConverter" />
         <local:ProfileBoolConverter x:Key="ProfileBoolConverter" />
         <local:ButtonBoolConverter x:Key="ButtonBoolConverter"/>
+        <local:ProfileSideConverter x:Key="ProfileSideConverter"/>
+        <local:ProfileLevelConverter x:Key="ProfileLevelConverter"/>
     </Window.Resources>
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
@@ -78,17 +80,13 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_voice]}"/>
                         </Label.Content>
                     </Label>
-                    <ComboBox x:Name="infotab_Voice" Grid.Column="1" Grid.Row="3" Margin="10,0" VerticalAlignment="Center" SelectedItem="{Binding Character.Info.Voice, Mode=TwoWay}"/>
+                    <ComboBox x:Name="infotab_Voice" Grid.Column="1" Grid.Row="3" Margin="10,0" VerticalAlignment="Center" ItemsSource="{ Binding Character.Info.Side, Converter={StaticResource ProfileSideConverter}}" SelectedItem="{Binding Character.Info.Voice, Mode=TwoWay}"/>
                     <Label Grid.Column="0" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_level]}"/>
                         </Label.Content>
                     </Label>
-                    <Label Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
-                        <Label.Content>
-                            <TextBlock x:Name="infotab_Level" TextWrapping="Wrap" Text="{Binding Character.Info.Level}"/>
-                        </Label.Content>
-                    </Label>
+                    <TextBox x:Name="infotab_Level" Grid.Column="1" Grid.Row="4" TextWrapping="Wrap" Text="{ Binding Character.Info.Experience, Converter={StaticResource ProfileLevelConverter}}" Margin="10,0" VerticalAlignment="Center" IsEnabled="False" TextChanged="infotab_Level_TextChanged"/>
                     <Label Grid.Column="0" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_experience]}"/>
@@ -104,7 +102,7 @@
                                 <TextBlock TextWrapping="Wrap" Text="{Binding ElementName=infotab_Experience, Path=Value}"/>
                             </Label.Content>
                         </Label>
-                        <Slider x:Name="infotab_Experience" Grid.Column="1" Maximum="23199001" TickPlacement="BottomRight" TickFrequency="100000" Value="{Binding Character.Info.Experience, Mode=TwoWay}" ValueChanged="infotab_Experience_ValueChanged" VerticalAlignment="Center"/>
+                        <Slider x:Name="infotab_Experience" Grid.Column="1" Maximum="14199002" TickPlacement="BottomRight" TickFrequency="100000" Value="{Binding Character.Info.Experience, Mode=TwoWay}" VerticalAlignment="Center"/>
                     </Grid>
                     <Label Grid.Column="0" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
@@ -147,7 +145,7 @@
                             <DataGridTemplateColumn Header="{Binding locale[tab_quests_status]}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Label Content="{Binding Path=status}"/>
+                                        <Label Content="{Binding Path=qid}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

@@ -11,35 +11,24 @@ namespace SP_EFT_ProfileEditor
 {
     public class Lang
     {
-        public static string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "languages");
+        private static string LangPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "languages");
+        private static string PeoPath { get; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PEOptions.json");
         public static Lang Load()
         {
-            if (!Directory.Exists(path))
-            {
-                try
-                {
-                    Directory.CreateDirectory(path);
-                }
-                catch (Exception ex)
-                {
-                    Debug.Print($"Error loading languages: {ex.GetType().Name}: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
-                    System.Windows.Application.Current.Shutdown();
-                }
-            }
-            if (!File.Exists(Path.Combine(path, "en.json")))
+            if (!Directory.Exists(LangPath))
+                Directory.CreateDirectory(LangPath);
+            if (!File.Exists(Path.Combine(LangPath, "en.json")))
                 CreateEnLoclae();
-            if (!File.Exists(Path.Combine(path, "ru.json")))
+            if (!File.Exists(Path.Combine(LangPath, "ru.json")))
                 CreateRuLocale();
-            if (!File.Exists(Path.Combine(path, "fr.json")))
+            if (!File.Exists(Path.Combine(LangPath, "fr.json")))
                 CreateFrLocale();
-            if (!File.Exists(Path.Combine(path, "ge.json")))
+            if (!File.Exists(Path.Combine(LangPath, "ge.json")))
                 CreateGeLocale();
-            if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "exptable.json")))
-                CreateExpTable();
-            PEOptions eOptions = PEOptions.Load();
+            PEOptions eOptions = CreateOptions();
             if (string.IsNullOrEmpty(eOptions.Language))
                 eOptions.Language = "en";
-            Lang lang = new Lang { locale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(path, eOptions.Language + ".json"))), options = eOptions, ExpTable = JsonConvert.DeserializeObject<List<long>>(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "exptable.json"))) };
+            Lang lang = new Lang { locale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(LangPath, eOptions.Language + ".json"))), options = eOptions };
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && Directory.Exists(eOptions.EftServerPath))
             {
                 lang.Profiles = Directory.GetDirectories(eOptions.EftServerPath + "\\user\\profiles").Where(x => File.Exists(x + "\\character.json")).Select(x => new DirectoryInfo(x).Name).ToList();
@@ -48,8 +37,35 @@ namespace SP_EFT_ProfileEditor
             }
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !string.IsNullOrEmpty(eOptions.DefaultProfile))
                 lang.Character = JsonConvert.DeserializeObject<Character>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile, "character.json")));
-            eOptions.Save();
             return lang;
+        }
+
+        private static PEOptions CreateOptions()
+        {
+            if (!File.Exists(PeoPath))
+                return new PEOptions();
+
+            string json = File.ReadAllText(PeoPath);
+            PEOptions peo = null;
+
+            try
+            {
+                peo = JsonConvert.DeserializeObject<PEOptions>(json);
+            }
+            catch (Exception ex)
+            {
+                Debug.Print($"Error loading PEOptions.json: {ex.GetType().Name}: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
+                return new PEOptions();
+            }
+
+            return peo;
+        }
+
+        public void SaveOptions()
+        {
+            string json = JsonConvert.SerializeObject(options, Formatting.Indented);
+            File.WriteAllText(PeoPath, json);
+            Debug.Print($"Options writed to file!");
         }
 
         public Dictionary<string, string> locale { get; set; }
@@ -59,23 +75,6 @@ namespace SP_EFT_ProfileEditor
         public List<string> Profiles { get; set; }
 
         public Character Character { get; set; }
-
-        public List<long> ExpTable { get; set; }
-
-        static void CreateExpTable()
-        {
-            List<long> table = new List<long>
-            {
-                0,
-                1000,
-                2743,3999,5256,6494,7658,8851,10025,11098,12226,13336,16814,19924,23053,26283,29219,32045,34466,37044
-                ,39162,41492,44002,46900,51490,56080,60670,65260,69850,74440,79030,83620,90964,98308,105652,112996,120340
-                ,127684,135028,142372,149716,157060,167158,177256,187354,197452,207550,217648,227746,237844,247942,258040
-                ,271810,285580,299350,313120,323450,362111,369536,386978,407174,430124,457664,494384,549464,622904,760604
-                ,1036004,1449104,10000000
-            };
-            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "exptable.json"), JsonConvert.SerializeObject(table, Formatting.Indented));
-        }
 
         static void CreateEnLoclae()
         {
@@ -110,7 +109,7 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_colorscheme"] = "Color scheme",
                 ["tab_serversettings_title"] = "Server settings"
             };
-            File.WriteAllText(Path.Combine(path, "en.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
+            File.WriteAllText(Path.Combine(LangPath, "en.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }
 
         static void CreateGeLocale()
@@ -146,7 +145,7 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_colorscheme"] = "Farbschema",
                 ["tab_serversettings_title"] = "Server einstellungen"
             };
-            File.WriteAllText(Path.Combine(path, "ge.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
+            File.WriteAllText(Path.Combine(LangPath, "ge.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }
 
         static void CreateRuLocale()
@@ -182,7 +181,7 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_colorscheme"] = "Цветовая схема",
                 ["tab_serversettings_title"] = "Настройки сервера"
             };
-            File.WriteAllText(Path.Combine(path, "ru.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
+            File.WriteAllText(Path.Combine(LangPath, "ru.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }
 
         static void CreateFrLocale()
@@ -218,34 +217,12 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_colorscheme"] = "Schéma de couleur",
                 ["tab_serversettings_title"] = "Paramètres du serveur"
             };
-            File.WriteAllText(Path.Combine(path, "fr.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
+            File.WriteAllText(Path.Combine(LangPath, "fr.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }
     }
 
     public class PEOptions
     {
-        public static string PeoPath { get; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PEOptions.json");
-        public static PEOptions Load()
-        {
-            if (!File.Exists(PeoPath))
-                return new PEOptions();
-
-            string json = File.ReadAllText(PeoPath);
-            PEOptions peo = null;
-
-            try
-            {
-                peo = JsonConvert.DeserializeObject<PEOptions>(json);
-            }
-            catch (Exception ex)
-            {
-                Debug.Print($"Error loading PEOptions.json: {ex.GetType().Name}: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
-                return new PEOptions();
-            }
-
-            return peo;
-        }
-
         public string EftServerPath { get; set; }
 
         public string Language { get; set; }
@@ -253,12 +230,6 @@ namespace SP_EFT_ProfileEditor
         public string DefaultProfile { get; set; }
 
         public string ColorScheme { get; set; }
-
-        public void Save()
-        {
-            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
-            File.WriteAllText(PeoPath, json);
-        }
     }
 
     public class PathBoolConverter : IValueConverter
@@ -333,12 +304,78 @@ namespace SP_EFT_ProfileEditor
         }
     }
 
+    public class ProfileSideConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (value == null) return null;
+            return new List<string>
+            {
+                value.ToString() + "_1",
+                value.ToString() + "_2"
+            };
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    public class ProfileLevelConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (value == null) return null;
+            long exp = 0;
+            int level = 0;
+            for (int i = 0; i < ExpTable.Count(); i++)
+            {
+                if ((long)value < exp)
+                {
+                    break;
+                }
+
+                //Lang.Character.Info.Level = i;
+                exp += ExpTable[i];
+                level = i;
+            }
+            return level;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+
+        private List<long> ExpTable { get => new List<long>
+        {
+            0,
+                1000,
+                2743,3999,5256,6494,7658,8851,10025,11098,12226,13336,16814,19924,23053,26283,29219,32045,34466,37044
+                ,39162,41492,44002,46900,51490,56080,60670,65260,69850,74440,79030,83620,90964,98308,105652,112996,120340
+                ,127684,135028,142372,149716,157060,167158,177256,187354,197452,207550,217648,227746,237844,247942,258040
+                ,271810,285580,299350,313120,323450,362111,369536,386978,407174,430124,457664,494384,549464,622904,760604
+                ,1036004,1449104,10000000
+        };}
+    }
+
     public class AccentItem
     {
         public string Name { get; set; }
         public string Color { get; set; }
-
         public string Scheme { get; set; }
+    }
+
+    public class Quest
+    {
+        public string qid { get; set; }
+        public string trader { get; set; }
+        public string name { get; set; }
     }
     /*
     public class AccountInfo

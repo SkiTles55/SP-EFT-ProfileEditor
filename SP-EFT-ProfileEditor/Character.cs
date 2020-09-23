@@ -271,7 +271,7 @@ namespace SP_EFT_ProfileEditor
                     public string R { get; set; } // "Horizontal", "Vertical" or missing
 
                     [JsonProperty("isSearched")]
-                    public bool? IsSearched { get; set; }
+                    public bool? IsSearched { get; set; } //test
                 }
 
                 public class Character_Inventory_Item_Upd
@@ -306,6 +306,12 @@ namespace SP_EFT_ProfileEditor
 
                     [JsonProperty("FoodDrink")]
                     public Character_Inventory_Item_Upd_FoodDrink FoodDrink { get; set; }
+
+                    [JsonProperty("Lockable")]
+                    public Character_Inventory_Item_Upd_Lockable Lockable { get; set; } //test
+
+                    [JsonProperty("Map")]
+                    public Character_Inventory_Item_Upd_Map Map { get; set; } //test
 
                     [JsonProperty("Repairable")]
                     public Character_Inventory_Item_Upd_Repairable Repairable { get; set; }
@@ -358,6 +364,18 @@ namespace SP_EFT_ProfileEditor
                         public int HpPercent { get; set; } // 1..63
                     }
 
+                    public class Character_Inventory_Item_Upd_Lockable
+                    {
+                        [JsonProperty("Locked")]
+                        public bool Locked { get; set; } // true, false //test
+                    }
+
+                    public class Character_Inventory_Item_Upd_Map
+                    {
+                        [JsonProperty("Markers", DefaultValueHandling = DefaultValueHandling.Include)] //test
+                        public object[] Markers { get; set; }  //test
+                    }
+
                     public class Character_Inventory_Item_Upd_Repairable
                     {
                         [JsonProperty("MaxDurability")]
@@ -375,7 +393,10 @@ namespace SP_EFT_ProfileEditor
                         [JsonProperty("ScopesSelectedModes")]
                         public int[] ScopesSelectedModes { get; set; }
 
-                        [JsonProperty("SelectedScope")]
+                        [JsonProperty("SelectedSightMode")] //test SelectedScope
+                        public int SelectedSightMode { get; set; }
+
+                        [JsonProperty("SelectedScope")] //test SelectedScope
                         public int SelectedScope { get; set; }
                     }
 
@@ -450,7 +471,29 @@ namespace SP_EFT_ProfileEditor
                 }
             }
 
-            public class Character_Inventory_FastPanel { }
+            public class Character_Inventory_FastPanel 
+            {
+                [JsonProperty("Item4")] //test
+                public string Item4 { get; set; }
+
+                [JsonProperty("Item5")]
+                public string Item5 { get; set; }
+
+                [JsonProperty("Item6")]
+                public string Item6 { get; set; }
+
+                [JsonProperty("Item7")]
+                public string Item7 { get; set; }
+
+                [JsonProperty("Item8")]
+                public string Item8 { get; set; }
+
+                [JsonProperty("Item9")]
+                public string Item9 { get; set; }
+
+                [JsonProperty("Item0")]
+                public string Item0 { get; set; }
+            }
         }
 
         public class Character_Skills
@@ -502,6 +545,12 @@ namespace SP_EFT_ProfileEditor
 
             [JsonProperty("SessionExperienceMult")]
             public float SessionExperienceMult { get; set; } // 1.5
+
+            [JsonProperty("SurvivorClass")]
+            public string SurvivorClass { get; set; } //test
+
+            [JsonProperty("TotalInGameTime")]
+            public long? TotalInGameTime { get; set; } // 0, null //test
 
             [JsonProperty("ExperienceBonusMult")]
             public float ExperienceBonusMult { get; set; } // 1
@@ -619,7 +668,7 @@ namespace SP_EFT_ProfileEditor
                 public Character_Stats_DamageHistory_BodyParts BodyParts { get; set; }
 
                 [JsonProperty("TotalInGameTime")]
-                public long TotalInGameTime { get; set; } // 0,
+                public long? TotalInGameTime { get; set; } // 0, null //test
 
                 [JsonProperty("SurvivorClass")]
                 public string SurvivorClass { get; set; } // "Neutralizer"
@@ -711,7 +760,7 @@ namespace SP_EFT_ProfileEditor
 
             public class Character_Hideout_Areas_Slots
             {
-                [JsonProperty("item")]
+                [JsonProperty("item")] //notwork
                 public Character_Inventory.Character_Inventory_Item[] Item { get; set; }
             }
         }
@@ -719,20 +768,20 @@ namespace SP_EFT_ProfileEditor
         public class Character_Bonuses
         {
             [JsonProperty("value")]
-            public int Value { get; set; } // 2,
-            //public bool ShouldSerializeValue() => Type != "StashSize";
+            public int Value { get; set; } // 2 
+            public bool ShouldSerializeValue() => Type != "StashSize";
 
             [JsonProperty("passive")]
-            public bool Passive { get; set; } // true,
-            //public bool ShouldSerializePassive() => Type != "StashSize";
+            public bool Passive { get; set; } // true
+            public bool ShouldSerializePassive() => Type != "StashSize";
 
             [JsonProperty("production")]
-            public bool Production { get; set; } // false,
-            //public bool ShouldSerializeProduction() => Type != "StashSize";
+            public bool Production { get; set; } // false
+            public bool ShouldSerializeProduction() => Type != "StashSize";
 
             [JsonProperty("visible")]
-            public bool Visible { get; set; } // true,
-            //public bool ShouldSerializeVisible() => Type != "StashSize";
+            public bool Visible { get; set; } // true
+            public bool ShouldSerializeVisible() => Type != "StashSize";
 
             [JsonProperty("filter")]
             public string[] Filter { get; set; } // [ "id" ],
@@ -832,6 +881,9 @@ namespace SP_EFT_ProfileEditor
 
                 [JsonProperty("minStanding")]
                 public float MinStanding { get; set; } // 0.35
+
+                [JsonProperty("heal_price_coef")]
+                public float heal_price_coef { get; set; } // test //serialize only if trader id is '54cb57776803fa99248b456e'
             }
         }
 
