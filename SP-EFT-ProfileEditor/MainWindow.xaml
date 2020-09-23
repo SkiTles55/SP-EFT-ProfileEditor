@@ -38,12 +38,14 @@
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
     <Grid>
-        <TabControl x:Name="tabControl" Margin="10,5,10,10">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+        <TabControl x:Name="tabControl" Grid.Row="0" Margin="10,5,10,10">
             <TabItem Header="{Binding locale[tab_info_title]}" x:Name="tabinfo">
                 <Grid Margin="0,0,10,0">
                     <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
@@ -112,40 +114,37 @@
                     <TextBox x:Name="infotab_GameVersion" Grid.Column="1" Grid.Row="6" TextWrapping="Wrap" Text="{Binding Character.Info.GameVersion}" Margin="10,0" VerticalAlignment="Center" IsEnabled="False"/>
                     <Label Grid.Column="0" Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="Большие карманы"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_bigpockets]}"/>
                         </Label.Content>
                     </Label>
                     <mah:ToggleSwitch x:Name="BigPocketsSwitcher" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" Margin="10,0" OnContent="" OffContent="" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
-                    <Label Grid.Column="0" Grid.Row="8" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
-                        <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="Убежище"/>
-                        </Label.Content>
-                    </Label>
-                    <Button x:Name="test" Grid.Column="1" Grid.Row="9" Content="Save changes" Margin="10" Click="test_Click"/>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_quests_title]}" x:Name="tabquests">
                 <Grid>
-                    <DataGrid x:Name="questsGrid" AutoGenerateColumns="False">
+                    <DataGrid x:Name="questsGrid" AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Resources>
+                            <local:BindingProxy x:Key="proxy" Data="{Binding}" />
+                        </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="{Binding locale[tab_quests_trader]}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_trader], Source={StaticResource proxy}}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=trader}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{Binding locale[tab_quests_name]}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_name], Source={StaticResource proxy}}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=name}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{Binding locale[tab_quests_status]}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_status], Source={StaticResource proxy}}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Label Content="{Binding Path=qid}"/>
+                                        <ComboBox ItemsSource="{Binding Path=QStatuses}" SelectedItem="{Binding Path=status}" SelectionChanged="ComboBox_SelectionChanged"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -157,6 +156,21 @@
                 <Grid/>
             </TabItem>
         </TabControl>
+        <Button x:Name="SaveProfileButton" Grid.Row="1" Content="{Binding locale[button_saveprofile]}" Margin="10" Click="SaveProfileButton_Click">
+            <Button.ContentTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconFontAwesome Width="22"
+                                        Height="22"
+                                        VerticalAlignment="Center"
+                                        Kind="SaveRegular" />
+                        <TextBlock Margin="4 0 0 0"
+                         VerticalAlignment="Center"
+                         Text="{Binding}" />
+                    </StackPanel>
+                </DataTemplate>
+            </Button.ContentTemplate>
+        </Button>
         <Border x:Name="SettingsBorder" Background="{DynamicResource MahApps.Brushes.Accent4}" BorderThickness="1" Visibility="Collapsed">
             <Border BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" Background="{DynamicResource MahApps.Brushes.Window.Background}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid>

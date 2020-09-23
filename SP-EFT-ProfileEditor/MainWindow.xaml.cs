@@ -3,23 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using MahApps.Metro.Controls;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using Newtonsoft.Json;
 using MahApps.Metro.Controls.Dialogs;
 using ControlzEx.Theming;
 using System.ComponentModel;
-using System.Windows.Controls.Primitives;
-using System.Diagnostics;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -28,12 +18,16 @@ namespace SP_EFT_ProfileEditor
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        Lang Lang = new Lang();
+        private MainData Lang = new MainData();
         private BackgroundWorker LoadDataWorker;
+        private ProgressDialogController progressDialog;
+        private string lastdata = null;
 
         private List<Quest> Quests;
+        private Dictionary<string, TraderLocale> TradersLocales;
+        private Dictionary<string, QuestLocale> QuestsLocales;
 
-        Dictionary<string, string> Langs = new Dictionary<string, string>
+        private Dictionary<string, string> Langs = new Dictionary<string, string>
         {
             ["en"] = "English",
             ["ru"] = "Русский",
@@ -41,24 +35,14 @@ namespace SP_EFT_ProfileEditor
             ["ge"] = "Deutsch "
         };
 
-        List<string> Sides = new List<string>
-        {
-            "Bear",
-            "Usec"
-        };
-
         private FolderBrowserDialog folderBrowserDialogSPT;
-
-        //public static Dictionary<string, string> QuestNames { get; private set; } = new Dictionary<string, string>();
-        //public static Dictionary<string, string> TraderNames { get; private set; } = new Dictionary<string, string>();
         
         //https://dev.offline-tarkov.com/sp-tarkov/server/src/branch/development/project/core/util/utility.js - generate id's
-        //https://dev.offline-tarkov.com/sp-tarkov/server/src/branch/development/project/src/classes/profile.js - level calculate
 
         public MainWindow()
         {
             InitializeComponent();
-            infotab_Side.ItemsSource = Sides;
+            infotab_Side.ItemsSource = new List<string> { "Bear", "Usec" };
             LoadDataWorker = new BackgroundWorker();
             LoadDataWorker.DoWork += LoadDataWorker_DoWork;
             LoadDataWorker.RunWorkerCompleted += LoadDataWorker_RunWorkerCompleted;
@@ -68,43 +52,41 @@ namespace SP_EFT_ProfileEditor
         {
             if (Quests != null)
                 questsGrid.ItemsSource = Quests;
+            progressDialog.CloseAsync();
         }
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            Quests = new List<Quest>();
-            foreach (var TraderPath in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "db", "assort")))
+            if (Lang.Character.Quests != null)
             {
-                if (Directory.Exists(Path.Combine(TraderPath, "quests")))
+                TradersLocales = new Dictionary<string, TraderLocale>();
+                foreach (var trader in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "trading")))
+                    TradersLocales.Add(Path.GetFileNameWithoutExtension(trader), JsonConvert.DeserializeObject<TraderLocale>(File.ReadAllText(trader)));
+                QuestsLocales = new Dictionary<string, QuestLocale>();
+                foreach (var quest in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "quest")))
+                    QuestsLocales.Add(Path.GetFileNameWithoutExtension(quest), JsonConvert.DeserializeObject<QuestLocale>(File.ReadAllText(quest)));
+                Quests = new List<Quest>();
+                var temp = new List<string> { "Locked", "AvailableForStart", "Started", "Fail", "AvailableForFinish", "Success" };
+                foreach (var TraderPath in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "db", "assort")))
                 {
-                    foreach (var QuestInfo in Directory.GetFiles(Path.Combine(TraderPath, "quests")))
+                    if (Directory.Exists(Path.Combine(TraderPath, "quests")))
                     {
-                        Quests.Add(new Quest { name = "just test", qid = Path.GetFileNameWithoutExtension(QuestInfo), trader = "just test" });
+                        foreach (var QuestInfo in Directory.GetFiles(Path.Combine(TraderPath, "quests")))
+                        {
+                            string qid = Path.GetFileNameWithoutExtension(QuestInfo);
+                            var quest = Lang.Character.Quests.Where(x => x.Qid == qid).FirstOrDefault();
+                            if (quest != null)
+                                Quests.Add(new Quest { qid = qid, name = QuestsLocales[qid].name, status = quest.Status, trader = TradersLocales[Path.GetFileName(TraderPath)].Nickname, QStatuses = temp });
+                        }
                     }
                 }
             }
-            /*
-            QuestNames = new Dictionary<string, string>();
-            foreach (var qn in Directory.GetFiles(ServerPath + "\\db\\locales\\ru\\quest"))
-                QuestNames.Add(Path.GetFileNameWithoutExtension(qn), JsonConvert.DeserializeObject<QuestLocale>(File.ReadAllText(qn)).name);
-            TraderNames = new Dictionary<string, string>();
-            foreach (var tn in  Directory.GetDirectories(ServerPath + "\\db\\assort"))
-                TraderNames.Add(Path.GetFileName(tn), JsonConvert.DeserializeObject<TraderLocale>(File.ReadAllText(tn + "\\base.json")).nickname);
-            foreach (var q in Profile.Quests)
-            {
-                try {
-                    questsGrid.Items.Add(new QuestInfo { status = q.status, trader = TraderNames[q.qid], name = QuestNames[q.qid] });
-                }
-                catch { }
-            //need to find names in db quests folder
-            }
-            */
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             bool readyToLoad = false;
-            Lang = Lang.Load();
+            Lang = MainData.Load();
             if (string.IsNullOrWhiteSpace(Lang.options.Language) || string.IsNullOrWhiteSpace(Lang.options.EftServerPath)
                 || !Directory.Exists(Lang.options.EftServerPath) || !PathIsEftServerBase(Lang.options.EftServerPath)
                 || string.IsNullOrWhiteSpace(Lang.options.DefaultProfile) || !Directory.Exists(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile)) || !File.Exists(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile, "character.json")))
@@ -125,7 +107,17 @@ namespace SP_EFT_ProfileEditor
             }
             DataContext = Lang;
             if (readyToLoad)
-                LoadDataWorker.RunWorkerAsync();
+            {
+                lastdata = Lang.options.EftServerPath + Lang.options.Language + Lang.Character.Aid;
+                LoadData();
+            }
+        }
+
+        private async void LoadData()
+        {
+            progressDialog = await this.ShowProgressAsync(Lang.locale["progressdialog_title"], Lang.locale["progressdialog_caption"]);
+            progressDialog.SetIndeterminate();
+            LoadDataWorker.RunWorkerAsync();
         }
 
         private bool PathIsEftServerBase(string sptPath)
@@ -145,9 +137,16 @@ namespace SP_EFT_ProfileEditor
 
         private void langSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (!IsLoaded)
+                return;
             Lang.options.Language = langSelectBox.SelectedValue.ToString();
+            SaveAndReload();
+        }
+
+        private void SaveAndReload()
+        {
             Lang.SaveOptions();
-            Lang = Lang.Load();
+            Lang = MainData.Load();
             DataContext = Lang;
         }
 
@@ -178,36 +177,42 @@ namespace SP_EFT_ProfileEditor
             if (pathOK)
             {
                 Lang.options.EftServerPath = folderBrowserDialogSPT.SelectedPath;
-                Lang.SaveOptions();
-                Lang = Lang.Load();
-                DataContext = Lang;
+                SaveAndReload();
             }
         }
 
         private void profileSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (!IsLoaded)
+                return;
             Lang.options.DefaultProfile = profileSelectBox.SelectedValue.ToString();
-            Lang.SaveOptions();
-            Lang = Lang.Load();
-            DataContext = Lang;
+            SaveAndReload();
         }
 
         private void StyleChoicer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (!IsLoaded)
+                return;
             var selectedAccent = StyleChoicer.SelectedItem as AccentItem;
             if (selectedAccent.Name == ThemeManager.Current.DetectTheme(this).DisplayName) return;
             ThemeManager.Current.ChangeTheme(this, selectedAccent.Scheme);
             Lang.options.ColorScheme = selectedAccent.Scheme;
-            Lang.SaveOptions();
-            Lang = Lang.Load();
-            DataContext = Lang;
+            SaveAndReload();
         }
 
-        private void TabSettingsClose_Click(object sender, RoutedEventArgs e) => SettingsBorder.Visibility = Visibility.Collapsed;
+        private void TabSettingsClose_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsBorder.Visibility = Visibility.Collapsed;
+            if (lastdata != Lang.options.EftServerPath + Lang.options.Language + Lang.Character.Aid)
+            {
+                LoadData();
+                lastdata = Lang.options.EftServerPath + Lang.options.Language + Lang.Character.Aid;
+            }
+        }
 
         private void Button_Click(object sender, RoutedEventArgs e) => SettingsBorder.Visibility = Visibility.Visible;
 
-        private void test_Click(object sender, RoutedEventArgs e)
+        private void SaveProfileButton_Click(object sender, RoutedEventArgs e)
         {
             JsonSerializerSettings seriSettings = new JsonSerializerSettings
             {
@@ -222,6 +227,8 @@ namespace SP_EFT_ProfileEditor
 
         private void infotab_Side_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (!IsLoaded)
+                return;
             if (!infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
                 infotab_Voice.SelectedIndex = 0;
         }
@@ -230,6 +237,14 @@ namespace SP_EFT_ProfileEditor
         {
             var textBox = sender as System.Windows.Controls.TextBox;
             Lang.Character.Info.Level = Convert.ToInt32(textBox.Text);
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!IsLoaded)
+                return;
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            Lang.Character.Quests.Where(x => x.Qid == ((Quest)comboBox.DataContext).qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();
         }
     }
 }

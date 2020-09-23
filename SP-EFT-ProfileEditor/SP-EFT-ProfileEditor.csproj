@@ -92,8 +92,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="BindingProxy.cs" />
     <Compile Include="Character.cs" />
+    <Compile Include="Converters.cs" />
     <Compile Include="ExtClasses.cs" />
+    <Compile Include="MainData.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
