@@ -130,21 +130,21 @@
                 <Grid>
                     <DataGrid x:Name="questsGrid" AutoGenerateColumns="False">
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="Торговец" Width="*">
+                            <DataGridTemplateColumn Header="{Binding locale[tab_quests_trader]}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=trader}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Название" Width="*">
+                            <DataGridTemplateColumn Header="{Binding locale[tab_quests_name]}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=name}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Статус" Width="*">
+                            <DataGridTemplateColumn Header="{Binding locale[tab_quests_status]}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=status}"/>
