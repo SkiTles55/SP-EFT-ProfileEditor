@@ -7,6 +7,37 @@ using System.Windows.Data;
 
 namespace SP_EFT_ProfileEditor
 {
+    public class QuestEmptyBoolConverter: IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if ((int)value > 1) return Visibility.Collapsed;
+            return Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+    public class RevertedQuestEmptyBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if ((int)value > 1) return Visibility.Visible;
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
     public class PathBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter,

@@ -17,6 +17,8 @@
         <local:ButtonBoolConverter x:Key="ButtonBoolConverter"/>
         <local:ProfileSideConverter x:Key="ProfileSideConverter"/>
         <local:ProfileLevelConverter x:Key="ProfileLevelConverter"/>
+        <local:QuestEmptyBoolConverter x:Key="QuestEmptyBoolConverter"/>
+        <local:RevertedQuestEmptyBoolConverter x:Key="RevertedQuestEmptyBoolConverter"/>
     </Window.Resources>
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
@@ -154,7 +156,12 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,0">
+                    <Label Grid.Row="0" FontWeight="Bold" FontSize="18" Visibility="{ Binding ElementName=questsGrid, Path=ItemsSource.Count, Converter={StaticResource QuestEmptyBoolConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_quests_nodata]}"/>
+                        </Label.Content>
+                    </Label>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,0" Visibility="{ Binding ElementName=questsGrid, Path=ItemsSource.Count, Converter={StaticResource RevertedQuestEmptyBoolConverter}}">
                         <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0">
                             <Label.Content>
                                 <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_quests_markall]}"/>

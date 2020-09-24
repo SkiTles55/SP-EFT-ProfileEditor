@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using MahApps.Metro.Controls.Dialogs;
 using ControlzEx.Theming;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -258,35 +259,32 @@ namespace SP_EFT_ProfileEditor
 
         private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
         {
-            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").Count() > 0)
-            {
-                Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").FirstOrDefault().Tpl = "5af99e9186f7747c447120b8";
-                BigPocketsSwitcher.IsOn = true;
+            if (!IsLoaded)
                 return;
-            }
-            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
-            {
-                Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").FirstOrDefault().Tpl = "557ffd194bdc2d28148b457f";
-                BigPocketsSwitcher.IsOn = false;
-                return;
-            }
+            if (Lang.Character.Inventory.Items == null) return;
+            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f" || x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
+                Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f" || x.Tpl == "5af99e9186f7747c447120b8").FirstOrDefault().Tpl = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
         }
 
         private void QuestsStatusesButton_Click(object sender, RoutedEventArgs e)
         {
-            if (questsGrid.Items.Count < 1) return;
-            for (int i = 0; i < questsGrid.Items.Count; i++)
-            {
-                DataGridRow row = (DataGridRow)questsGrid.ItemContainerGenerator.ContainerFromIndex(i);
-                System.Windows.Controls.ComboBox ele = questsGrid.Columns[0].GetCellContent(row) as System.Windows.Controls.ComboBox;
-                ele.SelectedItem = QuestsStatusesBox.SelectedItem;
-            }
+            if (Lang.Character.Quests == null) return;
+            foreach (var q in Lang.Character.Quests)
+                q.Status = QuestsStatusesBox.SelectedItem.ToString();
+            LoadData();
         }
 
         private async void ResetProfileButton_Click(object sender, RoutedEventArgs e)
         {
             if (await this.ShowMessageAsync(Lang.locale["reloadprofiledialog_caption"], Lang.locale["reloadprofiledialog_title"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
-                SaveAndReload();
+            {
+                SaveAndReload(); 
+                if (Quests != null)
+                {
+                    questsGrid.ItemsSource = null;
+                    questsGrid.ItemsSource = Quests;
+                }
+            }
         }
     }
 }
