@@ -43,6 +43,8 @@ namespace SP_EFT_ProfileEditor
         {
             InitializeComponent();
             infotab_Side.ItemsSource = new List<string> { "Bear", "Usec" };
+            QuestsStatusesBox.ItemsSource = new List<string> { "Locked", "AvailableForStart", "Started", "Fail", "AvailableForFinish", "Success" };
+            QuestsStatusesBox.SelectedIndex = 0;
             LoadDataWorker = new BackgroundWorker();
             LoadDataWorker.DoWork += LoadDataWorker_DoWork;
             LoadDataWorker.RunWorkerCompleted += LoadDataWorker_RunWorkerCompleted;
@@ -66,7 +68,6 @@ namespace SP_EFT_ProfileEditor
                 foreach (var quest in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "quest")))
                     QuestsLocales.Add(Path.GetFileNameWithoutExtension(quest), JsonConvert.DeserializeObject<QuestLocale>(File.ReadAllText(quest)));
                 Quests = new List<Quest>();
-                var temp = new List<string> { "Locked", "AvailableForStart", "Started", "Fail", "AvailableForFinish", "Success" };
                 foreach (var TraderPath in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "db", "assort")))
                 {
                     if (Directory.Exists(Path.Combine(TraderPath, "quests")))
@@ -76,7 +77,7 @@ namespace SP_EFT_ProfileEditor
                             string qid = Path.GetFileNameWithoutExtension(QuestInfo);
                             var quest = Lang.Character.Quests.Where(x => x.Qid == qid).FirstOrDefault();
                             if (quest != null)
-                                Quests.Add(new Quest { qid = qid, name = QuestsLocales[qid].name, status = quest.Status, trader = TradersLocales[Path.GetFileName(TraderPath)].Nickname, QStatuses = temp });
+                                Quests.Add(new Quest { qid = qid, name = QuestsLocales[qid].name, status = quest.Status, trader = TradersLocales[Path.GetFileName(TraderPath)].Nickname });
                         }
                     }
                 }
@@ -106,6 +107,7 @@ namespace SP_EFT_ProfileEditor
                 if (ThemeManager.Current.DetectTheme(this).DisplayName == newItem.Name) StyleChoicer.SelectedItem = newItem;
             }
             DataContext = Lang;
+            CheckPockets();
             if (readyToLoad)
             {
                 lastdata = Lang.options.EftServerPath + Lang.options.Language + Lang.Character.Aid;
@@ -148,6 +150,15 @@ namespace SP_EFT_ProfileEditor
             Lang.SaveOptions();
             Lang = MainData.Load();
             DataContext = Lang;
+            CheckPockets();
+        }
+
+        private void CheckPockets()
+        {
+            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").Count() > 0) 
+                BigPocketsSwitcher.IsOn = false;
+            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
+                BigPocketsSwitcher.IsOn = true;
         }
 
         private async void serverSelect_Click(object sender, RoutedEventArgs e)
@@ -245,6 +256,33 @@ namespace SP_EFT_ProfileEditor
                 return;
             var comboBox = sender as System.Windows.Controls.ComboBox;
             Lang.Character.Quests.Where(x => x.Qid == ((Quest)comboBox.DataContext).qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();
+        }
+
+        private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").Count() > 0)
+            {
+                Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").FirstOrDefault().Tpl = "5af99e9186f7747c447120b8";
+                BigPocketsSwitcher.IsOn = true;
+                return;
+            }
+            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
+            {
+                Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").FirstOrDefault().Tpl = "557ffd194bdc2d28148b457f";
+                BigPocketsSwitcher.IsOn = false;
+                return;
+            }
+        }
+
+        private void QuestsStatusesButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (questsGrid.Items.Count < 1) return;
+            for (int i = 0; i < questsGrid.Items.Count; i++)
+            {
+                DataGridRow row = (DataGridRow)questsGrid.ItemContainerGenerator.ContainerFromIndex(i);
+                System.Windows.Controls.ComboBox ele = questsGrid.Columns[0].GetCellContent(row) as System.Windows.Controls.ComboBox;
+                ele.SelectedItem = QuestsStatusesBox.SelectedItem;
+            }
         }
     }
 }

@@ -40,9 +40,9 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <TabControl x:Name="tabControl" Grid.Row="0" Margin="10,5,10,10">
+        <TabControl x:Name="tabControl" Grid.Row="0" Margin="10,5">
             <TabItem Header="{Binding locale[tab_info_title]}" x:Name="tabinfo">
                 <Grid Margin="0,0,10,0">
                     <Grid.RowDefinitions>
@@ -117,12 +117,16 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_bigpockets]}"/>
                         </Label.Content>
                     </Label>
-                    <mah:ToggleSwitch x:Name="BigPocketsSwitcher" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" Margin="10,0" OnContent="" OffContent="" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                    <mah:ToggleSwitch x:Name="BigPocketsSwitcher" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" Margin="10,0" OnContent="" OffContent="" Foreground="{DynamicResource MahApps.Brushes.Accent}" Toggled="BigPocketsSwitcher_Toggled"/>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_quests_title]}" x:Name="tabquests">
                 <Grid>
-                    <DataGrid x:Name="questsGrid" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid x:Name="questsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
                         <DataGrid.Resources>
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
@@ -144,19 +148,28 @@
                             <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_status], Source={StaticResource proxy}}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <ComboBox ItemsSource="{Binding Path=QStatuses}" SelectedItem="{Binding Path=status}" SelectionChanged="ComboBox_SelectionChanged"/>
+                                        <ComboBox ItemsSource="{Binding ElementName=QuestsStatusesBox, Path=ItemsSource}" SelectedItem="{Binding Path=status}" SelectionChanged="ComboBox_SelectionChanged"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,0">
+                        <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0">
+                            <Label.Content>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_quests_markall]}"/>
+                            </Label.Content>
+                        </Label>
+                        <ComboBox x:Name="QuestsStatusesBox" Margin="5,0" Width="200"/>
+                        <Button x:Name="QuestsStatusesButton" Content="{Binding locale[tab_quests_editallbutton]}" Margin="5,0" Width="100" Click="QuestsStatusesButton_Click"/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_serversettings_title]}" x:Name="tabsettings">
                 <Grid/>
             </TabItem>
         </TabControl>
-        <Button x:Name="SaveProfileButton" Grid.Row="1" Content="{Binding locale[button_saveprofile]}" Margin="10" Click="SaveProfileButton_Click">
+        <Button x:Name="SaveProfileButton" Grid.Row="1" Content="{Binding locale[button_saveprofile]}" Margin="10,0,10,10" Click="SaveProfileButton_Click">
             <Button.ContentTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">

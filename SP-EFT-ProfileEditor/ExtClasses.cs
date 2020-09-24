@@ -15,7 +15,6 @@ namespace SP_EFT_ProfileEditor
         public string trader { get; set; }
         public string name { get; set; }
         public string status { get; set; }
-        public List<string> QStatuses { get; set; }
     }
 
     public class TraderLocale
