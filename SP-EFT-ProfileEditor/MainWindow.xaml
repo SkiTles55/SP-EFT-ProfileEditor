@@ -10,7 +10,7 @@
         GlowBrush="{DynamicResource MahApps.Brushes.Accent}"
         BorderThickness="2"
         SaveWindowPosition="True"
-        Title="SP EFT Profile Editor by SkiTles" MinHeight="600" MinWidth="800" Loaded="Window_Loaded">
+        Title="SP EFT Profile Editor by SkiTles" MinHeight="600" MinWidth="800" Loaded="Window_Loaded" >
     <Window.Resources>
         <local:PathBoolConverter x:Key="PathBoolConverter" />
         <local:ProfileBoolConverter x:Key="ProfileBoolConverter" />
@@ -169,22 +169,39 @@
                 <Grid/>
             </TabItem>
         </TabControl>
-        <Button x:Name="SaveProfileButton" Grid.Row="1" Content="{Binding locale[button_saveprofile]}" Margin="10,0,10,10" Click="SaveProfileButton_Click">
-            <Button.ContentTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <iconPacks:PackIconFontAwesome Width="22"
+        <StackPanel Margin="10,0,10,5" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button x:Name="ResetProfileButton" Content="{Binding locale[button_reloadprofile]}" Margin="10,5,5,0" Width="250" Click="ResetProfileButton_Click">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconFontAwesome Width="22"
+                                        Height="22"
+                                        VerticalAlignment="Center"
+                                        Kind="RedoSolid" />
+                            <TextBlock Margin="4 0 0 0"
+                         VerticalAlignment="Center"
+                         Text="{Binding}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+            <Button x:Name="SaveProfileButton" Content="{Binding locale[button_saveprofile]}" Click="SaveProfileButton_Click" Margin="5,5,10,0" Width="250">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconFontAwesome Width="22"
                                         Height="22"
                                         VerticalAlignment="Center"
                                         Kind="SaveRegular" />
-                        <TextBlock Margin="4 0 0 0"
+                            <TextBlock Margin="4 0 0 0"
                          VerticalAlignment="Center"
                          Text="{Binding}" />
-                    </StackPanel>
-                </DataTemplate>
-            </Button.ContentTemplate>
-        </Button>
-        <Border x:Name="SettingsBorder" Background="{DynamicResource MahApps.Brushes.Accent4}" BorderThickness="1" Visibility="Collapsed">
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+        </StackPanel>        
+        <Border x:Name="SettingsBorder" Grid.RowSpan="2" Background="{DynamicResource MahApps.Brushes.Accent4}" BorderThickness="1" Visibility="Collapsed">
             <Border BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" Background="{DynamicResource MahApps.Brushes.Window.Background}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid>
                     <Grid.RowDefinitions>

@@ -26,6 +26,7 @@ namespace SP_EFT_ProfileEditor
         private List<Quest> Quests;
         private Dictionary<string, TraderLocale> TradersLocales;
         private Dictionary<string, QuestLocale> QuestsLocales;
+        //MetroDialogSettings dialogSettings;
 
         private Dictionary<string, string> Langs = new Dictionary<string, string>
         {
@@ -155,6 +156,7 @@ namespace SP_EFT_ProfileEditor
 
         private void CheckPockets()
         {
+            if (Lang.Character == null) return;
             if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").Count() > 0) 
                 BigPocketsSwitcher.IsOn = false;
             if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
@@ -163,10 +165,6 @@ namespace SP_EFT_ProfileEditor
 
         private async void serverSelect_Click(object sender, RoutedEventArgs e)
         {
-            MetroDialogSettings dialogSettings = new MetroDialogSettings
-            {
-                DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"]
-            };
             folderBrowserDialogSPT = new FolderBrowserDialog
             {
                 Description = Lang.locale["server_select"],
@@ -182,7 +180,7 @@ namespace SP_EFT_ProfileEditor
                 if (PathIsEftServerBase(folderBrowserDialogSPT.SelectedPath)) pathOK = true;
             } while (
                 !pathOK &&
-                (await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["invalid_server_location_text"], MessageDialogStyle.AffirmativeAndNegative, dialogSettings) == MessageDialogResult.Affirmative)
+                (await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["invalid_server_location_text"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
             );
 
             if (pathOK)
@@ -283,6 +281,12 @@ namespace SP_EFT_ProfileEditor
                 System.Windows.Controls.ComboBox ele = questsGrid.Columns[0].GetCellContent(row) as System.Windows.Controls.ComboBox;
                 ele.SelectedItem = QuestsStatusesBox.SelectedItem;
             }
+        }
+
+        private async void ResetProfileButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (await this.ShowMessageAsync(Lang.locale["reloadprofiledialog_caption"], Lang.locale["reloadprofiledialog_title"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+                SaveAndReload();
         }
     }
 }
