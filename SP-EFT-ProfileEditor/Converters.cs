@@ -7,6 +7,21 @@ using System.Windows.Data;
 
 namespace SP_EFT_ProfileEditor
 {
+    public class QuestLocaleConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (MainWindow.)
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
     public class PathBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter,
