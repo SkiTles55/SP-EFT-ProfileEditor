@@ -25,7 +25,8 @@ namespace SP_EFT_ProfileEditor
 
         private List<Quest> Quests;
         private Dictionary<string, TraderLocale> TradersLocales;
-        public Dictionary<string, QuestLocale> QuestsLocales;
+        private Dictionary<string, QuestLocale> QuestsLocales;
+        //MetroDialogSettings dialogSettings;
 
         private Dictionary<string, string> Langs = new Dictionary<string, string>
         {
@@ -117,9 +118,9 @@ namespace SP_EFT_ProfileEditor
 
         private async void LoadData()
         {
-            //progressDialog = await this.ShowProgressAsync(Lang.locale["progressdialog_title"], Lang.locale["progressdialog_caption"]);
-            //progressDialog.SetIndeterminate();
-            //LoadDataWorker.RunWorkerAsync();
+            progressDialog = await this.ShowProgressAsync(Lang.locale["progressdialog_title"], Lang.locale["progressdialog_caption"]);
+            progressDialog.SetIndeterminate();
+            LoadDataWorker.RunWorkerAsync();
         }
 
         private bool PathIsEftServerBase(string sptPath)
@@ -150,8 +151,6 @@ namespace SP_EFT_ProfileEditor
             Lang.SaveOptions();
             Lang = MainData.Load();
             DataContext = Lang;
-            questsGrid.ItemsSource = null;
-            questsGrid.ItemsSource = Lang.Character.Quests;
             CheckPockets();
         }
 
@@ -254,36 +253,40 @@ namespace SP_EFT_ProfileEditor
             if (!IsLoaded)
                 return;
             var comboBox = sender as System.Windows.Controls.ComboBox;
-            Lang.Character.Quests.Where(x => x.Qid == ((Character.Character_Quests)comboBox.DataContext).Qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();
+            Lang.Character.Quests.Where(x => x.Qid == ((Quest)comboBox.DataContext).qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();
         }
 
         private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
         {
-            if (!IsLoaded)
-                return;
-            if (Lang.Character.Inventory.Items == null) return;
-            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f" || x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
+            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").Count() > 0)
             {
-                Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f" || x.Tpl == "5af99e9186f7747c447120b8").FirstOrDefault().Tpl = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
+                Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").FirstOrDefault().Tpl = "5af99e9186f7747c447120b8";
+                BigPocketsSwitcher.IsOn = true;
+                return;
+            }
+            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
+            {
+                Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").FirstOrDefault().Tpl = "557ffd194bdc2d28148b457f";
+                BigPocketsSwitcher.IsOn = false;
+                return;
             }
         }
 
         private void QuestsStatusesButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Lang.Character.Quests == null) return;
-            foreach (var q in Lang.Character.Quests)
-                q.Status = QuestsStatusesBox.SelectedItem.ToString();
-            questsGrid.ItemsSource = null;
-            questsGrid.ItemsSource = Lang.Character.Quests;
+            if (questsGrid.Items.Count < 1) return;
+            for (int i = 0; i < questsGrid.Items.Count; i++)
+            {
+                DataGridRow row = (DataGridRow)questsGrid.ItemContainerGenerator.ContainerFromIndex(i);
+                System.Windows.Controls.ComboBox ele = questsGrid.Columns[0].GetCellContent(row) as System.Windows.Controls.ComboBox;
+                ele.SelectedItem = QuestsStatusesBox.SelectedItem;
+            }
         }
 
         private async void ResetProfileButton_Click(object sender, RoutedEventArgs e)
         {
             if (await this.ShowMessageAsync(Lang.locale["reloadprofiledialog_caption"], Lang.locale["reloadprofiledialog_title"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
-            {
                 SaveAndReload();
-                LoadData();
-            }
         }
     }
 }
