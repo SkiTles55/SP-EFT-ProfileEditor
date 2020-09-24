@@ -31,5 +31,18 @@ namespace SP_EFT_ProfileEditor
         public string name { get; set; }
         public string description { get; set; }
         public string location { get; set; }
-    }    
+    }
+    
+    public class AreaInfo
+    {
+        public int type { get; set; }
+        public Dictionary<string, object> stages { get; set; }
+    }
+    
+    public class CharacterHideoutArea
+    {
+        public string name { get; set; }
+        public int MaxLevel { get; set; }
+        public int CurrentLevel { get; set; }
+    }
 }

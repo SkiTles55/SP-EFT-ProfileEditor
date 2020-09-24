@@ -27,6 +27,8 @@ namespace SP_EFT_ProfileEditor
         private List<Quest> Quests;
         private Dictionary<string, TraderLocale> TradersLocales;
         private Dictionary<string, QuestLocale> QuestsLocales;
+        private Dictionary<string, string> GameInterfaceLocale;
+        private Dictionary<int, CharacterHideoutArea> HideoutAreas;
         //MetroDialogSettings dialogSettings;
 
         private Dictionary<string, string> Langs = new Dictionary<string, string>
@@ -61,6 +63,7 @@ namespace SP_EFT_ProfileEditor
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            GameInterfaceLocale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "interface.json")));
             if (Lang.Character.Quests != null)
             {
                 TradersLocales = new Dictionary<string, TraderLocale>();
@@ -83,6 +86,12 @@ namespace SP_EFT_ProfileEditor
                         }
                     }
                 }
+            }
+            HideoutAreas = new Dictionary<int, CharacterHideoutArea>();
+            foreach (var areaFile in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "hideout", "areas")))
+            {
+                var area = JsonConvert.DeserializeObject<AreaInfo>(File.ReadAllText(areaFile));
+                HideoutAreas.Add(area.type, new CharacterHideoutArea { name = GameInterfaceLocale[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
             }
         }
 
