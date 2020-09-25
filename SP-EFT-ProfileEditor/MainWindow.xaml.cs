@@ -29,6 +29,7 @@ namespace SP_EFT_ProfileEditor
         private Dictionary<string, QuestLocale> QuestsLocales;
         private Dictionary<string, string> GameInterfaceLocale;
         private List<CharacterHideoutArea> HideoutAreas;
+        private List<CommonSkillInfo> commonSkills;
         //MetroDialogSettings dialogSettings;
 
         private Dictionary<string, string> Langs = new Dictionary<string, string>
@@ -60,6 +61,8 @@ namespace SP_EFT_ProfileEditor
                 questsGrid.ItemsSource = Quests;
             if (HideoutAreas != null)
                 hideoutGrid.ItemsSource = HideoutAreas;
+            if (commonSkills != null)
+                skillsGrid.ItemsSource = commonSkills;
             progressDialog.CloseAsync();
         }
 
@@ -94,6 +97,12 @@ namespace SP_EFT_ProfileEditor
             {
                 var area = JsonConvert.DeserializeObject<AreaInfo>(File.ReadAllText(areaFile));
                 HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = GameInterfaceLocale[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
+            }
+            commonSkills = new List<CommonSkillInfo>();
+            foreach (var skill in Lang.Character.Skills.Common)
+            {
+                if (GameInterfaceLocale.ContainsKey(skill.Id))
+                    commonSkills.Add(new CommonSkillInfo { progress = (int)skill.Progress, name = GameInterfaceLocale[skill.Id], id = skill.Id });
             }
         }
 
@@ -259,6 +268,14 @@ namespace SP_EFT_ProfileEditor
                 return;
             var slider = sender as System.Windows.Controls.Slider;
             Lang.Character.Hideout.Areas.Where(x => x.Type == ((CharacterHideoutArea)slider.DataContext).type).FirstOrDefault().Level = (int)slider.Value;
+        }
+
+        private void commonskill_exp_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!IsLoaded)
+                return;
+            var slider = sender as System.Windows.Controls.Slider;
+            Lang.Character.Skills.Common.Where(x => x.Id == ((CommonSkillInfo)slider.DataContext).id).FirstOrDefault().Progress = (float)slider.Value;
         }
 
         private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)

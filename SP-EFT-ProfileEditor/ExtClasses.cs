@@ -46,4 +46,11 @@ namespace SP_EFT_ProfileEditor
         public int MaxLevel { get; set; }
         public int CurrentLevel { get; set; }
     }
+
+    public class CommonSkillInfo
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public int progress { get; set; }
+    }
 }

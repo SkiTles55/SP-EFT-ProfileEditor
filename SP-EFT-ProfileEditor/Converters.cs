@@ -7,6 +7,23 @@ using System.Windows.Data;
 
 namespace SP_EFT_ProfileEditor
 {
+    public class ExpToLevelConverter: IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (value == null) return 0;
+            //if ((int)value == 0) return "0";
+            //return ((int)value / 100).ToString();
+            return Int32.Parse(value.ToString()) / 100;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
     public class QuestEmptyBoolConverter: IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter,

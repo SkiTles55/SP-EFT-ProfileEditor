@@ -19,6 +19,7 @@
         <local:ProfileLevelConverter x:Key="ProfileLevelConverter"/>
         <local:QuestEmptyBoolConverter x:Key="QuestEmptyBoolConverter"/>
         <local:RevertedQuestEmptyBoolConverter x:Key="RevertedQuestEmptyBoolConverter"/>
+        <local:ExpToLevelConverter x:Key="ExpToLevelConverter"/>
     </Window.Resources>
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
@@ -211,6 +212,56 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     <Button x:Name="HideoutMaximumButton" Content="{Binding locale[tab_hideout_maximumbutton]}" Grid.Row="1" HorizontalAlignment="Center" Margin="10,10,10,0" Width="200" Click="HideoutMaximumButton_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{Binding locale[tab_skills_title]}" Name="tabskills">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid x:Name="skillsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Resources>
+                            <local:BindingProxy x:Key="proxy" Data="{Binding}" />
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_skills_skill], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=name}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_skills_exp], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid Grid.Column="1" Grid.Row="5" Margin="10,0">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" >
+                                                <Label.Content>
+                                                    <TextBlock TextWrapping="Wrap" Text="{Binding Data.locale[tab_hideout_level], Source={StaticResource proxy}}"/>
+                                                </Label.Content>
+                                            </Label>
+                                            <Label Grid.Column="1" Grid.Row="0" Content="{ Binding ElementName=commonskill_exp, Path=Value, Converter={StaticResource ExpToLevelConverter}}"/>
+                                            <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" >
+                                                <Label.Content>
+                                                    <TextBlock TextWrapping="Wrap" Text="{Binding ElementName=commonskill_exp, Path=Value}"/>
+                                                </Label.Content>
+                                            </Label>
+                                            <Slider x:Name="commonskill_exp" Grid.Column="1" Grid.Row="1" Maximum="5100" TickPlacement="None" TickFrequency="10" Value="{Binding progress, Mode=TwoWay}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="commonskill_exp_ValueChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_serversettings_title]}" x:Name="tabsettings">

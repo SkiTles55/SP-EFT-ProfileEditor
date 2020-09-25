@@ -119,6 +119,9 @@ namespace SP_EFT_ProfileEditor
                 ["tab_hideout_area"] = "Area",
                 ["tab_hideout_level"] = "Level",
                 ["tab_hideout_maximumbutton"] = "Set everything to maximum",
+                ["tab_skills_title"] = "Skills",
+                ["tab_skills_skill"] = "Skill",
+                ["tab_skills_exp"] = "Experience",
                 ["tab_serversettings_title"] = "Server settings"
             };
             File.WriteAllText(Path.Combine(LangPath, "en.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
@@ -169,6 +172,9 @@ namespace SP_EFT_ProfileEditor
                 ["tab_hideout_area"] = "Bereich",
                 ["tab_hideout_level"] = "Niveau",
                 ["tab_hideout_maximumbutton"] = "Stellen Sie alles auf Maximum",
+                ["tab_skills_title"] = "Fähigkeiten",
+                ["tab_skills_skill"] = "Fähigkeit",
+                ["tab_skills_exp"] = "Erfahrung",
                 ["tab_serversettings_title"] = "Server einstellungen"
             };
             File.WriteAllText(Path.Combine(LangPath, "ge.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
@@ -219,6 +225,9 @@ namespace SP_EFT_ProfileEditor
                 ["tab_hideout_area"] = "Зона",
                 ["tab_hideout_level"] = "Уровень",
                 ["tab_hideout_maximumbutton"] = "Установить все на максимум",
+                ["tab_skills_title"] = "Умения",
+                ["tab_skills_skill"] = "Умение",
+                ["tab_skills_exp"] = "Опыт",
                 ["tab_serversettings_title"] = "Настройки сервера"
             };
             File.WriteAllText(Path.Combine(LangPath, "ru.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
@@ -269,6 +278,9 @@ namespace SP_EFT_ProfileEditor
                 ["tab_hideout_area"] = "Zone",
                 ["tab_hideout_level"] = "Niveau",
                 ["tab_hideout_maximumbutton"] = "Réglez tout au maximum",
+                ["tab_skills_title"] = "Compétence",
+                ["tab_skills_skill"] = "Compétence",
+                ["tab_skills_exp"] = "Expérience",
                 ["tab_serversettings_title"] = "Paramètres du serveur"
             };
             File.WriteAllText(Path.Combine(LangPath, "fr.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
