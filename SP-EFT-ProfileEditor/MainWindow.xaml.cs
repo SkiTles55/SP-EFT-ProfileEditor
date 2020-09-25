@@ -28,7 +28,7 @@ namespace SP_EFT_ProfileEditor
         private Dictionary<string, TraderLocale> TradersLocales;
         private Dictionary<string, QuestLocale> QuestsLocales;
         private Dictionary<string, string> GameInterfaceLocale;
-        private Dictionary<int, CharacterHideoutArea> HideoutAreas;
+        private List<CharacterHideoutArea> HideoutAreas;
         //MetroDialogSettings dialogSettings;
 
         private Dictionary<string, string> Langs = new Dictionary<string, string>
@@ -58,6 +58,8 @@ namespace SP_EFT_ProfileEditor
         {
             if (Quests != null)
                 questsGrid.ItemsSource = Quests;
+            if (HideoutAreas != null)
+                hideoutGrid.ItemsSource = HideoutAreas;
             progressDialog.CloseAsync();
         }
 
@@ -87,11 +89,11 @@ namespace SP_EFT_ProfileEditor
                     }
                 }
             }
-            HideoutAreas = new Dictionary<int, CharacterHideoutArea>();
+            HideoutAreas = new List<CharacterHideoutArea>();
             foreach (var areaFile in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "hideout", "areas")))
             {
                 var area = JsonConvert.DeserializeObject<AreaInfo>(File.ReadAllText(areaFile));
-                HideoutAreas.Add(area.type, new CharacterHideoutArea { name = GameInterfaceLocale[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
+                HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = GameInterfaceLocale[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
             }
         }
 
@@ -100,7 +102,7 @@ namespace SP_EFT_ProfileEditor
             bool readyToLoad = false;
             Lang = MainData.Load();
             if (string.IsNullOrWhiteSpace(Lang.options.Language) || string.IsNullOrWhiteSpace(Lang.options.EftServerPath)
-                || !Directory.Exists(Lang.options.EftServerPath) || !PathIsEftServerBase(Lang.options.EftServerPath)
+                || !Directory.Exists(Lang.options.EftServerPath) || !ExtMethods.PathIsEftServerBase(Lang.options.EftServerPath)
                 || string.IsNullOrWhiteSpace(Lang.options.DefaultProfile) || !Directory.Exists(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile)) || !File.Exists(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile, "character.json")))
                 SettingsBorder.Visibility = Visibility.Visible;
             else
@@ -131,21 +133,6 @@ namespace SP_EFT_ProfileEditor
             progressDialog = await this.ShowProgressAsync(Lang.locale["progressdialog_title"], Lang.locale["progressdialog_caption"]);
             progressDialog.SetIndeterminate();
             LoadDataWorker.RunWorkerAsync();
-        }
-
-        private bool PathIsEftServerBase(string sptPath)
-        {
-            if (string.IsNullOrWhiteSpace(sptPath)) return false;
-            if (!Directory.Exists(sptPath)) return false;
-            if (!File.Exists(Path.Combine(sptPath, "Server.exe"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, "db"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, @"db\items"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, @"db\locales"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, @"user\configs"))) return false;
-            if (!File.Exists(Path.Combine(sptPath, @"user\configs\accounts.json"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, @"user\profiles"))) return false;
-
-            return true;
         }
 
         private void langSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -187,7 +174,7 @@ namespace SP_EFT_ProfileEditor
                 if (!string.IsNullOrWhiteSpace(Lang.options.EftServerPath) && Directory.Exists(Lang.options.EftServerPath))
                     folderBrowserDialogSPT.SelectedPath = Lang.options.EftServerPath;
                 if (folderBrowserDialogSPT.ShowDialog() != System.Windows.Forms.DialogResult.OK) pathOK = false;
-                if (PathIsEftServerBase(folderBrowserDialogSPT.SelectedPath)) pathOK = true;
+                if (ExtMethods.PathIsEftServerBase(folderBrowserDialogSPT.SelectedPath)) pathOK = true;
             } while (
                 !pathOK &&
                 (await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["invalid_server_location_text"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
@@ -266,6 +253,14 @@ namespace SP_EFT_ProfileEditor
             Lang.Character.Quests.Where(x => x.Qid == ((Quest)comboBox.DataContext).qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();
         }
 
+        private void hideoutarea_Level_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!IsLoaded)
+                return;
+            var slider = sender as System.Windows.Controls.Slider;
+            Lang.Character.Hideout.Areas.Where(x => x.Type == ((CharacterHideoutArea)slider.DataContext).type).FirstOrDefault().Level = (int)slider.Value;
+        }
+
         private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
         {
             if (!IsLoaded)
@@ -287,13 +282,17 @@ namespace SP_EFT_ProfileEditor
         {
             if (await this.ShowMessageAsync(Lang.locale["reloadprofiledialog_caption"], Lang.locale["reloadprofiledialog_title"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
             {
-                SaveAndReload(); 
-                if (Quests != null)
-                {
-                    questsGrid.ItemsSource = null;
-                    questsGrid.ItemsSource = Quests;
-                }
+                SaveAndReload();
+                LoadData();
             }
+        }
+
+        private void HideoutMaximumButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (HideoutAreas == null) return;
+            foreach (var a in Lang.Character.Hideout.Areas)
+                a.Level = HideoutAreas.Where(x => x.type == a.Type).FirstOrDefault().MaxLevel;
+            LoadData();
         }
     }
 }

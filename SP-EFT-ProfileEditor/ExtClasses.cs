@@ -41,6 +41,7 @@ namespace SP_EFT_ProfileEditor
     
     public class CharacterHideoutArea
     {
+        public int type { get; set; }
         public string name { get; set; }
         public int MaxLevel { get; set; }
         public int CurrentLevel { get; set; }

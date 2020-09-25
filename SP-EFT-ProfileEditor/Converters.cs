@@ -44,18 +44,7 @@ namespace SP_EFT_ProfileEditor
             System.Globalization.CultureInfo culture)
         {
             if (value == null) return Visibility.Visible;
-
-            if (string.IsNullOrWhiteSpace(value.ToString())) return Visibility.Visible;
-            if (!Directory.Exists(value.ToString())) return Visibility.Visible;
-            if (!File.Exists(Path.Combine(value.ToString(), "Server.exe"))) return Visibility.Visible;
-            if (!Directory.Exists(Path.Combine(value.ToString(), "db"))) return Visibility.Visible;
-            if (!Directory.Exists(Path.Combine(value.ToString(), @"db\items"))) return Visibility.Visible;
-            if (!Directory.Exists(Path.Combine(value.ToString(), @"db\locales"))) return Visibility.Visible;
-            if (!Directory.Exists(Path.Combine(value.ToString(), @"user\configs"))) return Visibility.Visible;
-            if (!File.Exists(Path.Combine(value.ToString(), @"user\configs\accounts.json"))) return Visibility.Visible;
-            if (!Directory.Exists(Path.Combine(value.ToString(), @"user\profiles"))) return Visibility.Visible;
-
-            return Visibility.Collapsed;
+            return ExtMethods.PathIsEftServerBase(value.ToString()) ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter,
@@ -71,18 +60,7 @@ namespace SP_EFT_ProfileEditor
             System.Globalization.CultureInfo culture)
         {
             if (value == null) return false;
-            if (string.IsNullOrWhiteSpace(value.ToString())) return false;
-            if (!Directory.Exists(value.ToString())) return false;
-            if (!File.Exists(Path.Combine(value.ToString(), "Server.exe"))) return false;
-            if (!Directory.Exists(Path.Combine(value.ToString(), "db"))) return false;
-            if (!Directory.Exists(Path.Combine(value.ToString(), @"db\items"))) return false;
-            if (!Directory.Exists(Path.Combine(value.ToString(), @"db\locales"))) return false;
-            if (!Directory.Exists(Path.Combine(value.ToString(), @"user\configs"))) return false;
-            if (!File.Exists(Path.Combine(value.ToString(), @"user\configs\accounts.json"))) return false;
-            if (!Directory.Exists(Path.Combine(value.ToString(), @"user\profiles"))) return false;
-            if (Directory.GetDirectories(value.ToString() + "\\user\\profiles").Where(x => File.Exists(x + "\\character.json")).Count() < 1) return false;
-
-            return true;
+            return ExtMethods.PathIsEftServerBase(value.ToString());
         }
 
         public object ConvertBack(object value, Type targetType, object parameter,

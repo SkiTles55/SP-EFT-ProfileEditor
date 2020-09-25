@@ -172,6 +172,47 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
+            <TabItem Header="{Binding locale[tab_hideout_title]}" Name="tabhideout">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid x:Name="hideoutGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Resources>
+                            <local:BindingProxy x:Key="proxy" Data="{Binding}" />
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_hideout_area], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=name}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_hideout_level], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid Grid.Column="1" Grid.Row="5" Margin="10,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" >
+                                                <Label.Content>
+                                                    <TextBlock TextWrapping="Wrap" Text="{Binding ElementName=hideoutarea_Level, Path=Value}"/>
+                                                </Label.Content>
+                                            </Label>
+                                            <Slider x:Name="hideoutarea_Level" Grid.Column="1" Maximum="{Binding MaxLevel}" TickPlacement="BottomRight" TickFrequency="1" Value="{Binding CurrentLevel}" VerticalAlignment="Center" IsSnapToTickEnabled="True" Margin="5" ValueChanged="hideoutarea_Level_ValueChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Button x:Name="HideoutMaximumButton" Content="{Binding locale[tab_hideout_maximumbutton]}" Grid.Row="1" HorizontalAlignment="Center" Margin="10,10,10,0" Width="200" Click="HideoutMaximumButton_Click"/>
+                </Grid>
+            </TabItem>
             <TabItem Header="{Binding locale[tab_serversettings_title]}" x:Name="tabsettings">
                 <Grid/>
             </TabItem>

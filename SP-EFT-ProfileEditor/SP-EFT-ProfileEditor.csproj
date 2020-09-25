@@ -96,6 +96,7 @@
     <Compile Include="Character.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="ExtClasses.cs" />
+    <Compile Include="ExtMethods.cs" />
     <Compile Include="MainData.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

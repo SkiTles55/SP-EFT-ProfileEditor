@@ -115,6 +115,10 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_server"] = "SPTarkov Server directory",
                 ["tab_settings_account"] = "Account",
                 ["tab_settings_colorscheme"] = "Color scheme",
+                ["tab_hideout_title"] = "Hideout",
+                ["tab_hideout_area"] = "Area",
+                ["tab_hideout_level"] = "Level",
+                ["tab_hideout_maximumbutton"] = "Set everything to maximum",
                 ["tab_serversettings_title"] = "Server settings"
             };
             File.WriteAllText(Path.Combine(LangPath, "en.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
@@ -161,6 +165,10 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_server"] = "SPTarkov Server verzeichnis",
                 ["tab_settings_account"] = "Konto",
                 ["tab_settings_colorscheme"] = "Farbschema",
+                ["tab_hideout_title"] = "Unterschlupf",
+                ["tab_hideout_area"] = "Bereich",
+                ["tab_hideout_level"] = "Niveau",
+                ["tab_hideout_maximumbutton"] = "Stellen Sie alles auf Maximum",
                 ["tab_serversettings_title"] = "Server einstellungen"
             };
             File.WriteAllText(Path.Combine(LangPath, "ge.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
@@ -207,6 +215,10 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_server"] = "Каталог SPTarkov Server",
                 ["tab_settings_account"] = "Аккаунт",
                 ["tab_settings_colorscheme"] = "Цветовая схема",
+                ["tab_hideout_title"] = "Убежище",
+                ["tab_hideout_area"] = "Зона",
+                ["tab_hideout_level"] = "Уровень",
+                ["tab_hideout_maximumbutton"] = "Установить все на максимум",
                 ["tab_serversettings_title"] = "Настройки сервера"
             };
             File.WriteAllText(Path.Combine(LangPath, "ru.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
@@ -253,6 +265,10 @@ namespace SP_EFT_ProfileEditor
                 ["tab_settings_server"] = "Répertoire du serveur SPTarkov",
                 ["tab_settings_account"] = "Compte",
                 ["tab_settings_colorscheme"] = "Schéma de couleur",
+                ["tab_hideout_title"] = "Planque",
+                ["tab_hideout_area"] = "Zone",
+                ["tab_hideout_level"] = "Niveau",
+                ["tab_hideout_maximumbutton"] = "Réglez tout au maximum",
                 ["tab_serversettings_title"] = "Paramètres du serveur"
             };
             File.WriteAllText(Path.Combine(LangPath, "fr.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
