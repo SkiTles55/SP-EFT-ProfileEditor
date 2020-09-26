@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -47,10 +49,32 @@ namespace SP_EFT_ProfileEditor
         public int CurrentLevel { get; set; }
     }
 
-    public class CommonSkillInfo
+    public class SkillInfo
     {
         public string id { get; set; }
         public string name { get; set; }
         public int progress { get; set; }
+    }
+
+    public class TraderInfo
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public int CurrentLevel { get; set; }
+
+        public List<LoyaltyLevel> Levels { get; set; }
+    }
+
+    public class LoyaltyLevel
+    {
+        public int level { get; set; }
+        public long SalesSum { get; set; }
+        public float Standing { get; set; }
+    }
+
+    public class BackupFile
+    {
+        public string Path { get; set; }
+        public string date { get; set; }
     }
 }

@@ -8,11 +8,11 @@ using System.Windows;
 // набор атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
 [assembly: AssemblyTitle("SP-EFT-ProfileEditor")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Редасктор игрового профиля сервера SP Tarkov")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("SP-EFT-ProfileEditor")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCopyright("Copyright ©  2020 SkiTles")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

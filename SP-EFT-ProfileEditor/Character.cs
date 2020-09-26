@@ -662,7 +662,7 @@ namespace SP_EFT_ProfileEditor
                 public string LethalDamagePart { get; set; } // "Common",
 
                 [JsonProperty("LethalDamage")]
-                public int? LethalDamage { get; set; } // null,
+                public Character_Stats_DamageHistory_LethalDamage LethalDamage { get; set; } // null,
 
                 [JsonProperty("BodyParts")]
                 public Character_Stats_DamageHistory_BodyParts BodyParts { get; set; }
@@ -672,6 +672,27 @@ namespace SP_EFT_ProfileEditor
 
                 [JsonProperty("SurvivorClass")]
                 public string SurvivorClass { get; set; } // "Neutralizer"
+
+                public class Character_Stats_DamageHistory_LethalDamage
+                {
+                    [JsonProperty("Amount")]
+                    public float Amount { get; set; } // 8.00003052
+
+                    [JsonProperty("Type")]
+                    public string Type { get; set; } // "Bloodloss", "Bullet"
+
+                    [JsonProperty("SourceId")]
+                    public string SourceId { get; set; } // null, ammo id
+
+                    [JsonProperty("OverDamageFrom")]
+                    public string OverDamageFrom { get; set; } // null ??
+
+                    [JsonProperty("Blunt")]
+                    public bool Blunt { get; set; }
+
+                    [JsonProperty("ImpactsCount")]
+                    public int ImpactsCount { get; set; } // > 0
+                }
 
                 public class Character_Stats_DamageHistory_BodyParts
                 {

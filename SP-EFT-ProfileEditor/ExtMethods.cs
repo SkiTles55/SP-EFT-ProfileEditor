@@ -8,7 +8,7 @@ namespace SP_EFT_ProfileEditor
         {
             if (string.IsNullOrWhiteSpace(sptPath)) return false;
             if (!Directory.Exists(sptPath)) return false;
-            //if (!File.Exists(Path.Combine(sptPath, "Server.exe"))) return false;//for debug
+            if (!File.Exists(Path.Combine(sptPath, "Server.exe"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, "db"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, @"db\items"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, @"db\locales"))) return false;

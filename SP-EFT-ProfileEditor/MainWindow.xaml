@@ -45,7 +45,7 @@
             <RowDefinition/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <TabControl x:Name="tabControl" Grid.Row="0" Margin="10,5">
+        <TabControl x:Name="tabControl" Grid.Row="0" Margin="10,5" TabStripPlacement="Left">
             <TabItem Header="{Binding locale[tab_info_title]}" x:Name="tabinfo">
                 <Grid Margin="0,0,10,0">
                     <Grid.RowDefinitions>
@@ -121,6 +121,36 @@
                         </Label.Content>
                     </Label>
                     <mah:ToggleSwitch x:Name="BigPocketsSwitcher" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" Margin="10,0" OnContent="" OffContent="" Foreground="{DynamicResource MahApps.Brushes.Accent}" Toggled="BigPocketsSwitcher_Toggled"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{Binding locale[tab_merchants_title]}" x:Name="tabmerchants">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid x:Name="merchantsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Resources>
+                            <local:BindingProxy x:Key="proxy" Data="{Binding}" />
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_merchants_name], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=name}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_merchants_level], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox x:Name="merchantLevel" ItemsSource="{Binding Path=Levels}" DisplayMemberPath="level" SelectedValuePath="level" SelectedValue="{Binding Path=CurrentLevel}" SelectionChanged="merchantLevel_SelectionChanged"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Button x:Name="MerchantsMaximumButton" Content="{Binding locale[tab_hideout_maximumbutton]}" Grid.Row="1" HorizontalAlignment="Center" Margin="10,10,10,0" Width="200" Height="30" Click="MerchantsMaximumButton_Click"/>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_quests_title]}" x:Name="tabquests">
@@ -236,36 +266,128 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Grid Grid.Column="1" Grid.Row="5" Margin="10,0">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition/>
-                                                <RowDefinition/>
-                                            </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="80"/>
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
-                                            <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" >
-                                                <Label.Content>
-                                                    <TextBlock TextWrapping="Wrap" Text="{Binding Data.locale[tab_hideout_level], Source={StaticResource proxy}}"/>
-                                                </Label.Content>
-                                            </Label>
-                                            <Label Grid.Column="1" Grid.Row="0" Content="{ Binding ElementName=commonskill_exp, Path=Value, Converter={StaticResource ExpToLevelConverter}}"/>
-                                            <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" >
+                                            <Label Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" >
                                                 <Label.Content>
                                                     <TextBlock TextWrapping="Wrap" Text="{Binding ElementName=commonskill_exp, Path=Value}"/>
                                                 </Label.Content>
                                             </Label>
-                                            <Slider x:Name="commonskill_exp" Grid.Column="1" Grid.Row="1" Maximum="5100" TickPlacement="None" TickFrequency="10" Value="{Binding progress, Mode=TwoWay}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="commonskill_exp_ValueChanged"/>
+                                            <Slider x:Name="commonskill_exp" Grid.Column="1" Maximum="5100" TickPlacement="None" TickFrequency="10" Value="{Binding progress}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="commonskill_exp_ValueChanged"/>
                                         </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,0">
+                        <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0">
+                            <Label.Content>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_skills_setall]}"/>
+                            </Label.Content>
+                        </Label>
+                        <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0">
+                            <Label.Content>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding ElementName=allskill_exp, Path=Value}"/>
+                            </Label.Content>
+                        </Label>
+                        <Slider x:Name="allskill_exp" Grid.Column="1" Maximum="5100" TickPlacement="None" TickFrequency="10" Value="0" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" Width="150"/>
+                        <Button x:Name="SkillsExpButton" Content="{Binding locale[tab_quests_editallbutton]}" Margin="5,0" Width="100" Click="SkillsExpButton_Click"/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="{Binding locale[tab_serversettings_title]}" x:Name="tabsettings">
-                <Grid/>
+            <TabItem Header="{Binding locale[tab_mastering_title]}" Name="tabmastering">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid x:Name="masteringsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Resources>
+                            <local:BindingProxy x:Key="proxy" Data="{Binding}" />
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_mastering_weapon], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=name}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_mastering_exp], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid Grid.Column="1" Grid.Row="5" Margin="10,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" >
+                                                <Label.Content>
+                                                    <TextBlock TextWrapping="Wrap" Text="{Binding ElementName=masteringskill_exp, Path=Value}"/>
+                                                </Label.Content>
+                                            </Label>
+                                            <Slider x:Name="masteringskill_exp" Grid.Column="1" Maximum="5000" TickPlacement="None" TickFrequency="10" Value="{Binding progress}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="masteringskill_exp_ValueChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Label Grid.Row="0" FontWeight="Bold" FontSize="18" Visibility="{ Binding ElementName=masteringsGrid, Path=ItemsSource.Count, Converter={StaticResource QuestEmptyBoolConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_mastering_nodata]}"/>
+                        </Label.Content>
+                    </Label>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,0" Visibility="{ Binding ElementName=masteringsGrid, Path=ItemsSource.Count, Converter={StaticResource RevertedQuestEmptyBoolConverter}}">
+                        <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0">
+                            <Label.Content>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_mastering_setall]}"/>
+                            </Label.Content>
+                        </Label>
+                        <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0">
+                            <Label.Content>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding ElementName=allmastering_exp, Path=Value}"/>
+                            </Label.Content>
+                        </Label>
+                        <Slider x:Name="allmastering_exp" Grid.Column="1" Maximum="5000" TickPlacement="None" TickFrequency="10" Value="0" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" Width="150"/>
+                        <Button x:Name="MasteringsExpButton" Content="{Binding locale[tab_quests_editallbutton]}" Margin="5,0" Width="100" Click="MasteringsExpButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{Binding locale[tab_backups_title]}" Name="tabbackups">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid x:Name="backupsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Resources>
+                            <local:BindingProxy x:Key="proxy" Data="{Binding}" />
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_backups_date], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=date}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_backups_actions], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button x:Name="backupRestore" Margin="5" Content="{Binding Data.locale[tab_backups_restore], Source={StaticResource proxy}}" Click="backupRestore_Click"/>
+                                            <Button x:Name="backupRemove" Margin="5" Content="{Binding Data.locale[tab_backups_remove], Source={StaticResource proxy}}" Click="backupRemove_Click"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
             </TabItem>
         </TabControl>
         <StackPanel Margin="10,0,10,5" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
@@ -299,7 +421,7 @@
                     </DataTemplate>
                 </Button.ContentTemplate>
             </Button>
-        </StackPanel>        
+        </StackPanel>
         <Border x:Name="SettingsBorder" Grid.RowSpan="2" Background="{DynamicResource MahApps.Brushes.Accent4}" BorderThickness="1" Visibility="Collapsed">
             <Border BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" Background="{DynamicResource MahApps.Brushes.Window.Background}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid>
@@ -364,7 +486,7 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
                 </Grid>
-            </Border>            
+            </Border>
         </Border>
     </Grid>
 </mah:MetroWindow>

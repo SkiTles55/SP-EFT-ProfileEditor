@@ -103,6 +103,9 @@ namespace SP_EFT_ProfileEditor
                 ["tab_info_experience"] = "Experience",
                 ["tab_info_gameversion"] = "Game Version",
                 ["tab_info_bigpockets"] = "Big pockets",
+                ["tab_merchants_title"] = "Merchants",
+                ["tab_merchants_name"] = "Name",
+                ["tab_merchants_level"] = "Level",
                 ["tab_quests_title"] = "Quests",
                 ["tab_quests_trader"] = "Trader",
                 ["tab_quests_name"] = "Name",
@@ -122,7 +125,24 @@ namespace SP_EFT_ProfileEditor
                 ["tab_skills_title"] = "Skills",
                 ["tab_skills_skill"] = "Skill",
                 ["tab_skills_exp"] = "Experience",
-                ["tab_serversettings_title"] = "Server settings"
+                ["tab_skills_setall"] = "Set experience for all skills:",
+                ["tab_mastering_title"] = "Weapon mastering",
+                ["tab_mastering_weapon"] = "Weapon",
+                ["tab_mastering_exp"] = "Experience",
+                ["tab_mastering_setall"] = "Set experience for all weapons:",
+                ["tab_mastering_nodata"] = "No data to display. Play at least one match",
+                ["tab_backups_title"] = "Backups",
+                ["tab_backups_date"] = "Date",
+                ["tab_backups_actions"] = "Actions",
+                ["tab_backups_restore"] = "Restore",
+                ["tab_backups_remove"] = "Remove",
+                ["saveprofiledialog_title"] = "Saving a profile",
+                ["saveprofiledialog_caption"] = "Profile saved successfully",
+                ["saveprofiledialog_ok"] = "OK",
+                ["removebackupdialog_title"] = "Deleting a backup",
+                ["removebackupdialog_caption"] = "Are you sure want to delete this backup?",
+                ["restorebackupdialog_title"] = "Restoring a backup",
+                ["restorebackupdialog_caption"] = "Are you sure want to restore this backup?"
             };
             File.WriteAllText(Path.Combine(LangPath, "en.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }
@@ -156,6 +176,9 @@ namespace SP_EFT_ProfileEditor
                 ["tab_info_experience"] = "Erfahrung",
                 ["tab_info_gameversion"] = "Spielversion",
                 ["tab_info_bigpockets"] = "Große Taschen",
+                ["tab_merchants_title"] = "Händler",
+                ["tab_merchants_name"] = "Name",
+                ["tab_merchants_level"] = "Niveau",
                 ["tab_quests_title"] = "Quests",
                 ["tab_quests_trader"] = "Händler",
                 ["tab_quests_name"] = "Name",
@@ -175,7 +198,24 @@ namespace SP_EFT_ProfileEditor
                 ["tab_skills_title"] = "Fähigkeiten",
                 ["tab_skills_skill"] = "Fähigkeit",
                 ["tab_skills_exp"] = "Erfahrung",
-                ["tab_serversettings_title"] = "Server einstellungen"
+                ["tab_skills_setall"] = "Erfahrung für alle Fähigkeiten festlegen:",
+                ["tab_mastering_title"] = "Waffenbeherrschung",
+                ["tab_mastering_weapon"] = "Waffe",
+                ["tab_mastering_exp"] = "Erfahrung",
+                ["tab_mastering_setall"] = "Setze Erfahrung für alle Waffen:",
+                ["tab_mastering_nodata"] = "Keine Daten verfügbar. Spiele mindestens ein Match",
+                ["tab_backups_title"] = "Backups",
+                ["tab_backups_date"] = "Datum",
+                ["tab_backups_actions"] = "Aktionen",
+                ["tab_backups_restore"] = "Restaurieren",
+                ["tab_backups_remove"] = "Entfernen",
+                ["saveprofiledialog_title"] = "Profil speichern",
+                ["saveprofiledialog_caption"] = "Profil erfolgreich gespeichert",
+                ["saveprofiledialog_ok"] = "OK",
+                ["removebackupdialog_title"] = "Backup löschen",
+                ["removebackupdialog_caption"] = "Möchten Sie dieses Backup wirklich löschen?",
+                ["restorebackupdialog_title"] = "Backup wiederherstellen",
+                ["restorebackupdialog_caption"] = "Möchten Sie dieses Backup wirklich wiederherstellen?"
             };
             File.WriteAllText(Path.Combine(LangPath, "ge.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }
@@ -209,6 +249,9 @@ namespace SP_EFT_ProfileEditor
                 ["tab_info_experience"] = "Опыт",
                 ["tab_info_gameversion"] = "Версия игры",
                 ["tab_info_bigpockets"] = "Большие карманы",
+                ["tab_merchants_title"] = "Торговцы",
+                ["tab_merchants_name"] = "Имя",
+                ["tab_merchants_level"] = "Уровень",
                 ["tab_quests_title"] = "Квесты",
                 ["tab_quests_trader"] = "Торговец",
                 ["tab_quests_name"] = "Название",
@@ -228,7 +271,24 @@ namespace SP_EFT_ProfileEditor
                 ["tab_skills_title"] = "Умения",
                 ["tab_skills_skill"] = "Умение",
                 ["tab_skills_exp"] = "Опыт",
-                ["tab_serversettings_title"] = "Настройки сервера"
+                ["tab_skills_setall"] = "Установить опыт для всех умений:",
+                ["tab_mastering_title"] = "Владение оружием",
+                ["tab_mastering_weapon"] = "Оружие",
+                ["tab_mastering_exp"] = "Опыт",
+                ["tab_mastering_setall"] = "Установить опыт для всего оружия:",
+                ["tab_mastering_nodata"] = "Нет данных. Сыграйте хотя бы один матч",
+                ["tab_backups_title"] = "Бэкапы",
+                ["tab_backups_date"] = "Дата",
+                ["tab_backups_actions"] = "Действия",
+                ["tab_backups_restore"] = "Восстановить",
+                ["tab_backups_remove"] = "Удалить",
+                ["saveprofiledialog_title"] = "Сохранение профиля",
+                ["saveprofiledialog_caption"] = "Профиль успешно сохранен",
+                ["saveprofiledialog_ok"] = "OK",
+                ["removebackupdialog_title"] = "Удаление бэкапа",
+                ["removebackupdialog_caption"] = "Вы действительно хотите удалить этот бэкап?",
+                ["restorebackupdialog_title"] = "Восстановление бэкапа",
+                ["restorebackupdialog_caption"] = "Вы действительно хотите восстановить этот бэкап?"
             };
             File.WriteAllText(Path.Combine(LangPath, "ru.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }
@@ -262,6 +322,9 @@ namespace SP_EFT_ProfileEditor
                 ["tab_info_experience"] = "Expérience",
                 ["tab_info_gameversion"] = "Version du jeu",
                 ["tab_info_bigpockets"] = "Grandes poches",
+                ["tab_merchants_title"] = "Marchands",
+                ["tab_merchants_name"] = "Nom",
+                ["tab_merchants_level"] = "Niveau",
                 ["tab_quests_title"] = "Quêtes",
                 ["tab_quests_trader"] = "Commerçant",
                 ["tab_quests_name"] = "Nom",
@@ -281,7 +344,24 @@ namespace SP_EFT_ProfileEditor
                 ["tab_skills_title"] = "Compétence",
                 ["tab_skills_skill"] = "Compétence",
                 ["tab_skills_exp"] = "Expérience",
-                ["tab_serversettings_title"] = "Paramètres du serveur"
+                ["tab_skills_setall"] = "Définissez l'expérience pour toutes les compétences:",
+                ["tab_mastering_title"] = "Maîtrise des armes",
+                ["tab_mastering_weapon"] = "Arme",
+                ["tab_mastering_exp"] = "Expérience",
+                ["tab_mastering_setall"] = "Définissez l'expérience pour toutes les armes:",
+                ["tab_mastering_nodata"] = "Aucune donnée à afficher. Jouez au moins un match",
+                ["tab_backups_title"] = "Sauvegardes",
+                ["tab_backups_date"] = "Date",
+                ["tab_backups_actions"] = "Actions",
+                ["tab_backups_restore"] = "Restaurer",
+                ["tab_backups_remove"] = "Retirer",
+                ["saveprofiledialog_title"] = "Enregistrer un profil",
+                ["saveprofiledialog_caption"] = "Profil enregistré avec succès",
+                ["saveprofiledialog_ok"] = "OK",
+                ["removebackupdialog_title"] = "Supprimer une sauvegarde",
+                ["removebackupdialog_caption"] = "Voulez-vous vraiment supprimer cette sauvegarde?",
+                ["restorebackupdialog_title"] = "Restaurer une sauvegarde",
+                ["restorebackupdialog_caption"] = "Voulez-vous vraiment restaurer cette sauvegarde?"
             };
             File.WriteAllText(Path.Combine(LangPath, "fr.json"), JsonConvert.SerializeObject(locale, Formatting.Indented));
         }

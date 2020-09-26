@@ -10,7 +10,8 @@ using Newtonsoft.Json;
 using MahApps.Metro.Controls.Dialogs;
 using ControlzEx.Theming;
 using System.ComponentModel;
-using System.Diagnostics;
+using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -29,8 +30,10 @@ namespace SP_EFT_ProfileEditor
         private Dictionary<string, QuestLocale> QuestsLocales;
         private Dictionary<string, string> GameInterfaceLocale;
         private List<CharacterHideoutArea> HideoutAreas;
-        private List<CommonSkillInfo> commonSkills;
-        //MetroDialogSettings dialogSettings;
+        private List<SkillInfo> commonSkills;
+        private List<SkillInfo> masteringSkills;
+        private List<TraderInfo> traderInfos;
+        private List<BackupFile> backups;
 
         private Dictionary<string, string> Langs = new Dictionary<string, string>
         {
@@ -63,17 +66,23 @@ namespace SP_EFT_ProfileEditor
                 hideoutGrid.ItemsSource = HideoutAreas;
             if (commonSkills != null)
                 skillsGrid.ItemsSource = commonSkills;
+            if (masteringSkills != null)
+                masteringsGrid.ItemsSource = masteringSkills;
+            if (traderInfos != null)
+                merchantsGrid.ItemsSource = traderInfos;
+            if (backups != null)
+                backupsGrid.ItemsSource = backups;
             progressDialog.CloseAsync();
         }
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             GameInterfaceLocale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "interface.json")));
+            TradersLocales = new Dictionary<string, TraderLocale>();
+            foreach (var trader in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "trading")))
+                TradersLocales.Add(Path.GetFileNameWithoutExtension(trader), JsonConvert.DeserializeObject<TraderLocale>(File.ReadAllText(trader)));
             if (Lang.Character.Quests != null)
-            {
-                TradersLocales = new Dictionary<string, TraderLocale>();
-                foreach (var trader in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "trading")))
-                    TradersLocales.Add(Path.GetFileNameWithoutExtension(trader), JsonConvert.DeserializeObject<TraderLocale>(File.ReadAllText(trader)));
+            {                
                 QuestsLocales = new Dictionary<string, QuestLocale>();
                 foreach (var quest in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "quest")))
                     QuestsLocales.Add(Path.GetFileNameWithoutExtension(quest), JsonConvert.DeserializeObject<QuestLocale>(File.ReadAllText(quest)));
@@ -98,11 +107,41 @@ namespace SP_EFT_ProfileEditor
                 var area = JsonConvert.DeserializeObject<AreaInfo>(File.ReadAllText(areaFile));
                 HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = GameInterfaceLocale[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
             }
-            commonSkills = new List<CommonSkillInfo>();
+            commonSkills = new List<SkillInfo>();
             foreach (var skill in Lang.Character.Skills.Common)
             {
                 if (GameInterfaceLocale.ContainsKey(skill.Id))
-                    commonSkills.Add(new CommonSkillInfo { progress = (int)skill.Progress, name = GameInterfaceLocale[skill.Id], id = skill.Id });
+                    commonSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = GameInterfaceLocale[skill.Id], id = skill.Id });
+            }
+            masteringSkills = new List<SkillInfo>();
+            foreach (var skill in Lang.Character.Skills.Mastering)
+                masteringSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = skill.Id, id = skill.Id });
+            //item id - db/items/itemid.json
+            //locale - db/locales/ru/templates/itemid.json
+            traderInfos = new List<TraderInfo>();
+            foreach (var mer in Lang.Character.TraderStandings)
+            {
+                if (mer.Key == "ragfair") continue;
+                List<LoyaltyLevel> loyalties = new List<LoyaltyLevel>();
+                foreach (var lv in mer.Value.LoyaltyLevels)
+                    loyalties.Add(new LoyaltyLevel { level = Int32.Parse(lv.Key) + 1, SalesSum = lv.Value.MinSalesSum + 1000, Standing = lv.Value.MinStanding + 0.01f });
+                traderInfos.Add(new TraderInfo { id= mer.Key, name = TradersLocales[mer.Key].Nickname, CurrentLevel = mer.Value.CurrentLevel, Levels = loyalties });
+            }
+            LoadBackups();
+        }
+
+        private void LoadBackups()
+        {
+            backups = new List<BackupFile>();
+            foreach (var bk in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile)).Where(x => x.Contains("backup")).OrderByDescending(i => i))
+            {
+                try { backups.Add(new BackupFile { Path = bk, date = DateTime.ParseExact(Path.GetFileNameWithoutExtension(bk).Remove(0, 17), "dd-MM-yyyy-HH-mm", CultureInfo.InvariantCulture, DateTimeStyles.None).ToString("dd.MM.yyyy HH:mm") }); }
+                catch { }
+            }
+            if (!LoadDataWorker.IsBusy)
+            {
+                backupsGrid.ItemsSource = null;
+                backupsGrid.ItemsSource = backups;
             }
         }
 
@@ -227,19 +266,6 @@ namespace SP_EFT_ProfileEditor
 
         private void Button_Click(object sender, RoutedEventArgs e) => SettingsBorder.Visibility = Visibility.Visible;
 
-        private void SaveProfileButton_Click(object sender, RoutedEventArgs e)
-        {
-            JsonSerializerSettings seriSettings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                NullValueHandling = NullValueHandling.Ignore
-            };
-            Lang.Character.Info.LowerNickname = Lang.Character.Info.Nickname.ToLower();
-            string json = JsonConvert.SerializeObject(Lang.Character, seriSettings);
-            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testprofile.json"), json);
-            System.Windows.Forms.MessageBox.Show("profile saved!");
-        }
-
         private void infotab_Side_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!IsLoaded)
@@ -262,11 +288,22 @@ namespace SP_EFT_ProfileEditor
             Lang.Character.Quests.Where(x => x.Qid == ((Quest)comboBox.DataContext).qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();
         }
 
+        private void merchantLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!IsLoaded)
+                return;
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            LoyaltyLevel level = (LoyaltyLevel)comboBox.SelectedItem;
+            Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentLevel = level.level;
+            if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum < level.SalesSum) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum = level.SalesSum;
+            if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding < level.Standing) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding = level.Standing;
+        }
+
         private void hideoutarea_Level_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (!IsLoaded)
                 return;
-            var slider = sender as System.Windows.Controls.Slider;
+            var slider = sender as Slider;
             Lang.Character.Hideout.Areas.Where(x => x.Type == ((CharacterHideoutArea)slider.DataContext).type).FirstOrDefault().Level = (int)slider.Value;
         }
 
@@ -274,8 +311,16 @@ namespace SP_EFT_ProfileEditor
         {
             if (!IsLoaded)
                 return;
-            var slider = sender as System.Windows.Controls.Slider;
-            Lang.Character.Skills.Common.Where(x => x.Id == ((CommonSkillInfo)slider.DataContext).id).FirstOrDefault().Progress = (float)slider.Value;
+            var slider = sender as Slider;
+            Lang.Character.Skills.Common.Where(x => x.Id == ((SkillInfo)slider.DataContext).id).FirstOrDefault().Progress = (float)slider.Value;
+        }
+
+        private void masteringskill_exp_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!IsLoaded)
+                return;
+            var slider = sender as Slider;
+            Lang.Character.Skills.Mastering.Where(x => x.Id == ((SkillInfo)slider.DataContext).id).FirstOrDefault().Progress = (int)slider.Value;
         }
 
         private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
@@ -297,7 +342,7 @@ namespace SP_EFT_ProfileEditor
 
         private async void ResetProfileButton_Click(object sender, RoutedEventArgs e)
         {
-            if (await this.ShowMessageAsync(Lang.locale["reloadprofiledialog_caption"], Lang.locale["reloadprofiledialog_title"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+            if (await this.ShowMessageAsync(Lang.locale["reloadprofiledialog_title"], Lang.locale["reloadprofiledialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
             {
                 SaveAndReload();
                 LoadData();
@@ -310,6 +355,137 @@ namespace SP_EFT_ProfileEditor
             foreach (var a in Lang.Character.Hideout.Areas)
                 a.Level = HideoutAreas.Where(x => x.type == a.Type).FirstOrDefault().MaxLevel;
             LoadData();
+        }
+
+        private void SkillsExpButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (commonSkills == null) return;
+            foreach (var exp in Lang.Character.Skills.Common)
+                exp.Progress = (float)allskill_exp.Value;
+            LoadData();
+        }
+
+        private void MasteringsExpButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (masteringSkills == null) return;
+            foreach (var ms in Lang.Character.Skills.Mastering)
+                ms.Progress = (int)allmastering_exp.Value;
+            LoadData();
+        }
+
+        private void MerchantsMaximumButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (traderInfos == null) return;
+            foreach (var tr in Lang.Character.TraderStandings)
+            {
+                var max = tr.Value.LoyaltyLevels.Last();
+                tr.Value.CurrentLevel = Int32.Parse(max.Key) + 1;
+                if (tr.Value.CurrentSalesSum < max.Value.MinSalesSum + 1000) tr.Value.CurrentSalesSum = max.Value.MinSalesSum + 1000;
+                if (tr.Value.CurrentStanding < max.Value.MinStanding + 0.01f) tr.Value.CurrentStanding = max.Value.MinStanding + 0.01f;
+            }
+            LoadData();
+        }
+
+        private async void SaveProfileButton_Click(object sender, RoutedEventArgs e)
+        {
+            JsonSerializerSettings seriSettings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+            };
+            try
+            {
+                string profilepath = Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile, "character.json");
+                JObject jobject = JObject.Parse(File.ReadAllText(profilepath));
+                jobject.SelectToken("Info")["Nickname"] = Lang.Character.Info.Nickname;
+                jobject.SelectToken("Info")["LowerNickname"] = Lang.Character.Info.Nickname.ToLower();
+                jobject.SelectToken("Info")["Side"] = Lang.Character.Info.Side;
+                jobject.SelectToken("Info")["Voice"] = Lang.Character.Info.Voice;
+                jobject.SelectToken("Info")["Level"] = Lang.Character.Info.Level;
+                jobject.SelectToken("Info")["Experience"] = Lang.Character.Info.Experience;
+                for (int index = 0; index < Lang.Character.Inventory.Items.Count(); ++index)
+                {
+                    var probe = jobject.SelectToken("Inventory").SelectToken("items")[index].ToObject<Character.Character_Inventory.Character_Inventory_Item>();
+                    if (probe.Tpl == "557ffd194bdc2d28148b457f" || probe.Tpl == "5af99e9186f7747c447120b8")
+                    {
+                        jobject.SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
+                    }
+                }
+                foreach (var tr in Lang.Character.TraderStandings)
+                {
+                    jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["currentLevel"] = Lang.Character.TraderStandings[tr.Key].CurrentLevel;
+                    jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["currentSalesSum"] = Lang.Character.TraderStandings[tr.Key].CurrentSalesSum;
+                    jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["currentStanding"] = Lang.Character.TraderStandings[tr.Key].CurrentStanding;
+                }
+                if (Lang.Character.Quests.Count() > 0)
+                {
+                    for (int index = 0; index < Lang.Character.Quests.Count(); ++index)
+                    {
+                        var probe = jobject.SelectToken("Quests")[index].ToObject<Character.Character_Quests>();
+                        jobject.SelectToken("Quests")[index]["status"] = Lang.Character.Quests.Where(x => x.Qid == probe.Qid).FirstOrDefault().Status;
+                    }
+                }
+                for (int index = 0; index < Lang.Character.Hideout.Areas.Count(); ++index)
+                {
+                    var probe = jobject.SelectToken("Hideout").SelectToken("Areas")[index].ToObject<Character.Character_Hideout_Areas>();
+                    jobject.SelectToken("Hideout").SelectToken("Areas")[index]["level"] = Lang.Character.Hideout.Areas.Where(x => x.Type == probe.Type).FirstOrDefault().Level;
+                }
+                for (int index = 0; index < Lang.Character.Skills.Common.Count(); ++index)
+                {
+                    var probe = jobject.SelectToken("Skills").SelectToken("Common")[index].ToObject<Character.Character_Skills.Character_Skills_Common>();
+                    jobject.SelectToken("Skills").SelectToken("Common")[index]["Progress"] = Lang.Character.Skills.Common.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
+                }
+                for (int index = 0; index < Lang.Character.Skills.Mastering.Count(); ++index)
+                {
+                    var probe = jobject.SelectToken("Skills").SelectToken("Mastering")[index].ToObject<Character.Character_Skills.Character_Skills_Mastering>();
+                    jobject.SelectToken("Skills").SelectToken("Mastering")[index]["Progress"] = Lang.Character.Skills.Mastering.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
+                }
+                DateTime now = DateTime.Now;
+                string backupfile = $"{profilepath.Replace("character.json", "character")}-backup-{now:dd-MM-yyyy-HH-mm}.json";
+                File.Copy(profilepath, backupfile, true);
+                string json = JsonConvert.SerializeObject(jobject, seriSettings);
+                File.WriteAllText(profilepath, json);
+                await this.ShowMessageAsync(Lang.locale["saveprofiledialog_title"], Lang.locale["saveprofiledialog_caption"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+            }
+            catch (Exception ex)
+            {
+                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+            }
+            LoadBackups();
+        }
+
+        private async void backupRemove_Click(object sender, RoutedEventArgs e)
+        {
+            if (await this.ShowMessageAsync(Lang.locale["removebackupdialog_title"], Lang.locale["removebackupdialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+            {
+                try
+                {
+                    var button = sender as System.Windows.Controls.Button;
+                    File.Delete(((BackupFile)button.DataContext).Path);
+                }
+                catch (Exception ex)
+                {
+                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+                }                
+                LoadBackups();
+            }
+        }
+
+        private async void backupRestore_Click(object sender, RoutedEventArgs e)
+        {
+            if (await this.ShowMessageAsync(Lang.locale["restorebackupdialog_title"], Lang.locale["restorebackupdialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+            {
+                try
+                {
+                    var button = sender as System.Windows.Controls.Button;
+                    File.Copy(((BackupFile)button.DataContext).Path, Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile, "character.json"), true);
+                    File.Delete(((BackupFile)button.DataContext).Path);
+                }
+                catch (Exception ex)
+                {
+                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+                }                
+                LoadBackups();
+            }
         }
     }
 }
