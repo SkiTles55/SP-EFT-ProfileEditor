@@ -415,6 +415,8 @@ namespace SP_EFT_ProfileEditor
                     jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["currentLevel"] = Lang.Character.TraderStandings[tr.Key].CurrentLevel;
                     jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["currentSalesSum"] = Lang.Character.TraderStandings[tr.Key].CurrentSalesSum;
                     jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["currentStanding"] = Lang.Character.TraderStandings[tr.Key].CurrentStanding;
+                    if (Lang.Character.TraderStandings[tr.Key].CurrentLevel > 1)
+                        jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["display"] = true;
                 }
                 if (Lang.Character.Quests.Count() > 0)
                 {
