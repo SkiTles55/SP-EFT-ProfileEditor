@@ -20,11 +20,11 @@ namespace SP_EFT_ProfileEditor
         [JsonProperty("Info")]
         public Character_Info Info { get; set; }
 
-        [JsonProperty("Customization")]
-        public Character_Customization Customization { get; set; }
+        //[JsonProperty("Customization")]
+        //public Character_Customization Customization { get; set; }
 
-        [JsonProperty("Health")]
-        public Character_Health Health { get; set; }
+        //[JsonProperty("Health")]
+        //public Character_Health Health { get; set; }
 
         [JsonProperty("Inventory")]
         public Character_Inventory Inventory { get; set; }
@@ -32,29 +32,29 @@ namespace SP_EFT_ProfileEditor
         [JsonProperty("Skills")]
         public Character_Skills Skills { get; set; }
 
-        [JsonProperty("Stats")]
-        public Character_Stats Stats { get; set; }
+        //[JsonProperty("Stats")]
+        //public Character_Stats Stats { get; set; }
 
         [JsonProperty("Encyclopedia")]
         public Dictionary<string, bool> Encyclopedia { get; set; }
 
-        [JsonProperty("ConditionCounters")]
-        public Character_ConditionCounters ConditionCounters { get; set; }
+        //[JsonProperty("ConditionCounters")]
+        //public Character_ConditionCounters ConditionCounters { get; set; }
 
-        [JsonProperty("BackendCounters")]
-        public Dictionary<string, IdQidAndValue> BackendCounters { get; set; }
+        //[JsonProperty("BackendCounters")]
+        //public Dictionary<string, IdQidAndValue> BackendCounters { get; set; }
 
-        [JsonProperty("InsuredItems")]
-        public TidAndItemId[] InsuredItems { get; set; }
+        //[JsonProperty("InsuredItems")]
+        //public TidAndItemId[] InsuredItems { get; set; }
 
         [JsonProperty("Hideout")]
         public Character_Hideout Hideout { get; set; }
 
-        [JsonProperty("Bonuses")]
-        public Character_Bonuses[] Bonuses { get; set; }
+        //[JsonProperty("Bonuses")]
+        //public Character_Bonuses[] Bonuses { get; set; }
 
-        [JsonProperty("Notes")]
-        public Character_Notes Notes { get; set; }
+        //[JsonProperty("Notes")]
+        //public Character_Notes Notes { get; set; }
 
         [JsonProperty("Quests")]
         public Character_Quests[] Quests { get; set; }
@@ -62,11 +62,11 @@ namespace SP_EFT_ProfileEditor
         [JsonProperty("TraderStandings")]
         public Dictionary<string, Character_TraderStandings> TraderStandings { get; set; }
 
-        [JsonProperty("RagfairInfo")]
-        public Character_RagfairInfo RagfairInfo { get; set; }
+        //[JsonProperty("RagfairInfo")]
+        //public Character_RagfairInfo RagfairInfo { get; set; }
 
-        [JsonProperty("WishList")]
-        public string[] WishList { get; set; } // item ids
+        //[JsonProperty("WishList")]
+        //public string[] WishList { get; set; } // item ids
 
 
         // Subnode classes
@@ -91,15 +91,15 @@ namespace SP_EFT_ProfileEditor
             [JsonProperty("Experience")]
             public long Experience { get; set; }
 
-            [JsonProperty("RegistrationDate")]
-            public long RegistrationDate { get; set; }
+            //[JsonProperty("RegistrationDate")]
+            //public long RegistrationDate { get; set; }
 
             [JsonProperty("GameVersion")]
             public string GameVersion { get; set; }
-
+            /*
             [JsonProperty("AccountType")]
             public int AccountType { get; set; }
-
+            
             [JsonProperty("MemberCategory")]
             public string MemberCategory { get; set; }
 
@@ -137,9 +137,9 @@ namespace SP_EFT_ProfileEditor
 
                 [JsonProperty("Experience")]
                 public long Experience { get; set; }
-            }
+            }*/
         }
-
+        /*
         public class Character_Customization
         {
             [JsonProperty("Head")]
@@ -154,7 +154,7 @@ namespace SP_EFT_ProfileEditor
             [JsonProperty("Hands")]
             public string Hands { get; set; }
         }
-
+        
         public class Character_Health
         {
             [JsonProperty("Hydration")]
@@ -213,7 +213,7 @@ namespace SP_EFT_ProfileEditor
                     }
                 }
             }
-        }
+        }*/
 
         public class Character_Inventory
         {
@@ -232,8 +232,8 @@ namespace SP_EFT_ProfileEditor
             [JsonProperty("questStashItems")]
             public string QuestStashItems { get; set; }
 
-            [JsonProperty("fastPanel")]
-            public Character_Inventory_FastPanel FastPanel { get; set; }
+            //[JsonProperty("fastPanel")]
+            //public Character_Inventory_FastPanel FastPanel { get; set; }
 
             public class Character_Inventory_Item
             {
@@ -470,7 +470,7 @@ namespace SP_EFT_ProfileEditor
                     }
                 }
             }
-
+            /*
             public class Character_Inventory_FastPanel 
             {
                 [JsonProperty("Item4")] //test
@@ -493,7 +493,7 @@ namespace SP_EFT_ProfileEditor
 
                 [JsonProperty("Item0")]
                 public string Item0 { get; set; }
-            }
+            }*/
         }
 
         public class Character_Skills
@@ -504,11 +504,11 @@ namespace SP_EFT_ProfileEditor
             [JsonProperty("Mastering")]
             public Character_Skills_Mastering[] Mastering { get; set; }
 
-            [JsonProperty("Bonuses")]
-            public object Bonuses { get; set; } // ?!
+            //[JsonProperty("Bonuses")]
+            //public object Bonuses { get; set; } // ?!
 
-            [JsonProperty("Points")]
-            public int Points { get; set; } // 0?
+            //[JsonProperty("Points")]
+            //public int Points { get; set; } // 0?
 
             public class Character_Skills_Common
             {
@@ -518,11 +518,11 @@ namespace SP_EFT_ProfileEditor
                 [JsonProperty("Progress")]
                 public float Progress { get; set; }
 
-                [JsonProperty("PointsEarnedDuringSession")]
-                public float PointsEarnedDuringSession { get; set; }
+                //[JsonProperty("PointsEarnedDuringSession")]
+                //public float PointsEarnedDuringSession { get; set; }
 
-                [JsonProperty("LastAccess")]
-                public long LastAccess { get; set; }
+                //[JsonProperty("LastAccess")]
+                //public long LastAccess { get; set; }
             }
 
             public class Character_Skills_Mastering
@@ -531,10 +531,10 @@ namespace SP_EFT_ProfileEditor
                 public string Id { get; set; }
 
                 [JsonProperty("Progress")]
-                public int Progress { get; set; }
+                public float Progress { get; set; }
             }
         }
-
+        /*
         public class Character_Stats
         {
             [JsonProperty("SessionCounters")]
@@ -739,18 +739,18 @@ namespace SP_EFT_ProfileEditor
                     }
                 }
             }
-        }
-
+        }*/
+        /*
         public class Character_ConditionCounters
         {
             [JsonProperty("Counters")]
             public IdAndValue[] Counters { get; set; }
-        }
+        }*/
 
         public class Character_Hideout
         {
-            [JsonProperty("Production")]
-            public object Production { get; set; } // ?!
+            //[JsonProperty("Production")]
+            //public object Production { get; set; } // ?!
 
             [JsonProperty("Areas")]
             public Character_Hideout_Areas[] Areas { get; set; }
@@ -763,7 +763,7 @@ namespace SP_EFT_ProfileEditor
 
             [JsonProperty("level")]
             public int Level { get; set; } // 3,
-
+            /*
             [JsonProperty("active")]
             public bool Active { get; set; } // true,
 
@@ -783,9 +783,9 @@ namespace SP_EFT_ProfileEditor
             {
                 [JsonProperty("item")] //notwork
                 public Character_Inventory.Character_Inventory_Item[] Item { get; set; }
-            }
+            }*/
         }
-
+        /*
         public class Character_Bonuses
         {
             [JsonProperty("value")]
@@ -806,27 +806,27 @@ namespace SP_EFT_ProfileEditor
 
             [JsonProperty("filter")]
             public string[] Filter { get; set; } // [ "id" ],
-            public bool ShouldSerializeFilter() => /*(Type != "StashSize") &&*/ (Filter != null);
-
+            public bool ShouldSerializeFilter() => /*(Type != "StashSize") &&*/ //(Filter != null);
+        /*
             [JsonProperty("id")]
             public string Id { get; set; } // "5d8b89addfc57a648453e89d",
-            public bool ShouldSerializeId() => /*(Type != "StashSize") &&*/ (Id != null);
-
+            public bool ShouldSerializeId() => /*(Type != "StashSize") &&*/ //(Id != null);
+        /*
             [JsonProperty("icon")]
             public string Icon { get; set; } // "/files/Hideout/icon_hideout_fuelslots.png",
-            public bool ShouldSerializeIcon() => /*(Type != "StashSize") &&*/ (Icon != null);
-
+            public bool ShouldSerializeIcon() => /*(Type != "StashSize") &&*/ //(Icon != null);
+        /*
             [JsonProperty("skillType")]
             public string SkillType { get; set; } // "Physical",
-            public bool ShouldSerializeSkillType() => /*(Type != "StashSize") &&*/ (SkillType != null);
-
+            public bool ShouldSerializeSkillType() => /*(Type != "StashSize") &&*/ //(SkillType != null);
+            /*
             [JsonProperty("type")]
             public string Type { get; set; } // "StashSize",
 
             [JsonProperty("templateId")]
             public string TemplateId { get; set; } // "566abbc34bdc2d92178b4576"
-        }
-
+        }*/
+        /*
         public class Character_Notes
         {
             [JsonProperty("Notes")]
@@ -840,18 +840,18 @@ namespace SP_EFT_ProfileEditor
                 [JsonProperty("Text")]
                 public string Text { get; set; } // "A sample note"
             }
-        }
+        }*/
 
         public class Character_Quests
         {
             [JsonProperty("qid")]
             public string Qid { get; set; } // "59674eb386f774539f14813a",
 
-            [JsonProperty("startTime")]
-            public long StartTime { get; set; } // 1596824527,
+            //[JsonProperty("startTime")]
+            //public long StartTime { get; set; } // 1596824527,
 
-            [JsonProperty("completedConditions")]
-            public string[] CompletedConditions { get; set; } // [
+            //[JsonProperty("completedConditions")]
+            //public string[] CompletedConditions { get; set; } // [
                                                               //	"59a926c386f7747bbc027ac8",
                                                               //	"",
                                                               //	"5968929e86f7740d121082d3",
@@ -859,8 +859,8 @@ namespace SP_EFT_ProfileEditor
                                                               //	"5977784486f774285402cf52"
                                                               //],
 
-            [JsonProperty("statusTimers")]
-            public Dictionary<string, decimal> StatusTimers { get; set; } // {
+            //[JsonProperty("statusTimers")]
+            //public Dictionary<string, decimal> StatusTimers { get; set; } // {
                                                                           //	"1": 1596824523.379,
                                                                           //	"2": 1596826424.135,
                                                                           //	"3": 1596827807.145,
@@ -882,9 +882,9 @@ namespace SP_EFT_ProfileEditor
             [JsonProperty("currentStanding")]
             public float CurrentStanding { get; set; } // 2.52,
 
-            [JsonProperty("NextLoyalty")]
-            public object NextLoyalty { get; set; } // null,
-            public bool ShouldSerializeNextLoyalty() => true;
+            //[JsonProperty("NextLoyalty")]
+            //public object NextLoyalty { get; set; } // null,
+            //public bool ShouldSerializeNextLoyalty() => true;
 
             [JsonProperty("loyaltyLevels")]
             public Dictionary<string, Character_TraderStandings_LoyaltyLevels> LoyaltyLevels { get; set; }
@@ -903,11 +903,11 @@ namespace SP_EFT_ProfileEditor
                 [JsonProperty("minStanding")]
                 public float MinStanding { get; set; } // 0.35
 
-                [JsonProperty("heal_price_coef")]
-                public float heal_price_coef { get; set; } // test //serialize only if trader id is '54cb57776803fa99248b456e'
+                //[JsonProperty("heal_price_coef")]
+                //public float heal_price_coef { get; set; } // test //serialize only if trader id is '54cb57776803fa99248b456e'
             }
         }
-
+        /*
         public class Character_RagfairInfo
         {
             [JsonProperty("rating")]
@@ -918,7 +918,7 @@ namespace SP_EFT_ProfileEditor
 
             [JsonProperty("offers")]
             public string[] Offers { get; set; } // [] maybe offer type..
-        }
+        }*/
 
 
         // Helpers
@@ -945,7 +945,7 @@ namespace SP_EFT_ProfileEditor
                 return new CurrAndMaxF { Current = a.Current + b.Current, Maximum = a.Maximum + b.Maximum };
             }
         }
-
+        /*
         public class IdAndValue
         {
             [JsonProperty("id")]
@@ -953,7 +953,7 @@ namespace SP_EFT_ProfileEditor
 
             [JsonProperty("value")]
             public int Value { get; set; }
-        }
+        }*/
 
         public class IdQidAndValue
         {

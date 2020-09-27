@@ -12,6 +12,8 @@ using ControlzEx.Theming;
 using System.ComponentModel;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.Text.RegularExpressions;
+using System.Windows.Input;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -136,7 +138,8 @@ namespace SP_EFT_ProfileEditor
             foreach (var bk in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile)).Where(x => x.Contains("backup")).OrderByDescending(i => i))
             {
                 try { backups.Add(new BackupFile { Path = bk, date = DateTime.ParseExact(Path.GetFileNameWithoutExtension(bk).Remove(0, 17), "dd-MM-yyyy-HH-mm", CultureInfo.InvariantCulture, DateTimeStyles.None).ToString("dd.MM.yyyy HH:mm") }); }
-                catch { }
+                catch (Exception ex)
+                { ExtMethods.Log($"LoadBackups | {ex.GetType().Name}: {ex.Message}"); }
             }
             if (!LoadDataWorker.IsBusy)
             {
@@ -450,6 +453,7 @@ namespace SP_EFT_ProfileEditor
             }
             catch (Exception ex)
             {
+                ExtMethods.Log($"SaveProfileButton_Click | {ex.GetType().Name}: {ex.Message}");
                 await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
             }
             LoadBackups();
@@ -466,6 +470,7 @@ namespace SP_EFT_ProfileEditor
                 }
                 catch (Exception ex)
                 {
+                    ExtMethods.Log($"backupRemove_Click | {ex.GetType().Name}: {ex.Message}");
                     await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
                 }                
                 LoadBackups();
@@ -484,10 +489,18 @@ namespace SP_EFT_ProfileEditor
                 }
                 catch (Exception ex)
                 {
+                    ExtMethods.Log($"backupRestore_Click | {ex.GetType().Name}: {ex.Message}");
                     await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
-                }                
-                LoadBackups();
+                } 
+                SaveAndReload();
+                LoadData();
             }
+        }
+
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -17,6 +18,31 @@ namespace SP_EFT_ProfileEditor
             if (!Directory.Exists(Path.Combine(sptPath, @"user\profiles"))) return false;
 
             return true;
+        }
+
+        public static void Log(string text)
+        {
+            string path = AppDomain.CurrentDomain.BaseDirectory + "/Logs/";
+            VerifyDir();
+            string fileName = "log" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
+            try
+            {
+                StreamWriter file = new StreamWriter(path + fileName, true);
+                file.WriteLine(DateTime.Now.ToString() + ": " + text);
+                file.Close();
+            }
+            catch (Exception) { }
+
+            void VerifyDir()
+            {
+                try
+                {
+                    DirectoryInfo dir = new DirectoryInfo(path);
+                    if (!dir.Exists)
+                        dir.Create();
+                }
+                catch { }
+            }
         }
     }
 }
