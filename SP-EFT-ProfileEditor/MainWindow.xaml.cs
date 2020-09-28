@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
+using System.Diagnostics;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -36,6 +37,7 @@ namespace SP_EFT_ProfileEditor
         private List<SkillInfo> masteringSkills;
         private List<TraderInfo> traderInfos;
         private List<BackupFile> backups;
+        private List<Item> itemsDB;
 
         private Dictionary<string, string> Langs = new Dictionary<string, string>
         {
@@ -130,6 +132,19 @@ namespace SP_EFT_ProfileEditor
                 traderInfos.Add(new TraderInfo { id= mer.Key, name = TradersLocales[mer.Key].Nickname, CurrentLevel = mer.Value.CurrentLevel, Levels = loyalties });
             }
             LoadBackups();
+            itemsDB = new List<Item>();
+            foreach (var item in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "items")))
+            {
+                try
+                {
+                    itemsDB.Add(JsonConvert.DeserializeObject<Item>(File.ReadAllText(item)));
+                }
+                catch (Exception ex)
+                {
+                    ExtMethods.Log($"ItemsDBLoad | {ex.GetType().Name}: {ex.Message}");
+                }
+            }
+            GenerateInventory();
         }
 
         private void LoadBackups()
@@ -501,6 +516,68 @@ namespace SP_EFT_ProfileEditor
         {
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void GenerateInventory()
+        {
+            CharacterInventory characterInventory = new CharacterInventory();
+            //need to found stash size from Lang.Character.Inventory.Stash (5df7b9abef12bf7a2524385f)
+            /*
+            characterInventory.Stash = new int[10, 68];
+            foreach (var item in Lang.Character.Inventory.Items.Where(x => x.Location != null && x.ParentId == Lang.Character.Inventory.Stash && x.SlotId == "hideout"))
+            {
+                var itemInfo = itemsDB.Where(x => x.id == item.Tpl).FirstOrDefault();
+                int iTw = item.Location.R == "Horizontal" ? itemInfo.props.Width : itemInfo.props.Height; //item Width with rotation
+                int iTh = item.Location.R == "Horizontal" ? itemInfo.props.Height : itemInfo.props.Width; //item Height with rotation
+                for (int i = item.Location.X; i < iTw + item.Location.X; i++)
+                    for (int i2 = item.Location.Y; i2 < iTh + item.Location.Y; i2++)
+                        characterInventory.Stash[i, i2] = 1;
+            }
+            int freeSlots = 0;
+            foreach (var slot in characterInventory.Stash)
+                if (slot == 0) freeSlots++;
+            Debug.Print($"we have {freeSlots} free slots in stash");
+            using (var sw = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "/inventory.txt"))
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    for (int j = 0; j < 68; j++)
+                    {
+                        sw.Write(characterInventory.Stash[i, j]);
+                    }
+                    sw.Write("\n");
+                }
+                sw.Flush();
+                sw.Close();
+            } //worked
+            */
+            characterInventory.Stash = new int[68, 10];
+            foreach (var item in Lang.Character.Inventory.Items.Where(x => x.Location != null && x.ParentId == Lang.Character.Inventory.Stash && x.SlotId == "hideout"))
+            {
+                var itemInfo = itemsDB.Where(x => x.id == item.Tpl).FirstOrDefault();
+                int iTw = item.Location.R == "Horizontal" ? itemInfo.props.Width : itemInfo.props.Height; //item Width with rotation
+                int iTh = item.Location.R == "Horizontal" ? itemInfo.props.Height : itemInfo.props.Width; //item Height with rotation
+                for (int i2 = item.Location.Y; i2 < iTh + item.Location.Y; i2++)
+                    for (int i = item.Location.X; i < iTw + item.Location.X; i++)
+                        characterInventory.Stash[i2, i] = 1;
+            }
+            int freeSlots = 0;
+            foreach (var slot in characterInventory.Stash)
+                if (slot == 0) freeSlots++;
+            Debug.Print($"we have {freeSlots} free slots in stash");
+            using (var sw = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "/inventory.txt"))
+            {
+                for (int i = 0; i < 68; i++)
+                {
+                    for (int j = 0; j < 10; j++)
+                    {
+                        sw.Write(characterInventory.Stash[i, j]);
+                    }
+                    sw.Write("\n");
+                }
+                sw.Flush();
+                sw.Close();
+            }
         }
     }
 }

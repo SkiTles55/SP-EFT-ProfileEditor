@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -76,5 +77,31 @@ namespace SP_EFT_ProfileEditor
     {
         public string Path { get; set; }
         public string date { get; set; }
+    }
+
+    public class CharacterInventory
+    {
+        public int[,] Stash { get; set; }
+    }
+
+    public class Item
+    {
+        [JsonProperty("_id")]
+        public string id { get; set; }
+
+        [JsonProperty("_name")]
+        public string name { get; set; }
+
+        [JsonProperty("_props")]
+        public ItemProps props { get; set; }
+    }
+
+    public class ItemProps
+    {
+        public string Name { get; set; }
+        public string ShortName { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int StackMaxSize { get; set; }
     }
 }
