@@ -106,7 +106,19 @@ namespace SP_EFT_ProfileEditor
             return level;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var st = value.ToString();
+            if (string.IsNullOrEmpty(st))
+                st = "0";
+            int lvl = Int32.Parse(st);
+            if (lvl > ExpTable.Count())
+                lvl = ExpTable.Count();
+            long exp = 0;
+            for (int i = 0; i < lvl; i++)
+                exp += ExpTable[i];
+            return exp;
+        }
 
         private List<long> ExpTable => new List<long>  { 0, 1000,
                 2743,3999,5256,6494,7658,8851,10025,11098,12226,13336,16814,19924,23053,26283,29219,32045,34466,37044
