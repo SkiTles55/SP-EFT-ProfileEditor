@@ -39,6 +39,10 @@ namespace SP_EFT_ProfileEditor
         private List<BackupFile> backups;
         private List<Item> itemsDB;
 
+        private static string moneyRub = "5449016a4bdc2d6f028b456f";
+        private static string moneyDol = "5696686a4bdc2da3298b456a";
+        private static string moneyEur = "569668774bdc2da2298b4568";
+
         private Dictionary<string, string> Langs = new Dictionary<string, string>
         {
             ["en"] = "English",
@@ -522,41 +526,28 @@ namespace SP_EFT_ProfileEditor
         {
             CharacterInventory characterInventory = new CharacterInventory();
             //need to found stash size from Lang.Character.Inventory.Stash (5df7b9abef12bf7a2524385f)
-            /*
-            characterInventory.Stash = new int[10, 68];
-            foreach (var item in Lang.Character.Inventory.Items.Where(x => x.Location != null && x.ParentId == Lang.Character.Inventory.Stash && x.SlotId == "hideout"))
-            {
-                var itemInfo = itemsDB.Where(x => x.id == item.Tpl).FirstOrDefault();
-                int iTw = item.Location.R == "Horizontal" ? itemInfo.props.Width : itemInfo.props.Height; //item Width with rotation
-                int iTh = item.Location.R == "Horizontal" ? itemInfo.props.Height : itemInfo.props.Width; //item Height with rotation
-                for (int i = item.Location.X; i < iTw + item.Location.X; i++)
-                    for (int i2 = item.Location.Y; i2 < iTh + item.Location.Y; i2++)
-                        characterInventory.Stash[i, i2] = 1;
-            }
-            int freeSlots = 0;
-            foreach (var slot in characterInventory.Stash)
-                if (slot == 0) freeSlots++;
-            Debug.Print($"we have {freeSlots} free slots in stash");
-            using (var sw = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "/inventory.txt"))
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    for (int j = 0; j < 68; j++)
-                    {
-                        sw.Write(characterInventory.Stash[i, j]);
-                    }
-                    sw.Write("\n");
-                }
-                sw.Flush();
-                sw.Close();
-            } //worked
-            */
             characterInventory.Stash = new int[68, 10];
-            foreach (var item in Lang.Character.Inventory.Items.Where(x => x.Location != null && x.ParentId == Lang.Character.Inventory.Stash && x.SlotId == "hideout"))
+            foreach (var item in Lang.Character.Inventory.Items)
             {
+                if (item.Tpl == moneyRub) characterInventory.Rubles += item.Upd.StackObjectsCount ?? 0;
+                if (item.Tpl == moneyEur) characterInventory.Euros += item.Upd.StackObjectsCount ?? 0;
+                if (item.Tpl == moneyDol) characterInventory.Dollars += item.Upd.StackObjectsCount ?? 0;
+                if (item.Location == null || item.ParentId != Lang.Character.Inventory.Stash || item.SlotId != "hideout") continue;
                 var itemInfo = itemsDB.Where(x => x.id == item.Tpl).FirstOrDefault();
                 int iTw = item.Location.R == "Horizontal" ? itemInfo.props.Width : itemInfo.props.Height; //item Width with rotation
                 int iTh = item.Location.R == "Horizontal" ? itemInfo.props.Height : itemInfo.props.Width; //item Height with rotation
+                /*
+                if (Lang.Character.Inventory.Items.Where(x => x.ParentId == item.Id).Count() > 0)
+                {
+                    foreach (var mod in Lang.Character.Inventory.Items.Where(x => x.ParentId == item.Id))
+                    {
+                        var modInfo = itemsDB.Where(x => x.id == mod.Tpl).FirstOrDefault();
+                        iTw += modInfo.props.ExtraSizeLeft;
+                        iTw += modInfo.props.ExtraSizeRight;
+                        iTh += modInfo.props.ExtraSizeUp;
+                        iTh += modInfo.props.ExtraSizeDown;
+                    }
+                } */               
                 for (int i2 = item.Location.Y; i2 < iTh + item.Location.Y; i2++)
                     for (int i = item.Location.X; i < iTw + item.Location.X; i++)
                         characterInventory.Stash[i2, i] = 1;
@@ -565,6 +556,9 @@ namespace SP_EFT_ProfileEditor
             foreach (var slot in characterInventory.Stash)
                 if (slot == 0) freeSlots++;
             Debug.Print($"we have {freeSlots} free slots in stash");
+            Debug.Print($"we have {characterInventory.Rubles} rubles");
+            Debug.Print($"we have {characterInventory.Euros} euros");
+            Debug.Print($"we have {characterInventory.Dollars} dollars");
             using (var sw = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "/inventory.txt"))
             {
                 for (int i = 0; i < 68; i++)

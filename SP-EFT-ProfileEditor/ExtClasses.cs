@@ -82,6 +82,9 @@ namespace SP_EFT_ProfileEditor
     public class CharacterInventory
     {
         public int[,] Stash { get; set; }
+        public int Rubles { get; set; }
+        public int Euros { get; set; }
+        public int Dollars { get; set; }
     }
 
     public class Item
@@ -103,5 +106,9 @@ namespace SP_EFT_ProfileEditor
         public int Width { get; set; }
         public int Height { get; set; }
         public int StackMaxSize { get; set; }
+        public int ExtraSizeLeft { get; set; }
+        public int ExtraSizeRight { get; set; }
+        public int ExtraSizeUp { get; set; }
+        public int ExtraSizeDown { get; set; }
     }
 }
