@@ -27,21 +27,9 @@ namespace SP_EFT_ProfileEditor
         private BackgroundWorker LoadDataWorker;
         private ProgressDialogController progressDialog;
         private string lastdata = null;
-
-        private List<Quest> Quests;
-        private Dictionary<string, TraderLocale> TradersLocales;
-        private Dictionary<string, QuestLocale> QuestsLocales;
-        private Dictionary<string, string> GameInterfaceLocale;
-        private List<CharacterHideoutArea> HideoutAreas;
-        private List<SkillInfo> commonSkills;
-        private List<SkillInfo> masteringSkills;
-        private List<TraderInfo> traderInfos;
         private List<BackupFile> backups;
-        private List<Item> itemsDB;
-
-        private static string moneyRub = "5449016a4bdc2d6f028b456f";
-        private static string moneyDol = "5696686a4bdc2da3298b456a";
-        private static string moneyEur = "569668774bdc2da2298b4568";
+        private List<SkillInfo> commonSkills;
+        private List<CharacterHideoutArea> HideoutAreas;
 
         private Dictionary<string, string> Langs = new Dictionary<string, string>
         {
@@ -68,16 +56,11 @@ namespace SP_EFT_ProfileEditor
 
         private void LoadDataWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (Quests != null)
-                questsGrid.ItemsSource = Quests;
+            //
             if (HideoutAreas != null)
                 hideoutGrid.ItemsSource = HideoutAreas;
             if (commonSkills != null)
                 skillsGrid.ItemsSource = commonSkills;
-            if (masteringSkills != null)
-                masteringsGrid.ItemsSource = masteringSkills;
-            if (traderInfos != null)
-                merchantsGrid.ItemsSource = traderInfos;
             if (backups != null)
                 backupsGrid.ItemsSource = backups;
             progressDialog.CloseAsync();
@@ -85,70 +68,18 @@ namespace SP_EFT_ProfileEditor
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            GameInterfaceLocale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "interface.json")));
-            TradersLocales = new Dictionary<string, TraderLocale>();
-            foreach (var trader in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "trading")))
-                TradersLocales.Add(Path.GetFileNameWithoutExtension(trader), JsonConvert.DeserializeObject<TraderLocale>(File.ReadAllText(trader)));
-            if (Lang.Character.Quests != null)
-            {                
-                QuestsLocales = new Dictionary<string, QuestLocale>();
-                foreach (var quest in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "quest")))
-                    QuestsLocales.Add(Path.GetFileNameWithoutExtension(quest), JsonConvert.DeserializeObject<QuestLocale>(File.ReadAllText(quest)));
-                Quests = new List<Quest>();
-                foreach (var TraderPath in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "db", "assort")))
-                {
-                    if (Directory.Exists(Path.Combine(TraderPath, "quests")))
-                    {
-                        foreach (var QuestInfo in Directory.GetFiles(Path.Combine(TraderPath, "quests")))
-                        {
-                            string qid = Path.GetFileNameWithoutExtension(QuestInfo);
-                            var quest = Lang.Character.Quests.Where(x => x.Qid == qid).FirstOrDefault();
-                            if (quest != null)
-                                Quests.Add(new Quest { qid = qid, name = QuestsLocales[qid].name, status = quest.Status, trader = TradersLocales[Path.GetFileName(TraderPath)].Nickname });
-                        }
-                    }
-                }
-            }
+            //
             HideoutAreas = new List<CharacterHideoutArea>();
-            foreach (var areaFile in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "hideout", "areas")))
-            {
-                var area = JsonConvert.DeserializeObject<AreaInfo>(File.ReadAllText(areaFile));
-                HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = GameInterfaceLocale[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
-            }
+            var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "hideout", "areas.json")));
+            foreach (var area in areas)
+                HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = Lang.globalLang.Interface[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
             commonSkills = new List<SkillInfo>();
             foreach (var skill in Lang.Character.Skills.Common)
             {
-                if (GameInterfaceLocale.ContainsKey(skill.Id))
-                    commonSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = GameInterfaceLocale[skill.Id], id = skill.Id });
-            }
-            masteringSkills = new List<SkillInfo>();
-            foreach (var skill in Lang.Character.Skills.Mastering)
-                masteringSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = skill.Id, id = skill.Id });
-            //item id - db/items/itemid.json
-            //locale - db/locales/ru/templates/itemid.json
-            traderInfos = new List<TraderInfo>();
-            foreach (var mer in Lang.Character.TraderStandings)
-            {
-                if (mer.Key == "ragfair") continue;
-                List<LoyaltyLevel> loyalties = new List<LoyaltyLevel>();
-                foreach (var lv in mer.Value.LoyaltyLevels)
-                    loyalties.Add(new LoyaltyLevel { level = Int32.Parse(lv.Key) + 1, SalesSum = lv.Value.MinSalesSum + 1000, Standing = lv.Value.MinStanding + 0.01f });
-                traderInfos.Add(new TraderInfo { id= mer.Key, name = TradersLocales[mer.Key].Nickname, CurrentLevel = mer.Value.CurrentLevel, Levels = loyalties });
+                if (Lang.globalLang.Interface.ContainsKey(skill.Id))
+                    commonSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = Lang.globalLang.Interface[skill.Id], id = skill.Id });
             }
             LoadBackups();
-            itemsDB = new List<Item>();
-            foreach (var item in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "items")))
-            {
-                try
-                {
-                    itemsDB.Add(JsonConvert.DeserializeObject<Item>(File.ReadAllText(item)));
-                }
-                catch (Exception ex)
-                {
-                    ExtMethods.Log($"ItemsDBLoad | {ex.GetType().Name}: {ex.Message}");
-                }
-            }
-            GenerateInventory();
         }
 
         private void LoadBackups()
@@ -303,22 +234,22 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+        {/*
             if (!IsLoaded)
                 return;
             var comboBox = sender as System.Windows.Controls.ComboBox;
-            Lang.Character.Quests.Where(x => x.Qid == ((Quest)comboBox.DataContext).qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();
+            Lang.Character.Quests.Where(x => x.Qid == ((Quest)comboBox.DataContext).qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();*/
         }
 
         private void merchantLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+        {/*
             if (!IsLoaded)
                 return;
             var comboBox = sender as System.Windows.Controls.ComboBox;
             LoyaltyLevel level = (LoyaltyLevel)comboBox.SelectedItem;
             Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentLevel = level.level;
             if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum < level.SalesSum) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum = level.SalesSum;
-            if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding < level.Standing) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding = level.Standing;
+            if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding < level.Standing) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding = level.Standing;*/
         }
 
         private void hideoutarea_Level_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -338,11 +269,11 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void masteringskill_exp_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
+        {/*
             if (!IsLoaded)
                 return;
             var slider = sender as Slider;
-            Lang.Character.Skills.Mastering.Where(x => x.Id == ((SkillInfo)slider.DataContext).id).FirstOrDefault().Progress = (int)slider.Value;
+            Lang.Character.Skills.Mastering.Where(x => x.Id == ((SkillInfo)slider.DataContext).id).FirstOrDefault().Progress = (int)slider.Value;*/
         }
 
         private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
@@ -355,11 +286,11 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void QuestsStatusesButton_Click(object sender, RoutedEventArgs e)
-        {
+        {/*
             if (Lang.Character.Quests == null) return;
             foreach (var q in Lang.Character.Quests)
                 q.Status = QuestsStatusesBox.SelectedItem.ToString();
-            LoadData();
+            LoadData();*/
         }
 
         private async void ResetProfileButton_Click(object sender, RoutedEventArgs e)
@@ -388,15 +319,15 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void MasteringsExpButton_Click(object sender, RoutedEventArgs e)
-        {
+        {/*
             if (masteringSkills == null) return;
             foreach (var ms in Lang.Character.Skills.Mastering)
                 ms.Progress = (int)allmastering_exp.Value;
-            LoadData();
+            LoadData();*/
         }
 
         private void MerchantsMaximumButton_Click(object sender, RoutedEventArgs e)
-        {
+        {/*
             if (traderInfos == null) return;
             foreach (var tr in Lang.Character.TraderStandings)
             {
@@ -405,7 +336,7 @@ namespace SP_EFT_ProfileEditor
                 if (tr.Value.CurrentSalesSum < max.Value.MinSalesSum + 1000) tr.Value.CurrentSalesSum = max.Value.MinSalesSum + 1000;
                 if (tr.Value.CurrentStanding < max.Value.MinStanding + 0.01f) tr.Value.CurrentStanding = max.Value.MinStanding + 0.01f;
             }
-            LoadData();
+            LoadData();*/
         }
 
         private async void SaveProfileButton_Click(object sender, RoutedEventArgs e)
@@ -432,6 +363,17 @@ namespace SP_EFT_ProfileEditor
                         jobject.SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
                     }
                 }
+                for (int index = 0; index < Lang.Character.Skills.Common.Count(); ++index)
+                {
+                    var probe = jobject.SelectToken("Skills").SelectToken("Common")[index].ToObject<Character.Character_Skills.Character_Skill>();
+                    jobject.SelectToken("Skills").SelectToken("Common")[index]["Progress"] = Lang.Character.Skills.Common.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
+                }
+                for (int index = 0; index < Lang.Character.Hideout.Areas.Count(); ++index)
+                {
+                    var probe = jobject.SelectToken("Hideout").SelectToken("Areas")[index].ToObject<Character.Character_Hideout_Areas>();
+                    jobject.SelectToken("Hideout").SelectToken("Areas")[index]["level"] = Lang.Character.Hideout.Areas.Where(x => x.Type == probe.Type).FirstOrDefault().Level;
+                }
+                /*
                 foreach (var tr in Lang.Character.TraderStandings)
                 {
                     jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["currentLevel"] = Lang.Character.TraderStandings[tr.Key].CurrentLevel;
@@ -448,21 +390,13 @@ namespace SP_EFT_ProfileEditor
                         jobject.SelectToken("Quests")[index]["status"] = Lang.Character.Quests.Where(x => x.Qid == probe.Qid).FirstOrDefault().Status;
                     }
                 }
-                for (int index = 0; index < Lang.Character.Hideout.Areas.Count(); ++index)
-                {
-                    var probe = jobject.SelectToken("Hideout").SelectToken("Areas")[index].ToObject<Character.Character_Hideout_Areas>();
-                    jobject.SelectToken("Hideout").SelectToken("Areas")[index]["level"] = Lang.Character.Hideout.Areas.Where(x => x.Type == probe.Type).FirstOrDefault().Level;
-                }
-                for (int index = 0; index < Lang.Character.Skills.Common.Count(); ++index)
-                {
-                    var probe = jobject.SelectToken("Skills").SelectToken("Common")[index].ToObject<Character.Character_Skills.Character_Skills_Common>();
-                    jobject.SelectToken("Skills").SelectToken("Common")[index]["Progress"] = Lang.Character.Skills.Common.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
-                }
+                
+                
                 for (int index = 0; index < Lang.Character.Skills.Mastering.Count(); ++index)
                 {
-                    var probe = jobject.SelectToken("Skills").SelectToken("Mastering")[index].ToObject<Character.Character_Skills.Character_Skills_Mastering>();
+                    var probe = jobject.SelectToken("Skills").SelectToken("Mastering")[index].ToObject<Character.Character_Skills.Character_Skill>();
                     jobject.SelectToken("Skills").SelectToken("Mastering")[index]["Progress"] = Lang.Character.Skills.Mastering.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
-                }
+                }*/
                 DateTime now = DateTime.Now;
                 string backupfile = $"{profilepath.Replace("character.json", "character")}-backup-{now:dd-MM-yyyy-HH-mm}.json";
                 File.Copy(profilepath, backupfile, true);
@@ -520,58 +454,6 @@ namespace SP_EFT_ProfileEditor
         {
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
-        }
-
-        private void GenerateInventory()
-        {
-            CharacterInventory characterInventory = new CharacterInventory();
-            //need to found stash size from Lang.Character.Inventory.Stash (5df7b9abef12bf7a2524385f)
-            characterInventory.Stash = new int[68, 10];
-            foreach (var item in Lang.Character.Inventory.Items)
-            {
-                if (item.Tpl == moneyRub) characterInventory.Rubles += item.Upd.StackObjectsCount ?? 0;
-                if (item.Tpl == moneyEur) characterInventory.Euros += item.Upd.StackObjectsCount ?? 0;
-                if (item.Tpl == moneyDol) characterInventory.Dollars += item.Upd.StackObjectsCount ?? 0;
-                if (item.Location == null || item.ParentId != Lang.Character.Inventory.Stash || item.SlotId != "hideout") continue;
-                var itemInfo = itemsDB.Where(x => x.id == item.Tpl).FirstOrDefault();
-                int iTw = item.Location.R == "Horizontal" ? itemInfo.props.Width : itemInfo.props.Height; //item Width with rotation
-                int iTh = item.Location.R == "Horizontal" ? itemInfo.props.Height : itemInfo.props.Width; //item Height with rotation
-                /*
-                if (Lang.Character.Inventory.Items.Where(x => x.ParentId == item.Id).Count() > 0)
-                {
-                    foreach (var mod in Lang.Character.Inventory.Items.Where(x => x.ParentId == item.Id))
-                    {
-                        var modInfo = itemsDB.Where(x => x.id == mod.Tpl).FirstOrDefault();
-                        iTw += modInfo.props.ExtraSizeLeft;
-                        iTw += modInfo.props.ExtraSizeRight;
-                        iTh += modInfo.props.ExtraSizeUp;
-                        iTh += modInfo.props.ExtraSizeDown;
-                    }
-                } */               
-                for (int i2 = item.Location.Y; i2 < iTh + item.Location.Y; i2++)
-                    for (int i = item.Location.X; i < iTw + item.Location.X; i++)
-                        characterInventory.Stash[i2, i] = 1;
-            }
-            int freeSlots = 0;
-            foreach (var slot in characterInventory.Stash)
-                if (slot == 0) freeSlots++;
-            Debug.Print($"we have {freeSlots} free slots in stash");
-            Debug.Print($"we have {characterInventory.Rubles} rubles");
-            Debug.Print($"we have {characterInventory.Euros} euros");
-            Debug.Print($"we have {characterInventory.Dollars} dollars");
-            using (var sw = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "/inventory.txt"))
-            {
-                for (int i = 0; i < 68; i++)
-                {
-                    for (int j = 0; j < 10; j++)
-                    {
-                        sw.Write(characterInventory.Stash[i, j]);
-                    }
-                    sw.Write("\n");
-                }
-                sw.Flush();
-                sw.Close();
-            }
         }
     }
 }

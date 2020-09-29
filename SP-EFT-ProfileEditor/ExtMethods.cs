@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -9,14 +10,20 @@ namespace SP_EFT_ProfileEditor
         {
             if (string.IsNullOrWhiteSpace(sptPath)) return false;
             if (!Directory.Exists(sptPath)) return false;
-            //if (!File.Exists(Path.Combine(sptPath, "Server.exe"))) return false;
+            if (!File.Exists(Path.Combine(sptPath, "Server.exe"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, "db"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, @"db\items"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, @"db\locales"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, @"user\configs"))) return false;
-            if (!File.Exists(Path.Combine(sptPath, @"user\configs\accounts.json"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, @"user\profiles"))) return false;
+            //if (!File.Exists(Path.Combine(sptPath, @"user\configs\accounts.json"))) return false;
 
+            return true;
+        }
+
+        public static bool ServerHaveProfiles(string sptPath)
+        {
+            if (!Directory.Exists(Path.Combine(sptPath, @"user\profiles"))) return false;
+            if (Directory.GetDirectories(Path.Combine(sptPath, @"user\profiles")).Count() < 1) return false;
+            if (Directory.GetDirectories(Path.Combine(sptPath, @"user\profiles")).Where(x => File.Exists(x + @"\character.json")).Count() < 1) return false;
             return true;
         }
 

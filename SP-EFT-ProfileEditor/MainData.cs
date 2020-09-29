@@ -10,7 +10,7 @@ namespace SP_EFT_ProfileEditor
     public class MainData
     {
         private static string LangPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "languages");
-        private static string PeoPath { get; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PEOptions.json");
+        private static string PeoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PEOptions.json");
         public static MainData Load()
         {
             if (!Directory.Exists(LangPath))
@@ -54,13 +54,17 @@ namespace SP_EFT_ProfileEditor
             }
             if (needReSave)
                 File.WriteAllText(Path.Combine(LangPath, $"{eOptions.Language}.json"), JsonConvert.SerializeObject(Locale, Formatting.Indented));
-            MainData lang = new MainData { locale = Locale, options = eOptions };
-            if (!string.IsNullOrEmpty(eOptions.EftServerPath) && Directory.Exists(eOptions.EftServerPath))
+            MainData lang = new MainData { locale = Locale, options = eOptions, globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "db", "locales", "global_" + eOptions.Language + ".json"))) };
+            if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !ExtMethods.PathIsEftServerBase(eOptions.EftServerPath))
+                eOptions.EftServerPath = null;
+            if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !Directory.Exists(eOptions.DefaultProfile) && !File.Exists(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile, "character.json")))
+                eOptions.DefaultProfile = null;
+            if (!string.IsNullOrEmpty(eOptions.EftServerPath) && ExtMethods.ServerHaveProfiles(eOptions.EftServerPath))
             {
                 lang.Profiles = Directory.GetDirectories(eOptions.EftServerPath + "\\user\\profiles").Where(x => File.Exists(x + "\\character.json")).Select(x => new DirectoryInfo(x).Name).ToList();
                 if (lang.Profiles.Count > 0 && (string.IsNullOrEmpty(eOptions.DefaultProfile) || !lang.Profiles.Contains(eOptions.DefaultProfile)))
                     eOptions.DefaultProfile = lang.Profiles.FirstOrDefault();
-            }
+            }            
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !string.IsNullOrEmpty(eOptions.DefaultProfile))
                 lang.Character = JsonConvert.DeserializeObject<Character>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile, "character.json")));
             return lang;
@@ -95,6 +99,8 @@ namespace SP_EFT_ProfileEditor
         }
 
         public Dictionary<string, string> locale { get; set; }
+
+        public GlobalLang globalLang { get; set; }
 
         public PEOptions options { get; set; }
 

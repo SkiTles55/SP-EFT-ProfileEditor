@@ -55,7 +55,7 @@ namespace SP_EFT_ProfileEditor
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null) return false;
-            return ExtMethods.PathIsEftServerBase(value.ToString());
+            return ExtMethods.PathIsEftServerBase(value.ToString()) && ExtMethods.ServerHaveProfiles(value.ToString());
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
@@ -66,7 +66,7 @@ namespace SP_EFT_ProfileEditor
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null) return Visibility.Visible;
-            if (Directory.GetDirectories(value.ToString() + "\\user\\profiles").Where(x => File.Exists(x + "\\character.json")).Count() < 1) return Visibility.Visible;
+            if (!ExtMethods.ServerHaveProfiles(value.ToString())) return Visibility.Visible;
 
             return Visibility.Collapsed;
         }

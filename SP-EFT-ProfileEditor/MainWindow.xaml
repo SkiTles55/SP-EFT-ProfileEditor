@@ -194,7 +194,7 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_quests_markall]}"/>
                         </Label.Content>
                     </Label>
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,0" Visibility="{ Binding ElementName=questsGrid, Path=ItemsSource.Count, Converter={StaticResource RevertedQuestEmptyBoolConverter}}">                        
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,0" Visibility="{ Binding ElementName=questsGrid, Path=ItemsSource.Count, Converter={StaticResource RevertedQuestEmptyBoolConverter}}">
                         <ComboBox x:Name="QuestsStatusesBox" Margin="5,0" Width="200"/>
                         <Button x:Name="QuestsStatusesButton" Content="{Binding locale[tab_quests_editallbutton]}" Margin="5,0" Width="100" Click="QuestsStatusesButton_Click"/>
                     </StackPanel>
@@ -329,7 +329,7 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_mastering_setall]}"/>
                         </Label.Content>
                     </Label>
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,0" Visibility="{ Binding ElementName=masteringsGrid, Path=ItemsSource.Count, Converter={StaticResource RevertedQuestEmptyBoolConverter}}">                        
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,0" Visibility="{ Binding ElementName=masteringsGrid, Path=ItemsSource.Count, Converter={StaticResource RevertedQuestEmptyBoolConverter}}">
                         <TextBox Text="{Binding ElementName=allmastering_exp, Path=Value, UpdateSourceTrigger=PropertyChanged }" PreviewTextInput="NumberValidationTextBox" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0" Width="60"/>
                         <Slider x:Name="allmastering_exp" Grid.Column="1" Maximum="5000" TickPlacement="None" TickFrequency="1" Value="0" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" Width="200"/>
                         <Button x:Name="MasteringsExpButton" Content="{Binding locale[tab_quests_editallbutton]}" Margin="5,0" Width="100" Click="MasteringsExpButton_Click"/>
