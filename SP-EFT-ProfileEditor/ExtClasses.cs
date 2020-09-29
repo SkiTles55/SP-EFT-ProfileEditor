@@ -43,6 +43,14 @@ namespace SP_EFT_ProfileEditor
         public int type { get; set; }
         public Dictionary<string, object> stages { get; set; }
     }
+
+    public class CharacterInventory
+    {
+        public int[,] Stash { get; set; }
+        public int Rubles { get; set; }
+        public int Euros { get; set; }
+        public int Dollars { get; set; }
+    }
     /*
     public class Quest
     {
@@ -96,6 +104,8 @@ namespace SP_EFT_ProfileEditor
         public int Dollars { get; set; }
     }
 
+    */
+
     public class Item
     {
         [JsonProperty("_id")]
@@ -106,6 +116,9 @@ namespace SP_EFT_ProfileEditor
 
         [JsonProperty("_props")]
         public ItemProps props { get; set; }
+
+        [JsonProperty("_parent")]
+        public string parent { get; set; }
     }
 
     public class ItemProps
@@ -119,5 +132,22 @@ namespace SP_EFT_ProfileEditor
         public int ExtraSizeRight { get; set; }
         public int ExtraSizeUp { get; set; }
         public int ExtraSizeDown { get; set; }
-    }*/
+        public Grid[] Grids { get; set; }
+        public bool Foldable { get; set; }
+        public string FoldedSlot { get; set; }
+        public int SizeReduceRight { get; set; }
+        public bool ExtraSizeForceAdd { get; set; }
+    }
+
+    public class Grid
+    {
+        [JsonProperty("_props")]
+        public GridProps gridProps { get; set; }
+    }
+
+    public class GridProps
+    {
+        public int cellsH { get; set; } //10
+        public int cellsV { get; set; } //68
+    }
 }

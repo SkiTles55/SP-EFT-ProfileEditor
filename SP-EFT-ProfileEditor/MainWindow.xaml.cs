@@ -30,6 +30,12 @@ namespace SP_EFT_ProfileEditor
         private List<BackupFile> backups;
         private List<SkillInfo> commonSkills;
         private List<CharacterHideoutArea> HideoutAreas;
+        private GlobalLang globalLang;
+
+        private Dictionary<string, Item> itemsDB;
+        private static string moneyRub = "5449016a4bdc2d6f028b456f";
+        private static string moneyDol = "5696686a4bdc2da3298b456a";
+        private static string moneyEur = "569668774bdc2da2298b4568";
 
         private Dictionary<string, string> Langs = new Dictionary<string, string>
         {
@@ -68,18 +74,22 @@ namespace SP_EFT_ProfileEditor
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "locales", "global_" + Lang.options.Language + ".json")));
             //
             HideoutAreas = new List<CharacterHideoutArea>();
             var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "hideout", "areas.json")));
             foreach (var area in areas)
-                HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = Lang.globalLang.Interface[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
+                HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = globalLang.Interface[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
             commonSkills = new List<SkillInfo>();
             foreach (var skill in Lang.Character.Skills.Common)
             {
-                if (Lang.globalLang.Interface.ContainsKey(skill.Id))
-                    commonSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = Lang.globalLang.Interface[skill.Id], id = skill.Id });
+                if (globalLang.Interface.ContainsKey(skill.Id))
+                    commonSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = globalLang.Interface[skill.Id], id = skill.Id });
             }
             LoadBackups();
+            itemsDB = new Dictionary<string, Item>();
+            itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "templates", "items.json")));
+            GenerateInventory();
         }
 
         private void LoadBackups()
@@ -454,6 +464,108 @@ namespace SP_EFT_ProfileEditor
         {
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void GenerateInventory()
+        {
+            CharacterInventory characterInventory = new CharacterInventory();
+            var ProfileStash = Lang.Character.Inventory.Items.Where(x => x.Id == Lang.Character.Inventory.Stash).FirstOrDefault();
+            var stashInfo = itemsDB[ProfileStash.Tpl].props.Grids.First();
+            //Debug.Print($"profile stash size is {stashInfo.gridProps.cellsH} X {stashInfo.gridProps.cellsV}");
+            characterInventory.Stash = new int[stashInfo.gridProps.cellsV, stashInfo.gridProps.cellsH];
+            foreach (var item in Lang.Character.Inventory.Items)
+            {
+                if (item.Tpl == moneyRub) characterInventory.Rubles += item.Upd.StackObjectsCount ?? 0;
+                if (item.Tpl == moneyEur) characterInventory.Euros += item.Upd.StackObjectsCount ?? 0;
+                if (item.Tpl == moneyDol) characterInventory.Dollars += item.Upd.StackObjectsCount ?? 0;
+                if (item.Location == null || item.ParentId != Lang.Character.Inventory.Stash) continue;
+                var tmpSize = GetTmpSize(itemsDB[item.Tpl], item);
+                var iW = tmpSize.Key; // x
+                var iH = tmpSize.Value; // y
+                var fH = item.Location.R == "Vertical" ? iW : iH;
+                var fW = item.Location.R == "Vertical" ? iH : iW;
+                //var fillTo = item.Location.X + fW;
+                for (int i2 = item.Location.Y; i2 < fH + item.Location.Y; i2++)
+                    for (int i = item.Location.X; i < fW + item.Location.X; i++)
+                        characterInventory.Stash[i2, i] = 1;
+            }
+            int freeSlots = 0;
+            foreach (var slot in characterInventory.Stash)
+                if (slot == 0) freeSlots++;
+            Debug.Print($"we have {freeSlots} free slots in stash");
+            Debug.Print($"we have {characterInventory.Rubles} rubles");
+            Debug.Print($"we have {characterInventory.Euros} euros");
+            Debug.Print($"we have {characterInventory.Dollars} dollars");
+            using (var sw = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "/inventory.txt"))
+            {
+                for (int i = 0; i < 68; i++)
+                {
+                    for (int j = 0; j < 10; j++)
+                    {
+                        sw.Write(characterInventory.Stash[i, j]);
+                    }
+                    sw.Write("\n");
+                }
+                sw.Flush();
+                sw.Close();
+            }
+        }
+
+        //return int[vert, horiz]
+        private KeyValuePair<int, int> GetTmpSize(Item tmpitem, Character.Character_Inventory.Character_Inventory_Item rootitem)
+        {
+            var FoldableWeapon = tmpitem.props.Foldable;
+            var FoldedSlot = tmpitem.props.FoldedSlot;
+
+            int SizeUp = 0;
+            int SizeDown = 0;
+            int SizeLeft = 0;
+            int SizeRight = 0;
+
+            int ForcedUp = 0;
+            int ForcedDown = 0;
+            int ForcedLeft = 0;
+            int ForcedRight = 0;
+            int outX = tmpitem.props.Width;
+            int outY = tmpitem.props.Height;
+
+            bool rootFolded = (rootitem.Upd != null) && (rootitem.Upd.Foldable != null) && (rootitem.Upd.Foldable.Folded);
+            if (FoldableWeapon && string.IsNullOrEmpty(FoldedSlot) && rootFolded)
+                outX -= tmpitem.props.SizeReduceRight;
+
+            if (tmpitem.parent != "5448e53e4bdc2d60728b4567" && tmpitem.parent != "566168634bdc2d144c8b456c" && tmpitem.parent != "5795f317245977243854e041")
+            {
+                foreach (var item in Lang.Character.Inventory.Items.Where(x => x.ParentId == tmpitem.id))
+                {
+                    if (!item.SlotId.Contains("mod_")) continue;
+                    var itm = itemsDB[item.Tpl];
+                    bool childFoldable = itm.props.Foldable;
+                    bool childFolded = (item.Upd != null) && (item.Upd.Foldable != null) && item.Upd.Foldable.Folded;
+                    if (FoldableWeapon && FoldedSlot == item.SlotId && (rootFolded || childFolded))
+                        continue;
+                    else if (childFoldable && rootFolded && childFolded)
+                        continue;
+                    // Calculating child ExtraSize
+                    if (itm.props.ExtraSizeForceAdd)
+                    {
+                        ForcedUp += itm.props.ExtraSizeUp;
+                        ForcedDown += itm.props.ExtraSizeDown;
+                        ForcedLeft += itm.props.ExtraSizeLeft;
+                        ForcedRight += itm.props.ExtraSizeRight;
+                    }
+                    else
+                    {
+                        SizeUp = (SizeUp < itm.props.ExtraSizeUp) ? itm.props.ExtraSizeUp : SizeUp;
+                        SizeDown = (SizeDown < itm.props.ExtraSizeDown) ? itm.props.ExtraSizeDown : SizeDown;
+                        SizeLeft = (SizeLeft < itm.props.ExtraSizeLeft) ? itm.props.ExtraSizeLeft : SizeLeft;
+                        SizeRight = (SizeRight < itm.props.ExtraSizeRight) ? itm.props.ExtraSizeRight : SizeRight;
+                    }
+                }
+            }
+            var Vert = outY + SizeUp + SizeDown + ForcedUp + ForcedDown;
+            var Horiz = outX + SizeLeft + SizeRight + ForcedLeft + ForcedRight;
+            //return new int[outX + SizeLeft + SizeRight + ForcedLeft + ForcedRight, outY + SizeUp + SizeDown + ForcedUp + ForcedDown];
+            return new KeyValuePair<int, int>(Vert, Horiz);
         }
     }
 }
