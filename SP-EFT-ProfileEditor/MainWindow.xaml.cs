@@ -89,23 +89,7 @@ namespace SP_EFT_ProfileEditor
             LoadBackups();
             itemsDB = new Dictionary<string, Item>();
             itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "templates", "items.json")));
-            GenerateInventory();
-        }
-
-        private void LoadBackups()
-        {
-            backups = new List<BackupFile>();
-            foreach (var bk in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile)).Where(x => x.Contains("backup")).OrderByDescending(i => i))
-            {
-                try { backups.Add(new BackupFile { Path = bk, date = DateTime.ParseExact(Path.GetFileNameWithoutExtension(bk).Remove(0, 17), "dd-MM-yyyy-HH-mm", CultureInfo.InvariantCulture, DateTimeStyles.None).ToString("dd.MM.yyyy HH:mm") }); }
-                catch (Exception ex)
-                { ExtMethods.Log($"LoadBackups | {ex.GetType().Name}: {ex.Message}"); }
-            }
-            if (!LoadDataWorker.IsBusy)
-            {
-                backupsGrid.ItemsSource = null;
-                backupsGrid.ItemsSource = backups;
-            }
+            //GenerateInventory();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -114,7 +98,7 @@ namespace SP_EFT_ProfileEditor
             Lang = MainData.Load();
             if (string.IsNullOrWhiteSpace(Lang.options.Language) || string.IsNullOrWhiteSpace(Lang.options.EftServerPath)
                 || !Directory.Exists(Lang.options.EftServerPath) || !ExtMethods.PathIsEftServerBase(Lang.options.EftServerPath)
-                || string.IsNullOrWhiteSpace(Lang.options.DefaultProfile) || !Directory.Exists(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile)) || !File.Exists(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile, "character.json")))
+                || string.IsNullOrWhiteSpace(Lang.options.DefaultProfile) || !File.Exists(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile + ".json")))
                 SettingsBorder.Visibility = Visibility.Visible;
             else
                 readyToLoad = true;
@@ -357,31 +341,31 @@ namespace SP_EFT_ProfileEditor
             };
             try
             {
-                string profilepath = Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile, "character.json");
+                string profilepath = Path.Combine(Lang.options.EftServerPath, "user", "profiles", Lang.options.DefaultProfile + ".json");
                 JObject jobject = JObject.Parse(File.ReadAllText(profilepath));
-                jobject.SelectToken("Info")["Nickname"] = Lang.Character.Info.Nickname;
-                jobject.SelectToken("Info")["LowerNickname"] = Lang.Character.Info.Nickname.ToLower();
-                jobject.SelectToken("Info")["Side"] = Lang.Character.Info.Side;
-                jobject.SelectToken("Info")["Voice"] = Lang.Character.Info.Voice;
-                jobject.SelectToken("Info")["Level"] = Lang.Character.Info.Level;
-                jobject.SelectToken("Info")["Experience"] = Lang.Character.Info.Experience;
+                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Nickname"] = Lang.Character.Info.Nickname;
+                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["LowerNickname"] = Lang.Character.Info.Nickname.ToLower();
+                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Side"] = Lang.Character.Info.Side;
+                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Voice"] = Lang.Character.Info.Voice;
+                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Level"] = Lang.Character.Info.Level;
+                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Experience"] = Lang.Character.Info.Experience;
                 for (int index = 0; index < Lang.Character.Inventory.Items.Count(); ++index)
                 {
-                    var probe = jobject.SelectToken("Inventory").SelectToken("items")[index].ToObject<Character.Character_Inventory.Character_Inventory_Item>();
+                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index].ToObject<Character.Character_Inventory.Character_Inventory_Item>();
                     if (probe.Tpl == "557ffd194bdc2d28148b457f" || probe.Tpl == "5af99e9186f7747c447120b8")
                     {
-                        jobject.SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
+                        jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
                     }
                 }
                 for (int index = 0; index < Lang.Character.Skills.Common.Count(); ++index)
                 {
-                    var probe = jobject.SelectToken("Skills").SelectToken("Common")[index].ToObject<Character.Character_Skills.Character_Skill>();
-                    jobject.SelectToken("Skills").SelectToken("Common")[index]["Progress"] = Lang.Character.Skills.Common.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
+                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Common")[index].ToObject<Character.Character_Skills.Character_Skill>();
+                    jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Common")[index]["Progress"] = Lang.Character.Skills.Common.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
                 }
                 for (int index = 0; index < Lang.Character.Hideout.Areas.Count(); ++index)
                 {
-                    var probe = jobject.SelectToken("Hideout").SelectToken("Areas")[index].ToObject<Character.Character_Hideout_Areas>();
-                    jobject.SelectToken("Hideout").SelectToken("Areas")[index]["level"] = Lang.Character.Hideout.Areas.Where(x => x.Type == probe.Type).FirstOrDefault().Level;
+                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index].ToObject<Character.Character_Hideout_Areas>();
+                    jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index]["level"] = Lang.Character.Hideout.Areas.Where(x => x.Type == probe.Type).FirstOrDefault().Level;
                 }
                 /*
                 foreach (var tr in Lang.Character.TraderStandings)
@@ -408,7 +392,11 @@ namespace SP_EFT_ProfileEditor
                     jobject.SelectToken("Skills").SelectToken("Mastering")[index]["Progress"] = Lang.Character.Skills.Mastering.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
                 }*/
                 DateTime now = DateTime.Now;
-                string backupfile = $"{profilepath.Replace("character.json", "character")}-backup-{now:dd-MM-yyyy-HH-mm}.json";
+                if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")))
+                    Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups"));
+                if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)))
+                    Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile));
+                string backupfile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile, $"{Lang.options.DefaultProfile}-backup-{now:dd-MM-yyyy-HH-mm}.json");
                 File.Copy(profilepath, backupfile, true);
                 string json = JsonConvert.SerializeObject(jobject, seriSettings);
                 File.WriteAllText(profilepath, json);
@@ -420,6 +408,25 @@ namespace SP_EFT_ProfileEditor
                 await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
             }
             LoadBackups();
+        }
+
+        private void LoadBackups()
+        {
+            backups = new List<BackupFile>();
+            if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")) && Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)))
+            {
+                foreach (var bk in Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)).Where(x => x.Contains("backup")).OrderByDescending(i => i))
+                {
+                    try { backups.Add(new BackupFile { Path = bk, date = DateTime.ParseExact(Path.GetFileNameWithoutExtension(bk).Remove(0, Lang.options.DefaultProfile.Count() + 8), "dd-MM-yyyy-HH-mm", CultureInfo.InvariantCulture, DateTimeStyles.None).ToString("dd.MM.yyyy HH:mm") }); }
+                    catch (Exception ex)
+                    { ExtMethods.Log($"LoadBackups | {ex.GetType().Name}: {ex.Message}"); }
+                }
+            }
+            if (!LoadDataWorker.IsBusy)
+            {
+                backupsGrid.ItemsSource = null;
+                backupsGrid.ItemsSource = backups;
+            }
         }
 
         private async void backupRemove_Click(object sender, RoutedEventArgs e)
@@ -447,7 +454,7 @@ namespace SP_EFT_ProfileEditor
                 try
                 {
                     var button = sender as System.Windows.Controls.Button;
-                    File.Copy(((BackupFile)button.DataContext).Path, Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile, "character.json"), true);
+                    File.Copy(((BackupFile)button.DataContext).Path, Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile + ".json"), true);
                     File.Delete(((BackupFile)button.DataContext).Path);
                 }
                 catch (Exception ex)
@@ -480,13 +487,14 @@ namespace SP_EFT_ProfileEditor
                 if (item.Tpl == moneyDol) characterInventory.Dollars += item.Upd.StackObjectsCount ?? 0;
                 if (item.Location == null || item.ParentId != Lang.Character.Inventory.Stash) continue;
                 var tmpSize = GetTmpSize(itemsDB[item.Tpl], item);
-                var iW = tmpSize.Key; // x
-                var iH = tmpSize.Value; // y
+                var iW = tmpSize.Value; // x
+                var iH = tmpSize.Key; // y
                 var fH = item.Location.R == "Vertical" ? iW : iH;
                 var fW = item.Location.R == "Vertical" ? iH : iW;
                 //var fillTo = item.Location.X + fW;
-                for (int i2 = item.Location.Y; i2 < fH + item.Location.Y; i2++)
-                    for (int i = item.Location.X; i < fW + item.Location.X; i++)
+
+                for (int i = item.Location.X; i < fW + item.Location.X; i++)
+                    for (int i2 = item.Location.Y; i2 < fH + item.Location.Y; i2++)
                         characterInventory.Stash[i2, i] = 1;
             }
             int freeSlots = 0;

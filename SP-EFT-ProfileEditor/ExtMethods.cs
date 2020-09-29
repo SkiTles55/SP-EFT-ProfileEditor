@@ -14,7 +14,6 @@ namespace SP_EFT_ProfileEditor
             if (!Directory.Exists(Path.Combine(sptPath, "db"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, @"db\locales"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, @"user\configs"))) return false;
-            //if (!File.Exists(Path.Combine(sptPath, @"user\configs\accounts.json"))) return false;
 
             return true;
         }
@@ -22,8 +21,7 @@ namespace SP_EFT_ProfileEditor
         public static bool ServerHaveProfiles(string sptPath)
         {
             if (!Directory.Exists(Path.Combine(sptPath, @"user\profiles"))) return false;
-            if (Directory.GetDirectories(Path.Combine(sptPath, @"user\profiles")).Count() < 1) return false;
-            if (Directory.GetDirectories(Path.Combine(sptPath, @"user\profiles")).Where(x => File.Exists(x + @"\character.json")).Count() < 1) return false;
+            if (Directory.GetFiles(Path.Combine(sptPath, @"user\profiles")).Count() < 1) return false;
             return true;
         }
 

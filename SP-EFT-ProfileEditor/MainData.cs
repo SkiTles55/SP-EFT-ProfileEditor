@@ -57,16 +57,16 @@ namespace SP_EFT_ProfileEditor
             MainData lang = new MainData { locale = Locale, options = eOptions };
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !ExtMethods.PathIsEftServerBase(eOptions.EftServerPath))
                 eOptions.EftServerPath = null;
-            if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !Directory.Exists(eOptions.DefaultProfile) && !File.Exists(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile, "character.json")))
+            if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !Directory.Exists(eOptions.DefaultProfile) && !File.Exists(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")))
                 eOptions.DefaultProfile = null;
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && ExtMethods.ServerHaveProfiles(eOptions.EftServerPath))
             {
-                lang.Profiles = Directory.GetDirectories(eOptions.EftServerPath + "\\user\\profiles").Where(x => File.Exists(x + "\\character.json")).Select(x => new DirectoryInfo(x).Name).ToList();
+                lang.Profiles = Directory.GetFiles(eOptions.EftServerPath + "\\user\\profiles").Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
                 if (lang.Profiles.Count > 0 && (string.IsNullOrEmpty(eOptions.DefaultProfile) || !lang.Profiles.Contains(eOptions.DefaultProfile)))
                     eOptions.DefaultProfile = lang.Profiles.FirstOrDefault();
-            }            
+            }
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !string.IsNullOrEmpty(eOptions.DefaultProfile))
-                lang.Character = JsonConvert.DeserializeObject<Character>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile, "character.json")));
+                lang.Character = JsonConvert.DeserializeObject<Profile>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json"))).characters.pmc;
             return lang;
         }
 

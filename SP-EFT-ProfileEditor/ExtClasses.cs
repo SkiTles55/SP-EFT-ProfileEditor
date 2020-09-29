@@ -1,9 +1,18 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 
 namespace SP_EFT_ProfileEditor
 {
+    public class Profile
+    {
+        public ProfileCharacter characters { get; set; }
+    }
+
+    public class ProfileCharacter
+    {
+        public Character pmc { get; set; }
+    }
+
     public class BackupFile
     {
         public string Path { get; set; }
