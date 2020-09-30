@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
@@ -22,7 +21,7 @@ namespace SP_EFT_ProfileEditor
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if ((int)value > 1) return Visibility.Collapsed;
+            if ((int)value > 0) return Visibility.Collapsed;
             return Visibility.Visible;
         }
 
@@ -32,7 +31,7 @@ namespace SP_EFT_ProfileEditor
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if ((int)value > 1) return Visibility.Visible;
+            if ((int)value > 0) return Visibility.Visible;
             return Visibility.Collapsed;
         }
 

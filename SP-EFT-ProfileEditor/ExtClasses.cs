@@ -36,6 +36,16 @@ namespace SP_EFT_ProfileEditor
 
         [JsonProperty("quest")]
         public Dictionary<string, QuestLocale> Quests { get; set; }
+
+        [JsonProperty("templates")]
+        public Dictionary<string, Template> Templates { get; set; }
+    }
+
+    public class Template
+    {
+        public string Name { get; set; }
+        public string ShortName { get; set; }
+        public string Description { get; set; }
     }
 
     public class TraderLocale
@@ -105,6 +115,12 @@ namespace SP_EFT_ProfileEditor
         public int Rubles { get; set; }
         public int Euros { get; set; }
         public int Dollars { get; set; }
+    }
+
+    public class QuestData
+    {
+        public string _id { get; set; }
+        public string traderId { get; set; }
     }
     /* 
 

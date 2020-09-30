@@ -23,18 +23,20 @@ namespace SP_EFT_ProfileEditor
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        private FolderBrowserDialog folderBrowserDialogSPT;
         private MainData Lang = new MainData();
         private BackgroundWorker LoadDataWorker;
         private ProgressDialogController progressDialog;
         private string lastdata = null;
         private List<BackupFile> backups;
         private List<SkillInfo> commonSkills;
+        private List<SkillInfo> masteringSkills;
         private List<CharacterHideoutArea> HideoutAreas;
         private List<TraderInfo> traderInfos;
         private List<Quest> Quests;
         private GlobalLang globalLang;
-
         private Dictionary<string, Item> itemsDB;
+
         private static string moneyRub = "5449016a4bdc2d6f028b456f";
         private static string moneyDol = "5696686a4bdc2da3298b456a";
         private static string moneyEur = "569668774bdc2da2298b4568";
@@ -47,9 +49,6 @@ namespace SP_EFT_ProfileEditor
             ["ge"] = "Deutsch "
         };
 
-        private FolderBrowserDialog folderBrowserDialogSPT;
-        
-        //https://dev.offline-tarkov.com/sp-tarkov/server/src/branch/development/project/core/util/utility.js - generate id's
 
         public MainWindow()
         {
@@ -64,7 +63,6 @@ namespace SP_EFT_ProfileEditor
 
         private void LoadDataWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            //
             if (traderInfos != null)
                 merchantsGrid.ItemsSource = traderInfos;
             if (Quests != null)
@@ -73,6 +71,8 @@ namespace SP_EFT_ProfileEditor
                 hideoutGrid.ItemsSource = HideoutAreas;
             if (commonSkills != null)
                 skillsGrid.ItemsSource = commonSkills;
+            if (masteringSkills != null)
+                masteringsGrid.ItemsSource = masteringSkills;
             if (backups != null)
                 backupsGrid.ItemsSource = backups;
             progressDialog.CloseAsync();
@@ -81,32 +81,20 @@ namespace SP_EFT_ProfileEditor
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "locales", "global_" + Lang.options.Language + ".json")));
-            //
+            itemsDB = new Dictionary<string, Item>();
+            itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "templates", "items.json")));
             if (Lang.Character.Quests != null)
             {
-                //QuestsLocales = new Dictionary<string, QuestLocale>();
-                //foreach (var quest in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "quest")))
-                //    QuestsLocales.Add(Path.GetFileNameWithoutExtension(quest), JsonConvert.DeserializeObject<QuestLocale>(File.ReadAllText(quest)));
                 Quests = new List<Quest>();
-                foreach (var quest in Lang.Character.Quests)
+                List<QuestData> qData = JsonConvert.DeserializeObject<List<QuestData>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "templates", "quests.json")));
+                foreach (var qd in qData)
                 {
-                    Quests.Add(new Quest { qid = quest.Qid, name = globalLang.Quests[quest.Qid].name, status = quest.Status });
-                    //need get trader id from \db\templates\quests.json
-                }
-                /*
-                foreach (var TraderPath in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "db", "assort")))
-                {
-                    if (Directory.Exists(Path.Combine(TraderPath, "quests")))
+                    if (Lang.Character.Quests.Where(x => x.Qid == qd._id).Count() > 0)
                     {
-                        foreach (var QuestInfo in Directory.GetFiles(Path.Combine(TraderPath, "quests")))
-                        {
-                            string qid = Path.GetFileNameWithoutExtension(QuestInfo);
-                            var quest = Lang.Character.Quests.Where(x => x.Qid == qid).FirstOrDefault();
-                            if (quest != null)
-                                Quests.Add(new Quest { qid = qid, name = QuestsLocales[qid].name, status = quest.Status, trader = TradersLocales[Path.GetFileName(TraderPath)].Nickname });
-                        }
+                        var quest = Lang.Character.Quests.Where(x => x.Qid == qd._id).FirstOrDefault();
+                        Quests.Add(new Quest { qid = quest.Qid, name = globalLang.Quests[quest.Qid].name, status = quest.Status, trader = globalLang.Traders[qd.traderId].Nickname });
                     }
-                }*/
+                }
             }
             traderInfos = new List<TraderInfo>();
             foreach (var mer in Lang.Character.TraderStandings)
@@ -127,9 +115,14 @@ namespace SP_EFT_ProfileEditor
                 if (globalLang.Interface.ContainsKey(skill.Id))
                     commonSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = globalLang.Interface[skill.Id], id = skill.Id });
             }
+            masteringSkills = new List<SkillInfo>();
+            foreach (var skill in Lang.Character.Skills.Mastering)
+            {
+                var items = itemsDB.Where(x => x.Value.props.ShortName == skill.Id.ToLower());
+                if (items != null && items.Count() > 0)
+                    masteringSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = globalLang.Templates[items.FirstOrDefault().Key].Name, id = skill.Id });
+            }
             LoadBackups();
-            itemsDB = new Dictionary<string, Item>();
-            itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "templates", "items.json")));
             //GenerateInventory();
         }
 
@@ -146,9 +139,7 @@ namespace SP_EFT_ProfileEditor
             langSelectBox.ItemsSource = Langs;
             langSelectBox.SelectedItem = new KeyValuePair<string, string>(Lang.options.Language, Langs[Lang.options.Language]);
             if (!string.IsNullOrEmpty(Lang.options.ColorScheme))
-            {
                 ThemeManager.Current.ChangeTheme(this, Lang.options.ColorScheme);
-            }
             foreach (var style in ThemeManager.Current.Themes.OrderBy(x => x.DisplayName))
             {
                 var newItem = new AccentItem { Name = style.DisplayName, Color = style.PrimaryAccentColor.ToString(), Scheme = style.Name };
@@ -269,11 +260,11 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {/*
+        {
             if (!IsLoaded)
                 return;
             var comboBox = sender as System.Windows.Controls.ComboBox;
-            Lang.Character.Quests.Where(x => x.Qid == ((Quest)comboBox.DataContext).qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();*/
+            Lang.Character.Quests.Where(x => x.Qid == ((Quest)comboBox.DataContext).qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();
         }
 
         private void merchantLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -304,11 +295,11 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void masteringskill_exp_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {/*
+        {
             if (!IsLoaded)
                 return;
             var slider = sender as Slider;
-            Lang.Character.Skills.Mastering.Where(x => x.Id == ((SkillInfo)slider.DataContext).id).FirstOrDefault().Progress = (int)slider.Value;*/
+            Lang.Character.Skills.Mastering.Where(x => x.Id == ((SkillInfo)slider.DataContext).id).FirstOrDefault().Progress = (int)slider.Value;
         }
 
         private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
@@ -321,11 +312,11 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void QuestsStatusesButton_Click(object sender, RoutedEventArgs e)
-        {/*
+        {
             if (Lang.Character.Quests == null) return;
             foreach (var q in Lang.Character.Quests)
                 q.Status = QuestsStatusesBox.SelectedItem.ToString();
-            LoadData();*/
+            LoadData();
         }
 
         private async void ResetProfileButton_Click(object sender, RoutedEventArgs e)
@@ -354,11 +345,11 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void MasteringsExpButton_Click(object sender, RoutedEventArgs e)
-        {/*
+        {
             if (masteringSkills == null) return;
             foreach (var ms in Lang.Character.Skills.Mastering)
                 ms.Progress = (int)allmastering_exp.Value;
-            LoadData();*/
+            LoadData();
         }
 
         private void MerchantsMaximumButton_Click(object sender, RoutedEventArgs e)
@@ -416,22 +407,19 @@ namespace SP_EFT_ProfileEditor
                     if (Lang.Character.TraderStandings[tr.Key].CurrentLevel > 1)
                         jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["display"] = true;
                 }
-                /*
                 if (Lang.Character.Quests.Count() > 0)
                 {
                     for (int index = 0; index < Lang.Character.Quests.Count(); ++index)
                     {
-                        var probe = jobject.SelectToken("Quests")[index].ToObject<Character.Character_Quests>();
-                        jobject.SelectToken("Quests")[index]["status"] = Lang.Character.Quests.Where(x => x.Qid == probe.Qid).FirstOrDefault().Status;
+                        var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Quests")[index].ToObject<Character.Character_Quests>();
+                        jobject.SelectToken("characters")["pmc"].SelectToken("Quests")[index]["status"] = Lang.Character.Quests.Where(x => x.Qid == probe.Qid).FirstOrDefault().Status;
                     }
                 }
-                
-                
                 for (int index = 0; index < Lang.Character.Skills.Mastering.Count(); ++index)
                 {
-                    var probe = jobject.SelectToken("Skills").SelectToken("Mastering")[index].ToObject<Character.Character_Skills.Character_Skill>();
-                    jobject.SelectToken("Skills").SelectToken("Mastering")[index]["Progress"] = Lang.Character.Skills.Mastering.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
-                }*/
+                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[index].ToObject<Character.Character_Skills.Character_Skill>();
+                    jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[index]["Progress"] = Lang.Character.Skills.Mastering.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
+                }
                 DateTime now = DateTime.Now;
                 if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")))
                     Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups"));
