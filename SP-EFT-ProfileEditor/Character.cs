@@ -26,6 +26,9 @@ namespace SP_EFT_ProfileEditor
         [JsonProperty("Skills")]
         public Character_Skills Skills { get; set; }
 
+        [JsonProperty("Encyclopedia")]
+        public Dictionary<string, bool> Encyclopedia { get; set; }
+
         [JsonProperty("Hideout")]
         public Character_Hideout Hideout { get; set; }
 

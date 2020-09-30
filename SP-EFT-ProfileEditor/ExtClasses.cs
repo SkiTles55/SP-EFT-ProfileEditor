@@ -122,6 +122,12 @@ namespace SP_EFT_ProfileEditor
         public string _id { get; set; }
         public string traderId { get; set; }
     }
+
+    public class ExaminedItem
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+    }
     /* 
 
     public class CharacterInventory
@@ -165,6 +171,7 @@ namespace SP_EFT_ProfileEditor
         public string FoldedSlot { get; set; }
         public int SizeReduceRight { get; set; }
         public bool ExtraSizeForceAdd { get; set; }
+        public bool ExaminedByDefault { get; set; }
     }
 
     public class Grid

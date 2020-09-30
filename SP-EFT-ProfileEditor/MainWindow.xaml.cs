@@ -36,6 +36,7 @@ namespace SP_EFT_ProfileEditor
         private List<Quest> Quests;
         private GlobalLang globalLang;
         private Dictionary<string, Item> itemsDB;
+        private List<ExaminedItem> examinedItems;
 
         private static string moneyRub = "5449016a4bdc2d6f028b456f";
         private static string moneyDol = "5696686a4bdc2da3298b456a";
@@ -75,6 +76,8 @@ namespace SP_EFT_ProfileEditor
                 masteringsGrid.ItemsSource = masteringSkills;
             if (backups != null)
                 backupsGrid.ItemsSource = backups;
+            if (examinedItems != null)
+                examinedGrid.ItemsSource = examinedItems;
             progressDialog.CloseAsync();
         }
 
@@ -117,11 +120,11 @@ namespace SP_EFT_ProfileEditor
             }
             masteringSkills = new List<SkillInfo>();
             foreach (var skill in Lang.Character.Skills.Mastering)
-            {
-                var items = itemsDB.Where(x => x.Value.props.ShortName == skill.Id.ToLower());
-                if (items != null && items.Count() > 0)
-                    masteringSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = globalLang.Templates[items.FirstOrDefault().Key].Name, id = skill.Id });
-            }
+                masteringSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = skill.Id, id = skill.Id });
+            //need load mastering from "C:\EFTSingle-Aki\Server\db\others\globals.json" Mastering
+            examinedItems = new List<ExaminedItem>();
+            foreach (var eItem in Lang.Character.Encyclopedia)
+                examinedItems.Add(new ExaminedItem { id = eItem.Key, name = globalLang.Templates[eItem.Key].Name });
             LoadBackups();
             //GenerateInventory();
         }
@@ -336,6 +339,15 @@ namespace SP_EFT_ProfileEditor
             LoadData();
         }
 
+        private void ExamineAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (examinedItems == null) return;
+            foreach (var item in itemsDB.Where(x => !x.Value.props.ExaminedByDefault && examinedItems.Where(c => c.id == x.Key).Count() < 1))
+                if (globalLang.Templates.ContainsKey(item.Key))
+                    Lang.Character.Encyclopedia.Add(item.Key, true);
+            LoadData();
+        }
+
         private void SkillsExpButton_Click(object sender, RoutedEventArgs e)
         {
             if (commonSkills == null) return;
@@ -420,6 +432,7 @@ namespace SP_EFT_ProfileEditor
                     var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[index].ToObject<Character.Character_Skills.Character_Skill>();
                     jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[index]["Progress"] = Lang.Character.Skills.Mastering.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
                 }
+                jobject.SelectToken("characters")["pmc"].SelectToken("Encyclopedia").Replace(JToken.FromObject(Lang.Character.Encyclopedia));
                 DateTime now = DateTime.Now;
                 if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")))
                     Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups"));

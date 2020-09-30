@@ -368,6 +368,29 @@
                     </DataGrid>
                 </Grid>
             </TabItem>
+            <TabItem Header="Изученные предметы" Name="tabexamined">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid x:Name="examinedGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Resources>
+                            <local:BindingProxy x:Key="proxy" Data="{Binding}" />
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Предмет" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=name}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Button x:Name="ExamineAllButton" Content="Изучить все" Grid.Row="1" HorizontalAlignment="Center" Margin="10,10,10,0" Width="200" Click="ExamineAllButton_Click"/>
+                </Grid>
+            </TabItem>
         </TabControl>
         <StackPanel Margin="10,0,10,5" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button x:Name="ResetProfileButton" Content="{Binding locale[button_reloadprofile]}" Margin="10,5,5,0" Width="250" Click="ResetProfileButton_Click">
