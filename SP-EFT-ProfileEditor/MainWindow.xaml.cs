@@ -30,6 +30,8 @@ namespace SP_EFT_ProfileEditor
         private List<BackupFile> backups;
         private List<SkillInfo> commonSkills;
         private List<CharacterHideoutArea> HideoutAreas;
+        private List<TraderInfo> traderInfos;
+        private List<Quest> Quests;
         private GlobalLang globalLang;
 
         private Dictionary<string, Item> itemsDB;
@@ -63,6 +65,10 @@ namespace SP_EFT_ProfileEditor
         private void LoadDataWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             //
+            if (traderInfos != null)
+                merchantsGrid.ItemsSource = traderInfos;
+            if (Quests != null)
+                questsGrid.ItemsSource = Quests;
             if (HideoutAreas != null)
                 hideoutGrid.ItemsSource = HideoutAreas;
             if (commonSkills != null)
@@ -76,6 +82,41 @@ namespace SP_EFT_ProfileEditor
         {
             globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "locales", "global_" + Lang.options.Language + ".json")));
             //
+            if (Lang.Character.Quests != null)
+            {
+                //QuestsLocales = new Dictionary<string, QuestLocale>();
+                //foreach (var quest in Directory.GetFiles(Path.Combine(Lang.options.EftServerPath, "db", "locales", Lang.options.Language, "quest")))
+                //    QuestsLocales.Add(Path.GetFileNameWithoutExtension(quest), JsonConvert.DeserializeObject<QuestLocale>(File.ReadAllText(quest)));
+                Quests = new List<Quest>();
+                foreach (var quest in Lang.Character.Quests)
+                {
+                    Quests.Add(new Quest { qid = quest.Qid, name = globalLang.Quests[quest.Qid].name, status = quest.Status });
+                    //need get trader id from \db\templates\quests.json
+                }
+                /*
+                foreach (var TraderPath in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "db", "assort")))
+                {
+                    if (Directory.Exists(Path.Combine(TraderPath, "quests")))
+                    {
+                        foreach (var QuestInfo in Directory.GetFiles(Path.Combine(TraderPath, "quests")))
+                        {
+                            string qid = Path.GetFileNameWithoutExtension(QuestInfo);
+                            var quest = Lang.Character.Quests.Where(x => x.Qid == qid).FirstOrDefault();
+                            if (quest != null)
+                                Quests.Add(new Quest { qid = qid, name = QuestsLocales[qid].name, status = quest.Status, trader = TradersLocales[Path.GetFileName(TraderPath)].Nickname });
+                        }
+                    }
+                }*/
+            }
+            traderInfos = new List<TraderInfo>();
+            foreach (var mer in Lang.Character.TraderStandings)
+            {
+                if (mer.Key == "ragfair") continue;
+                List<LoyaltyLevel> loyalties = new List<LoyaltyLevel>();
+                foreach (var lv in mer.Value.LoyaltyLevels)
+                    loyalties.Add(new LoyaltyLevel { level = Int32.Parse(lv.Key) + 1, SalesSum = lv.Value.MinSalesSum + 1000, Standing = lv.Value.MinStanding + 0.01f });
+                traderInfos.Add(new TraderInfo { id = mer.Key, name = globalLang.Traders[mer.Key].Nickname, CurrentLevel = mer.Value.CurrentLevel, Levels = loyalties });
+            }
             HideoutAreas = new List<CharacterHideoutArea>();
             var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "hideout", "areas.json")));
             foreach (var area in areas)
@@ -236,14 +277,14 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void merchantLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {/*
+        {
             if (!IsLoaded)
                 return;
             var comboBox = sender as System.Windows.Controls.ComboBox;
             LoyaltyLevel level = (LoyaltyLevel)comboBox.SelectedItem;
             Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentLevel = level.level;
             if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum < level.SalesSum) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum = level.SalesSum;
-            if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding < level.Standing) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding = level.Standing;*/
+            if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding < level.Standing) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding = level.Standing;
         }
 
         private void hideoutarea_Level_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -321,7 +362,7 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void MerchantsMaximumButton_Click(object sender, RoutedEventArgs e)
-        {/*
+        {
             if (traderInfos == null) return;
             foreach (var tr in Lang.Character.TraderStandings)
             {
@@ -330,7 +371,7 @@ namespace SP_EFT_ProfileEditor
                 if (tr.Value.CurrentSalesSum < max.Value.MinSalesSum + 1000) tr.Value.CurrentSalesSum = max.Value.MinSalesSum + 1000;
                 if (tr.Value.CurrentStanding < max.Value.MinStanding + 0.01f) tr.Value.CurrentStanding = max.Value.MinStanding + 0.01f;
             }
-            LoadData();*/
+            LoadData();
         }
 
         private async void SaveProfileButton_Click(object sender, RoutedEventArgs e)
@@ -367,15 +408,15 @@ namespace SP_EFT_ProfileEditor
                     var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index].ToObject<Character.Character_Hideout_Areas>();
                     jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index]["level"] = Lang.Character.Hideout.Areas.Where(x => x.Type == probe.Type).FirstOrDefault().Level;
                 }
-                /*
                 foreach (var tr in Lang.Character.TraderStandings)
                 {
-                    jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["currentLevel"] = Lang.Character.TraderStandings[tr.Key].CurrentLevel;
-                    jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["currentSalesSum"] = Lang.Character.TraderStandings[tr.Key].CurrentSalesSum;
-                    jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["currentStanding"] = Lang.Character.TraderStandings[tr.Key].CurrentStanding;
+                    jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentLevel"] = Lang.Character.TraderStandings[tr.Key].CurrentLevel;
+                    jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentSalesSum"] = Lang.Character.TraderStandings[tr.Key].CurrentSalesSum;
+                    jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentStanding"] = Lang.Character.TraderStandings[tr.Key].CurrentStanding;
                     if (Lang.Character.TraderStandings[tr.Key].CurrentLevel > 1)
-                        jobject.SelectToken("TraderStandings").SelectToken(tr.Key)["display"] = true;
+                        jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["display"] = true;
                 }
+                /*
                 if (Lang.Character.Quests.Count() > 0)
                 {
                     for (int index = 0; index < Lang.Character.Quests.Count(); ++index)
@@ -397,7 +438,7 @@ namespace SP_EFT_ProfileEditor
                 if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)))
                     Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile));
                 string backupfile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile, $"{Lang.options.DefaultProfile}-backup-{now:dd-MM-yyyy-HH-mm}.json");
-                File.Copy(profilepath, backupfile, true);
+                File.Copy(profilepath, backupfile, true); //добавить секунды к имени бэкапа
                 string json = JsonConvert.SerializeObject(jobject, seriSettings);
                 File.WriteAllText(profilepath, json);
                 await this.ShowMessageAsync(Lang.locale["saveprofiledialog_title"], Lang.locale["saveprofiledialog_caption"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });

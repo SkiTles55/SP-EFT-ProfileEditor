@@ -30,6 +30,28 @@ namespace SP_EFT_ProfileEditor
     {
         [JsonProperty("interface")]
         public Dictionary<string, string> Interface { get; set; }
+
+        [JsonProperty("trading")]
+        public Dictionary<string, TraderLocale> Traders { get; set; }
+
+        [JsonProperty("quest")]
+        public Dictionary<string, QuestLocale> Quests { get; set; }
+    }
+
+    public class TraderLocale
+    {
+        public string FullName { get; set; }
+        public string FirstName { get; set; }
+        public string Nickname { get; set; }
+        public string Location { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class QuestLocale
+    {
+        public string name { get; set; }
+        public string description { get; set; }
+        public string location { get; set; }
     }
 
     public class SkillInfo
@@ -53,42 +75,6 @@ namespace SP_EFT_ProfileEditor
         public Dictionary<string, object> stages { get; set; }
     }
 
-    public class CharacterInventory
-    {
-        public int[,] Stash { get; set; }
-        public int Rubles { get; set; }
-        public int Euros { get; set; }
-        public int Dollars { get; set; }
-    }
-    /*
-    public class Quest
-    {
-        public string qid { get; set; }
-        public string trader { get; set; }
-        public string name { get; set; }
-        public string status { get; set; }
-    }
-
-    public class TraderLocale
-    {
-        public string FullName { get; set; }
-        public string FirstName { get; set; }
-        public string Nickname { get; set; }
-        public string Location { get; set; }
-        public string Description { get; set; }
-    }
-
-    public class QuestLocale
-    {
-        public string name { get; set; }
-        public string description { get; set; }
-        public string location { get; set; }
-    }
-    
-    
-    
-    
-    
     public class TraderInfo
     {
         public string id { get; set; }
@@ -104,6 +90,23 @@ namespace SP_EFT_ProfileEditor
         public long SalesSum { get; set; }
         public float Standing { get; set; }
     }
+
+    public class Quest
+    {
+        public string qid { get; set; }
+        public string trader { get; set; }
+        public string name { get; set; }
+        public string status { get; set; }
+    }
+
+    public class CharacterInventory
+    {
+        public int[,] Stash { get; set; }
+        public int Rubles { get; set; }
+        public int Euros { get; set; }
+        public int Dollars { get; set; }
+    }
+    /* 
 
     public class CharacterInventory
     {
