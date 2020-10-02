@@ -12,6 +12,21 @@
                 <!-- Theme setting -->
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="DescriptionHeaderStyle"
+                   BasedOn="{StaticResource {x:Type Label}}"
+                   TargetType="{x:Type Label}">
+                <Setter Property="FontSize" Value="22" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+            </Style>
+            <Style x:Key="LinkStyle"
+                   BasedOn="{StaticResource {x:Type Hyperlink}}"
+                   TargetType="{x:Type Hyperlink}">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="TextDecorations" Value="Underline"/>
+            </Style>
+            <DataTemplate x:Key="HeaderTemplate">
+                <TextBlock Text="{Binding}" Width="170" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

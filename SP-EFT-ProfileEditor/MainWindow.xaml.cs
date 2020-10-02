@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 using System.Diagnostics;
+using System.Windows.Navigation;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -513,6 +514,12 @@ namespace SP_EFT_ProfileEditor
         {
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+            e.Handled = true;
         }
 
         private void GenerateInventory()
