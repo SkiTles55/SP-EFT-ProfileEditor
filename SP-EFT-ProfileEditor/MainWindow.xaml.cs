@@ -127,7 +127,7 @@ namespace SP_EFT_ProfileEditor
             foreach (var eItem in Lang.Character.Encyclopedia)
                 examinedItems.Add(new ExaminedItem { id = eItem.Key, name = globalLang.Templates[eItem.Key].Name });
             LoadBackups();
-            //GenerateInventory();
+            GenerateInventory();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -439,8 +439,8 @@ namespace SP_EFT_ProfileEditor
                     Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups"));
                 if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)))
                     Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile));
-                string backupfile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile, $"{Lang.options.DefaultProfile}-backup-{now:dd-MM-yyyy-HH-mm}.json");
-                File.Copy(profilepath, backupfile, true); //добавить секунды к имени бэкапа
+                string backupfile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile, $"{Lang.options.DefaultProfile}-backup-{now:dd-MM-yyyy-HH-mm-ss}.json");
+                File.Copy(profilepath, backupfile, true);
                 string json = JsonConvert.SerializeObject(jobject, seriSettings);
                 File.WriteAllText(profilepath, json);
                 await this.ShowMessageAsync(Lang.locale["saveprofiledialog_title"], Lang.locale["saveprofiledialog_caption"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
@@ -460,7 +460,7 @@ namespace SP_EFT_ProfileEditor
             {
                 foreach (var bk in Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)).Where(x => x.Contains("backup")).OrderByDescending(i => i))
                 {
-                    try { backups.Add(new BackupFile { Path = bk, date = DateTime.ParseExact(Path.GetFileNameWithoutExtension(bk).Remove(0, Lang.options.DefaultProfile.Count() + 8), "dd-MM-yyyy-HH-mm", CultureInfo.InvariantCulture, DateTimeStyles.None).ToString("dd.MM.yyyy HH:mm") }); }
+                    try { backups.Add(new BackupFile { Path = bk, date = DateTime.ParseExact(Path.GetFileNameWithoutExtension(bk).Remove(0, Lang.options.DefaultProfile.Count() + 8), "dd-MM-yyyy-HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.None).ToString("dd.MM.yyyy HH:mm:ss") }); }
                     catch (Exception ex)
                     { ExtMethods.Log($"LoadBackups | {ex.GetType().Name}: {ex.Message}"); }
                 }
@@ -527,23 +527,29 @@ namespace SP_EFT_ProfileEditor
             CharacterInventory characterInventory = new CharacterInventory();
             var ProfileStash = Lang.Character.Inventory.Items.Where(x => x.Id == Lang.Character.Inventory.Stash).FirstOrDefault();
             var stashInfo = itemsDB[ProfileStash.Tpl].props.Grids.First();
-            //Debug.Print($"profile stash size is {stashInfo.gridProps.cellsH} X {stashInfo.gridProps.cellsV}");
             characterInventory.Stash = new int[stashInfo.gridProps.cellsV, stashInfo.gridProps.cellsH];
             foreach (var item in Lang.Character.Inventory.Items)
             {
                 if (item.Tpl == moneyRub) characterInventory.Rubles += item.Upd.StackObjectsCount ?? 0;
                 if (item.Tpl == moneyEur) characterInventory.Euros += item.Upd.StackObjectsCount ?? 0;
                 if (item.Tpl == moneyDol) characterInventory.Dollars += item.Upd.StackObjectsCount ?? 0;
-                if (item.Location == null || item.ParentId != Lang.Character.Inventory.Stash) continue;
-                var tmpSize = GetTmpSize(itemsDB[item.Tpl], item);
-                var iW = tmpSize.Value; // x
-                var iH = tmpSize.Key; // y
-                var fH = item.Location.R == "Vertical" ? iW : iH;
-                var fW = item.Location.R == "Vertical" ? iH : iW;
-                //var fillTo = item.Location.X + fW;
-
-                for (int i = item.Location.X; i < fW + item.Location.X; i++)
-                    for (int i2 = item.Location.Y; i2 < fH + item.Location.Y; i2++)
+                if (item.Location == null || item.ParentId != Lang.Character.Inventory.Stash || item.SlotId != "hideout") continue;
+                var itemInfo = itemsDB.Where(x => x.Value.id == item.Tpl).FirstOrDefault().Value;
+                int iTw = item.Location.R == "Horizontal" ? itemInfo.props.Width : itemInfo.props.Height; //item Width with rotation
+                int iTh = item.Location.R == "Horizontal" ? itemInfo.props.Height : itemInfo.props.Width; //item Height with rotation
+                if (Lang.Character.Inventory.Items.Where(x => x.ParentId == item.Id).Count() > 0)
+                {
+                    foreach (var mod in Lang.Character.Inventory.Items.Where(x => x.ParentId == item.Id))
+                    {
+                        var modInfo = itemsDB.Where(x => x.Value.id == mod.Tpl).FirstOrDefault().Value;
+                        iTw += modInfo.props.ExtraSizeLeft;
+                        iTw += modInfo.props.ExtraSizeRight;
+                        iTh += modInfo.props.ExtraSizeUp;
+                        iTh += modInfo.props.ExtraSizeDown;
+                    }
+                }
+                for (int i2 = item.Location.Y; i2 < iTh + item.Location.Y; i2++)
+                    for (int i = item.Location.X; i < iTw + item.Location.X; i++)
                         characterInventory.Stash[i2, i] = 1;
             }
             int freeSlots = 0;
@@ -566,63 +572,6 @@ namespace SP_EFT_ProfileEditor
                 sw.Flush();
                 sw.Close();
             }
-        }
-
-        //return int[vert, horiz]
-        private KeyValuePair<int, int> GetTmpSize(Item tmpitem, Character.Character_Inventory.Character_Inventory_Item rootitem)
-        {
-            var FoldableWeapon = tmpitem.props.Foldable;
-            var FoldedSlot = tmpitem.props.FoldedSlot;
-
-            int SizeUp = 0;
-            int SizeDown = 0;
-            int SizeLeft = 0;
-            int SizeRight = 0;
-
-            int ForcedUp = 0;
-            int ForcedDown = 0;
-            int ForcedLeft = 0;
-            int ForcedRight = 0;
-            int outX = tmpitem.props.Width;
-            int outY = tmpitem.props.Height;
-
-            bool rootFolded = (rootitem.Upd != null) && (rootitem.Upd.Foldable != null) && (rootitem.Upd.Foldable.Folded);
-            if (FoldableWeapon && string.IsNullOrEmpty(FoldedSlot) && rootFolded)
-                outX -= tmpitem.props.SizeReduceRight;
-
-            if (tmpitem.parent != "5448e53e4bdc2d60728b4567" && tmpitem.parent != "566168634bdc2d144c8b456c" && tmpitem.parent != "5795f317245977243854e041")
-            {
-                foreach (var item in Lang.Character.Inventory.Items.Where(x => x.ParentId == tmpitem.id))
-                {
-                    if (!item.SlotId.Contains("mod_")) continue;
-                    var itm = itemsDB[item.Tpl];
-                    bool childFoldable = itm.props.Foldable;
-                    bool childFolded = (item.Upd != null) && (item.Upd.Foldable != null) && item.Upd.Foldable.Folded;
-                    if (FoldableWeapon && FoldedSlot == item.SlotId && (rootFolded || childFolded))
-                        continue;
-                    else if (childFoldable && rootFolded && childFolded)
-                        continue;
-                    // Calculating child ExtraSize
-                    if (itm.props.ExtraSizeForceAdd)
-                    {
-                        ForcedUp += itm.props.ExtraSizeUp;
-                        ForcedDown += itm.props.ExtraSizeDown;
-                        ForcedLeft += itm.props.ExtraSizeLeft;
-                        ForcedRight += itm.props.ExtraSizeRight;
-                    }
-                    else
-                    {
-                        SizeUp = (SizeUp < itm.props.ExtraSizeUp) ? itm.props.ExtraSizeUp : SizeUp;
-                        SizeDown = (SizeDown < itm.props.ExtraSizeDown) ? itm.props.ExtraSizeDown : SizeDown;
-                        SizeLeft = (SizeLeft < itm.props.ExtraSizeLeft) ? itm.props.ExtraSizeLeft : SizeLeft;
-                        SizeRight = (SizeRight < itm.props.ExtraSizeRight) ? itm.props.ExtraSizeRight : SizeRight;
-                    }
-                }
-            }
-            var Vert = outY + SizeUp + SizeDown + ForcedUp + ForcedDown;
-            var Horiz = outX + SizeLeft + SizeRight + ForcedLeft + ForcedRight;
-            //return new int[outX + SizeLeft + SizeRight + ForcedLeft + ForcedRight, outY + SizeUp + SizeDown + ForcedUp + ForcedDown];
-            return new KeyValuePair<int, int>(Vert, Horiz);
         }
     }
 }
