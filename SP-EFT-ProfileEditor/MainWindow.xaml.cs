@@ -79,6 +79,9 @@ namespace SP_EFT_ProfileEditor
                 backupsGrid.ItemsSource = backups;
             if (examinedItems != null)
                 examinedGrid.ItemsSource = examinedItems;
+            RublesLabel.Text = Lang.characterInventory.Rubles.ToString();
+            EurosLabel.Text = Lang.characterInventory.Euros.ToString();
+            DollarsLabel.Text = Lang.characterInventory.Dollars.ToString();
             progressDialog.CloseAsync();
         }
 
@@ -126,8 +129,16 @@ namespace SP_EFT_ProfileEditor
             examinedItems = new List<ExaminedItem>();
             foreach (var eItem in Lang.Character.Encyclopedia)
                 examinedItems.Add(new ExaminedItem { id = eItem.Key, name = globalLang.Templates[eItem.Key].Name });
+            Lang.characterInventory.Dollars = 0;
+            Lang.characterInventory.Euros = 0;
+            Lang.characterInventory.Rubles = 0;
+            foreach (var item in Lang.Character.Inventory.Items)
+            {
+                if (item.Tpl == moneyDol) Lang.characterInventory.Dollars += (int)item.Upd.StackObjectsCount;
+                if (item.Tpl == moneyEur) Lang.characterInventory.Euros += (int)item.Upd.StackObjectsCount;
+                if (item.Tpl == moneyRub) Lang.characterInventory.Rubles += (int)item.Upd.StackObjectsCount;
+            }
             LoadBackups();
-            GenerateInventory();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -396,11 +407,17 @@ namespace SP_EFT_ProfileEditor
                 jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Experience"] = Lang.Character.Info.Experience;
                 for (int index = 0; index < Lang.Character.Inventory.Items.Count(); ++index)
                 {
-                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index].ToObject<Character.Character_Inventory.Character_Inventory_Item>();
-                    if (probe.Tpl == "557ffd194bdc2d28148b457f" || probe.Tpl == "5af99e9186f7747c447120b8")
+                    var count = jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToObject<Character.Character_Inventory.Character_Inventory_Item[]>();
+                    if (index < count.Count())
                     {
-                        jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
+                        var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index].ToObject<Character.Character_Inventory.Character_Inventory_Item>();
+                        if (probe.Tpl == "557ffd194bdc2d28148b457f" || probe.Tpl == "5af99e9186f7747c447120b8")
+                        {
+                            jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
+                        }
                     }
+                    else
+                        jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").Last().AddAfterSelf(ExtMethods.RemoveNullAndEmptyProperties(JObject.FromObject(Lang.Character.Inventory.Items[index])));
                 }
                 for (int index = 0; index < Lang.Character.Skills.Common.Count(); ++index)
                 {
@@ -522,56 +539,198 @@ namespace SP_EFT_ProfileEditor
             e.Handled = true;
         }
 
-        private void GenerateInventory()
+        private void ShowRublesAddDialog(object sender, RoutedEventArgs e)
         {
-            CharacterInventory characterInventory = new CharacterInventory();
+            AddMoneyDialog AddRoubles = new AddMoneyDialog
+            {
+                OkButtonText = Lang.locale["saveprofiledialog_ok"],
+                CancelButtonText = Lang.locale["button_close"],
+                Owner = this,
+                ColorScheme = Lang.options.ColorScheme,
+                Title = Lang.locale["tab_stash_dialogmoney"]
+            };
+            if (AddRoubles.ShowDialog() == true)
+            {
+                AddMoney("5449016a4bdc2d6f028b456f", AddRoubles.MoneyCount);
+            }
+        }
+
+        private void ShowEurosAddDialog(object sender, RoutedEventArgs e)
+        {
+            AddMoneyDialog AddRoubles = new AddMoneyDialog
+            {
+                OkButtonText = Lang.locale["saveprofiledialog_ok"],
+                CancelButtonText = Lang.locale["button_close"],
+                Owner = this,
+                ColorScheme = Lang.options.ColorScheme,
+                Title = Lang.locale["tab_stash_dialogmoney"]
+            };
+            if (AddRoubles.ShowDialog() == true)
+            {
+                AddMoney("569668774bdc2da2298b4568", AddRoubles.MoneyCount);
+            }
+        }
+
+        private void ShowDollarsAddDialog(object sender, RoutedEventArgs e)
+        {
+            AddMoneyDialog AddRoubles = new AddMoneyDialog
+            {
+                OkButtonText = Lang.locale["saveprofiledialog_ok"],
+                CancelButtonText = Lang.locale["button_close"],
+                Owner = this,
+                ColorScheme = Lang.options.ColorScheme,
+                Title = Lang.locale["tab_stash_dialogmoney"]
+            };
+            if (AddRoubles.ShowDialog() == true)
+            {
+                AddMoney("5696686a4bdc2da3298b456a", AddRoubles.MoneyCount);
+            }
+        }
+
+        private async void AddMoney(string tpl, int count)
+        {
+            var mItem = itemsDB[tpl];
+            var Stash = getPlayerStashSlotMap();
+            List<string> iDs = Lang.Character.Inventory.Items.Select(x => x.Id).ToList();
+            List<Character.Character_Inventory.Character_Inventory_Item> items = Lang.Character.Inventory.Items.ToList();
+            List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location> locations = new List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location>();
+            int FreeSlots = 0;
+            for (int y = 0; y < Stash.GetLength(0); y++)
+                for (int x = 0; x < Stash.GetLength(1); x++)
+                    if (Stash[y,x] == 0)
+                    {
+                        FreeSlots++;
+                        locations.Add(new Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location { X = x, Y = y, R = "Horizontal" });
+                    }
+            int stacksForGive = 1;
+            if (count > mItem.props.StackMaxSize)
+            {
+                stacksForGive = count / mItem.props.StackMaxSize;
+                if (stacksForGive * mItem.props.StackMaxSize < count) stacksForGive++;
+            }
+            if (FreeSlots >= stacksForGive)
+            {
+                string id = iDs.Last();
+                for (int c = 0; c < stacksForGive; c++)
+                {
+                    if (count <= 0) break;
+                    while (iDs.Contains(id))
+                        id = ExtMethods.generateNewId();
+                    iDs.Add(id);
+                    items.Add(new Character.Character_Inventory.Character_Inventory_Item { Id = id, Location = locations.First(), ParentId = Lang.Character.Inventory.Stash, Tpl = tpl, Upd = new Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Upd { StackObjectsCount = count > mItem.props.StackMaxSize ? mItem.props.StackMaxSize : count }, SlotId = "hideout" });
+                    locations.Remove(locations.First());
+                    count -= mItem.props.StackMaxSize;
+                }
+                Lang.Character.Inventory.Items = items.ToArray();
+                LoadData();
+            }
+            else
+            {
+                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+            }
+        }        
+
+        private int[,] getPlayerStashSlotMap()
+        {
             var ProfileStash = Lang.Character.Inventory.Items.Where(x => x.Id == Lang.Character.Inventory.Stash).FirstOrDefault();
-            var stashInfo = itemsDB[ProfileStash.Tpl].props.Grids.First();
-            characterInventory.Stash = new int[stashInfo.gridProps.cellsV, stashInfo.gridProps.cellsH];
-            foreach (var item in Lang.Character.Inventory.Items)
+            var stashTPL = itemsDB[ProfileStash.Tpl].props.Grids.First();
+            var stashX = (stashTPL.gridProps.cellsH != 0) ? stashTPL.gridProps.cellsH : 10;
+            var stashY = (stashTPL.gridProps.cellsV != 0) ? stashTPL.gridProps.cellsV : 66;
+            var Stash2D = new int[stashY, stashX];
+
+            foreach (var item in Lang.Character.Inventory.Items.Where(x => x.ParentId == Lang.Character.Inventory.Stash))
             {
-                if (item.Tpl == moneyRub) characterInventory.Rubles += item.Upd.StackObjectsCount ?? 0;
-                if (item.Tpl == moneyEur) characterInventory.Euros += item.Upd.StackObjectsCount ?? 0;
-                if (item.Tpl == moneyDol) characterInventory.Dollars += item.Upd.StackObjectsCount ?? 0;
-                if (item.Location == null || item.ParentId != Lang.Character.Inventory.Stash || item.SlotId != "hideout") continue;
-                var itemInfo = itemsDB.Where(x => x.Value.id == item.Tpl).FirstOrDefault().Value;
-                int iTw = item.Location.R == "Horizontal" ? itemInfo.props.Width : itemInfo.props.Height; //item Width with rotation
-                int iTh = item.Location.R == "Horizontal" ? itemInfo.props.Height : itemInfo.props.Width; //item Height with rotation
-                if (Lang.Character.Inventory.Items.Where(x => x.ParentId == item.Id).Count() > 0)
+                if (item.Location == null)
+                    continue;
+                var tmpSize = getSizeByInventoryItemHash(item);
+                int iW = tmpSize.Key;
+                int iH = tmpSize.Value;
+                int fH = item.Location.R == "Vertical" ? iW : iH;
+                int fW = item.Location.R == "Vertical" ? iH : iW;
+                for (int y = 0; y < fH; y++)
                 {
-                    foreach (var mod in Lang.Character.Inventory.Items.Where(x => x.ParentId == item.Id))
+                    try
                     {
-                        var modInfo = itemsDB.Where(x => x.Value.id == mod.Tpl).FirstOrDefault().Value;
-                        iTw += modInfo.props.ExtraSizeLeft;
-                        iTw += modInfo.props.ExtraSizeRight;
-                        iTh += modInfo.props.ExtraSizeUp;
-                        iTh += modInfo.props.ExtraSizeDown;
+                        for (int z = item.Location.X; z < item.Location.X + fW; z++)
+                            Stash2D[item.Location.Y + y, z] = 1;
+                    }
+                    catch (Exception ex)
+                    {
+                        ExtMethods.Log($"[OOB] for item with id { item.Id}; Error message: {ex.Message}");
                     }
                 }
-                for (int i2 = item.Location.Y; i2 < iTh + item.Location.Y; i2++)
-                    for (int i = item.Location.X; i < iTw + item.Location.X; i++)
-                        characterInventory.Stash[i2, i] = 1;
             }
-            int freeSlots = 0;
-            foreach (var slot in characterInventory.Stash)
-                if (slot == 0) freeSlots++;
-            Debug.Print($"we have {freeSlots} free slots in stash");
-            Debug.Print($"we have {characterInventory.Rubles} rubles");
-            Debug.Print($"we have {characterInventory.Euros} euros");
-            Debug.Print($"we have {characterInventory.Dollars} dollars");
-            using (var sw = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "/inventory.txt"))
+
+            return Stash2D;
+        }
+        private KeyValuePair<int, int> getSizeByInventoryItemHash(Character.Character_Inventory.Character_Inventory_Item itemtpl)
+        {
+            List<Character.Character_Inventory.Character_Inventory_Item> toDo = new List<Character.Character_Inventory.Character_Inventory_Item>();
+            toDo.Add(itemtpl);
+            var tmpItem = itemsDB[itemtpl.Tpl];
+            var rootItem = Lang.Character.Inventory.Items.Where(x => x.ParentId == itemtpl.Id).FirstOrDefault();
+            var FoldableWeapon = tmpItem.props.Foldable;
+            var FoldedSlot = tmpItem.props.FoldedSlot;
+
+            var SizeUp = 0;
+            var SizeDown = 0;
+            var SizeLeft = 0;
+            var SizeRight = 0;
+
+            var ForcedUp = 0;
+            var ForcedDown = 0;
+            var ForcedLeft = 0;
+            var ForcedRight = 0;
+            var outX = tmpItem.props.Width;
+            var outY = tmpItem.props.Height;
+            if (rootItem != null)
             {
-                for (int i = 0; i < 68; i++)
+                var skipThisItems = new List<string> { "5448e53e4bdc2d60728b4567", "566168634bdc2d144c8b456c", "5795f317245977243854e041" };
+                var rootFolded = rootItem.Upd != null && rootItem.Upd.Foldable != null && rootItem.Upd.Foldable.Folded;
+
+                if (FoldableWeapon && string.IsNullOrEmpty(FoldedSlot) && rootFolded)
+                    outX -= tmpItem.props.SizeReduceRight;
+
+                if (!skipThisItems.Contains(tmpItem.parent))
                 {
-                    for (int j = 0; j < 10; j++)
+                    while (toDo.Count() > 0)
                     {
-                        sw.Write(characterInventory.Stash[i, j]);
-                    }
-                    sw.Write("\n");
+                        if (toDo.ElementAt(0) != null)
+                        {
+                            foreach (var item in Lang.Character.Inventory.Items.Where(x => x.ParentId == toDo.ElementAt(0).Id))
+                            {
+                                if (!item.SlotId.Contains("mod_"))
+                                    continue;
+                                toDo.Add(item);
+                                var itm = itemsDB[item.Tpl];
+                                var childFoldable = itm.props.Foldable;
+                                var childFolded = item.Upd != null && item.Upd.Foldable != null && item.Upd.Foldable.Folded;
+                                if (FoldableWeapon && FoldedSlot == item.SlotId && (rootFolded || childFolded))
+                                    continue;
+                                else if (childFoldable && rootFolded && childFolded)
+                                    continue;
+                                if (itm.props.ExtraSizeForceAdd)
+                                {
+                                    ForcedUp += itm.props.ExtraSizeUp;
+                                    ForcedDown += itm.props.ExtraSizeDown;
+                                    ForcedLeft += itm.props.ExtraSizeLeft;
+                                    ForcedRight += itm.props.ExtraSizeRight;
+                                }
+                                else
+                                {
+                                    SizeUp = (SizeUp < itm.props.ExtraSizeUp) ? itm.props.ExtraSizeUp : SizeUp;
+                                    SizeDown = (SizeDown < itm.props.ExtraSizeDown) ? itm.props.ExtraSizeDown : SizeDown;
+                                    SizeLeft = (SizeLeft < itm.props.ExtraSizeLeft) ? itm.props.ExtraSizeLeft : SizeLeft;
+                                    SizeRight = (SizeRight < itm.props.ExtraSizeRight) ? itm.props.ExtraSizeRight : SizeRight;
+                                }
+                            }
+                        }
+                        toDo.Remove(toDo.ElementAt(0));
+                    }                    
                 }
-                sw.Flush();
-                sw.Close();
             }
+
+            return new KeyValuePair<int, int>(outX + SizeLeft + SizeRight + ForcedLeft + ForcedRight, outY + SizeUp + SizeDown + ForcedUp + ForcedDown);
         }
     }
 }

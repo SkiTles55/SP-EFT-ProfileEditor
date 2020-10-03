@@ -54,7 +54,7 @@ namespace SP_EFT_ProfileEditor
             }
             if (needReSave)
                 File.WriteAllText(Path.Combine(LangPath, $"{eOptions.Language}.json"), JsonConvert.SerializeObject(Locale, Formatting.Indented));
-            MainData lang = new MainData { locale = Locale, options = eOptions };
+            MainData lang = new MainData { locale = Locale, options = eOptions, characterInventory = new CharacterInventory { Rubles = 0, Euros = 0, Dollars = 0 } };
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !ExtMethods.PathIsEftServerBase(eOptions.EftServerPath))
                 eOptions.EftServerPath = null;
             if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !Directory.Exists(eOptions.DefaultProfile) && !File.Exists(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")))
@@ -105,6 +105,8 @@ namespace SP_EFT_ProfileEditor
         public List<string> Profiles { get; set; }
 
         public Character Character { get; set; }
+
+        public CharacterInventory characterInventory { get; set; }
 
         static Dictionary<string, string> EN => new Dictionary<string, string>()
         {
@@ -164,6 +166,10 @@ namespace SP_EFT_ProfileEditor
             ["tab_examineditems_title"] = "Examined items",
             ["tab_examineditems_item"] = "Item",
             ["tab_examineditems_exallbutton"] = "Examine all",
+            ["tab_stash_title"] = "Stash",
+            ["tab_stash_money"] = "Money",
+            ["tab_stash_dialogmoney"] = "Enter the amount of money you want to add",
+            ["tab_stash_noslots"] = "Not enough free slots",
             ["tab_backups_title"] = "Backups",
             ["tab_backups_date"] = "Date",
             ["tab_backups_actions"] = "Actions",
@@ -173,6 +179,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_about_text"] = "Program for editing player profile on the SPTarkov server",
             ["tab_about_developer"] = "Developer:",
             ["tab_about_latestversion"] = "Latest version:",
+            ["tab_about_support"] = "Support the developer:",
             ["saveprofiledialog_title"] = "Saving a profile",
             ["saveprofiledialog_caption"] = "Profile saved successfully",
             ["saveprofiledialog_ok"] = "OK",
@@ -240,6 +247,10 @@ namespace SP_EFT_ProfileEditor
             ["tab_examineditems_title"] = "Untersuchte Gegenstände",
             ["tab_examineditems_item"] = "Artikel",
             ["tab_examineditems_exallbutton"] = "Untersuche alle",
+            ["tab_stash_title"] = "Versteck",
+            ["tab_stash_money"] = "Geld",
+            ["tab_stash_dialogmoney"] = "Geben Sie den Geldbetrag ein, den Sie hinzufügen möchten",
+            ["tab_stash_noslots"] = "Nicht genug freie Slots",
             ["tab_backups_title"] = "Backups",
             ["tab_backups_date"] = "Datum",
             ["tab_backups_actions"] = "Aktionen",
@@ -249,6 +260,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_about_text"] = "Programm zum Bearbeiten des Spielerprofils auf dem SPTarkov-Server",
             ["tab_about_developer"] = "Entwickler:",
             ["tab_about_latestversion"] = "Letzte Version:",
+            ["tab_about_support"] = "Unterstützen Sie den Entwickler:",
             ["saveprofiledialog_title"] = "Profil speichern",
             ["saveprofiledialog_caption"] = "Profil erfolgreich gespeichert",
             ["saveprofiledialog_ok"] = "OK",
@@ -316,6 +328,10 @@ namespace SP_EFT_ProfileEditor
             ["tab_examineditems_title"] = "Изученные предметы",
             ["tab_examineditems_item"] = "Предмет",
             ["tab_examineditems_exallbutton"] = "Изучить все",
+            ["tab_stash_title"] = "Схрон",
+            ["tab_stash_money"] = "Деньги",
+            ["tab_stash_dialogmoney"] = "Введите сумму денег, которую хотите добавить",
+            ["tab_stash_noslots"] = "Недостаточно свободных слотов",
             ["tab_backups_title"] = "Бэкапы",
             ["tab_backups_date"] = "Дата",
             ["tab_backups_actions"] = "Действия",
@@ -325,6 +341,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_about_text"] = "Программа для редактирования профиля игрока на сервере SPTarkov",
             ["tab_about_developer"] = "Разработчик:",
             ["tab_about_latestversion"] = "Последняя версия:",
+            ["tab_about_support"] = "Поддержать разработчика:",
             ["saveprofiledialog_title"] = "Сохранение профиля",
             ["saveprofiledialog_caption"] = "Профиль успешно сохранен",
             ["saveprofiledialog_ok"] = "OK",
@@ -392,6 +409,10 @@ namespace SP_EFT_ProfileEditor
             ["tab_examineditems_title"] = "Articles examinés",
             ["tab_examineditems_item"] = "Article",
             ["tab_examineditems_exallbutton"] = "Tout examiner",
+            ["tab_stash_title"] = "Réserve",
+            ["tab_stash_money"] = "Argent",
+            ["tab_stash_dialogmoney"] = "Entrez le montant que vous souhaitez ajouter",
+            ["tab_stash_noslots"] = "Pas assez d'emplacements gratuits",
             ["tab_backups_title"] = "Sauvegardes",
             ["tab_backups_date"] = "Date",
             ["tab_backups_actions"] = "Actions",
@@ -401,6 +422,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_about_text"] = "Programme d'édition du profil du joueur sur le serveur SPTarkov",
             ["tab_about_developer"] = "Développeur:",
             ["tab_about_latestversion"] = "Dernière version:",
+            ["tab_about_support"] = "Soutenez le développeur:",
             ["saveprofiledialog_title"] = "Enregistrer un profil",
             ["saveprofiledialog_caption"] = "Profil enregistré avec succès",
             ["saveprofiledialog_ok"] = "OK",

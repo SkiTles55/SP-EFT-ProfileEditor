@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
@@ -313,7 +313,7 @@
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
                                             <TextBox Grid.Column="0" Text="{Binding ElementName=masteringskill_exp, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberValidationTextBox" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" MinWidth="43"/>
-                                            <Slider x:Name="masteringskill_exp" Grid.Column="1" Maximum="5000" TickPlacement="None" TickFrequency="1" Value="{Binding progress}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="masteringskill_exp_ValueChanged"/>
+                                            <Slider x:Name="masteringskill_exp" Grid.Column="1" Maximum="3500" TickPlacement="None" TickFrequency="1" Value="{Binding progress}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="masteringskill_exp_ValueChanged"/>
                                         </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -332,7 +332,7 @@
                     </Label>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,0" Visibility="{ Binding ElementName=masteringsGrid, Path=ItemsSource.Count, Converter={StaticResource RevertedQuestEmptyBoolConverter}}">
                         <TextBox Text="{Binding ElementName=allmastering_exp, Path=Value, UpdateSourceTrigger=PropertyChanged }" PreviewTextInput="NumberValidationTextBox" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0" Width="60"/>
-                        <Slider x:Name="allmastering_exp" Grid.Column="1" Maximum="5000" TickPlacement="None" TickFrequency="1" Value="0" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" Width="200"/>
+                        <Slider x:Name="allmastering_exp" Grid.Column="1" Maximum="3500" TickPlacement="None" TickFrequency="1" Value="0" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" Width="200"/>
                         <Button x:Name="MasteringsExpButton" Content="{Binding locale[tab_quests_editallbutton]}" Margin="5,0" Width="100" Click="MasteringsExpButton_Click"/>
                     </StackPanel>
                 </Grid>
@@ -358,6 +358,70 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     <Button x:Name="ExamineAllButton" Content="{Binding locale[tab_examineditems_exallbutton]}" Grid.Row="1" HorizontalAlignment="Center" Margin="10,10,10,0" Width="200" Click="ExamineAllButton_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{Binding locale[tab_stash_title]}" Name="tabstash" HeaderTemplate="{StaticResource HeaderTemplate}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_stash_money]}"/>
+                        </Label.Content>
+                    </Label>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" >
+                        <iconPacks:PackIconFontAwesome Width="15" Height="15" VerticalAlignment="Center" Kind="RubleSignSolid" />
+                        <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0,0,0">
+                            <Label.Content>
+                                <TextBlock x:Name="RublesLabel" TextWrapping="Wrap" Text="0"/>
+                            </Label.Content>
+                        </Label>
+                        <Button x:Name="AddRublesButton" Height="30" Width="30" Style="{DynamicResource MahApps.Styles.Button.Circle}" Click="ShowRublesAddDialog">
+                            <Button.ContentTemplate>
+                                <DataTemplate>
+                                    <iconPacks:PackIconFontAwesome Width="10" Height="10" VerticalAlignment="Center" Kind="PlusSolid" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                        <iconPacks:PackIconFontAwesome Width="15" Height="15" VerticalAlignment="Center" Kind="EuroSignSolid" Margin="10,0,0,0" />
+                        <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0,0,0">
+                            <Label.Content>
+                                <TextBlock x:Name="EurosLabel" TextWrapping="Wrap" Text="0"/>
+                            </Label.Content>
+                        </Label>
+                        <Button x:Name="AddEurosButton" Height="30" Width="30" Style="{DynamicResource MahApps.Styles.Button.Circle}" Click="ShowEurosAddDialog">
+                            <Button.ContentTemplate>
+                                <DataTemplate>
+                                    <iconPacks:PackIconFontAwesome Width="10" Height="10" VerticalAlignment="Center" Kind="PlusSolid" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                        <iconPacks:PackIconFontAwesome Width="15" Height="15" VerticalAlignment="Center" Kind="DollarSignSolid" Margin="10,0,0,0" />
+                        <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0,0,0">
+                            <Label.Content>
+                                <TextBlock x:Name="DollarsLabel" TextWrapping="Wrap" Text="0"/>
+                            </Label.Content>
+                        </Label>
+                        <Button x:Name="AddDollarsButton" Height="30" Width="30" Style="{DynamicResource MahApps.Styles.Button.Circle}" Click="ShowDollarsAddDialog">
+                            <Button.ContentTemplate>
+                                <DataTemplate>
+                                    <iconPacks:PackIconFontAwesome Width="10" Height="10" VerticalAlignment="Center" Kind="PlusSolid" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_backups_title]}" Name="tabbackups" HeaderTemplate="{StaticResource HeaderTemplate}">
@@ -404,7 +468,7 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_about_developer]}"/>
                         </Label.Content>
                     </Label>
-                    <TextBlock Margin="5,0,0,5">
+                    <TextBlock Margin="6,0,0,5">
                         <Hyperlink NavigateUri="https://github.com/SkiTles55" RequestNavigate="Hyperlink_RequestNavigate" Style="{DynamicResource LinkStyle}">https://github.com/SkiTles55</Hyperlink>
                     </TextBlock>
                     <Label Style="{DynamicResource DescriptionHeaderStyle}" Margin="0,5,0,0">
@@ -412,8 +476,16 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_about_latestversion]}"/>
                         </Label.Content>
                     </Label>
-                    <TextBlock Margin="5,5,0,0">
+                    <TextBlock Margin="6,0,0,5">
                         <Hyperlink NavigateUri="https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/latest" RequestNavigate="Hyperlink_RequestNavigate" Style="{DynamicResource LinkStyle}">https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/latest</Hyperlink>
+                    </TextBlock>
+                    <Label Style="{DynamicResource DescriptionHeaderStyle}" Margin="0,5,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_about_support]}"/>
+                        </Label.Content>
+                    </Label>
+                    <TextBlock Margin="6,0,0,5">
+                        <Hyperlink NavigateUri="https://money.yandex.ru/to/410015658095326" RequestNavigate="Hyperlink_RequestNavigate" Style="{DynamicResource LinkStyle}">https://money.yandex.ru/to/410015658095326</Hyperlink>
                     </TextBlock>
                 </StackPanel>
             </TabItem>

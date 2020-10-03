@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -48,6 +49,37 @@ namespace SP_EFT_ProfileEditor
                 }
                 catch { }
             }
+        }
+
+        public static string generateNewId()
+        {
+            var getTime = DateTime.Now;
+            Random rnd = new Random();
+            var random = rnd.Next(100000000, 999999999).ToString();
+            var retVal = $"I{getTime:MM}{getTime:dd}{getTime:HH}{getTime:mm}{getTime:ss}{random}";
+            var sign = makeSign(24 - retVal.Count()).ToString();
+            return retVal + sign;
+        }
+
+        private static string makeSign(int length)
+        {
+            var result = "";
+            var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var charactersLength = characters.Count();
+            Random random = new Random();
+            for (int i = 0; i < length; i++)
+            {
+                result += characters.ElementAt((int)Math.Floor(random.NextDouble() * charactersLength));
+            }
+            return result;
+        }
+
+        public static JObject RemoveNullAndEmptyProperties(JObject jObject)
+        {
+            while (jObject.Descendants().Any(jt => jt.Type == JTokenType.Property && (jt.Values().All(a => a.Type == JTokenType.Null) || !jt.Values().Any())))
+                foreach (var jt in jObject.Descendants().Where(jt => jt.Type == JTokenType.Property && (jt.Values().All(a => a.Type == JTokenType.Null) || !jt.Values().Any())).ToArray())
+                    jt.Remove();
+            return jObject;
         }
     }
 }

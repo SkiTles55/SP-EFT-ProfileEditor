@@ -111,7 +111,6 @@ namespace SP_EFT_ProfileEditor
 
     public class CharacterInventory
     {
-        public int[,] Stash { get; set; }
         public int Rubles { get; set; }
         public int Euros { get; set; }
         public int Dollars { get; set; }
