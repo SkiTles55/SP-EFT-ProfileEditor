@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:local="clr-namespace:SP_EFT_ProfileEditor"
         mc:Ignorable="d"
         GlowBrush="{DynamicResource MahApps.Brushes.Accent}"
@@ -25,7 +24,7 @@
                 <TextBlock x:Name="DialogTitle" TextWrapping="Wrap"/>
             </Label.Content>
         </Label>
-        <Controls:NumericUpDown Grid.Row="1" x:Name="MoneyInput" Margin="10,5" Height="35" Minimum="1" Value="500000" Maximum="2147483647" PreviewTextInput="NumberValidationTextBox"/>
+        <TextBox Grid.Row="1" x:Name="MoneyInput" Margin="10,5" Height="35" Text="500000" PreviewTextInput="NumberValidationTextBox" TextChanged="MoneyInput_TextChanged" TextAlignment="Center"/>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5">
             <Button x:Name="OkButton" Width="80" Margin="5,0" Click="Accept_Click"/>
             <Button x:Name="CancelButton"  Width="80" Margin="5,0" Click="CancelButton_Click"/>

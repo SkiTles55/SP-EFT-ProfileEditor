@@ -363,14 +363,9 @@
             <TabItem Header="{Binding locale[tab_stash_title]}" Name="tabstash" HeaderTemplate="{StaticResource HeaderTemplate}">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition MaxHeight="50"/>
                         <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
+                        <RowDefinition MaxHeight="50"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150"/>
@@ -422,6 +417,32 @@
                             </Button.ContentTemplate>
                         </Button>
                     </StackPanel>
+                    <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_stash_items]}"/>
+                        </Label.Content>
+                    </Label>
+                    <DataGrid x:Name="stashGrid" Grid.Column="1" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Resources>
+                            <local:BindingProxy x:Key="proxy" Data="{Binding}" />
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_examineditems_item], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=name}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_backups_actions], Source={StaticResource proxy}}" Width="*" MaxWidth="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button x:Name="StashItemRemove" Margin="5" Content="{Binding Data.locale[tab_backups_remove], Source={StaticResource proxy}}" Click="StashItemRemove_Click"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_backups_title]}" Name="tabbackups" HeaderTemplate="{StaticResource HeaderTemplate}">

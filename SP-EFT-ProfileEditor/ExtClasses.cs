@@ -114,6 +114,13 @@ namespace SP_EFT_ProfileEditor
         public int Rubles { get; set; }
         public int Euros { get; set; }
         public int Dollars { get; set; }
+        public List<InventoryItem> InventoryItems { get; set; }
+    }
+
+    public class InventoryItem
+    {
+        public string id { get; set; }
+        public string name { get; set; }
     }
 
     public class QuestData

@@ -82,6 +82,8 @@ namespace SP_EFT_ProfileEditor
             RublesLabel.Text = Lang.characterInventory.Rubles.ToString();
             EurosLabel.Text = Lang.characterInventory.Euros.ToString();
             DollarsLabel.Text = Lang.characterInventory.Dollars.ToString();
+            if (Lang.characterInventory.InventoryItems != null)
+                stashGrid.ItemsSource = Lang.characterInventory.InventoryItems;
             progressDialog.CloseAsync();
         }
 
@@ -132,11 +134,14 @@ namespace SP_EFT_ProfileEditor
             Lang.characterInventory.Dollars = 0;
             Lang.characterInventory.Euros = 0;
             Lang.characterInventory.Rubles = 0;
+            Lang.characterInventory.InventoryItems = new List<InventoryItem>();
             foreach (var item in Lang.Character.Inventory.Items)
             {
                 if (item.Tpl == moneyDol) Lang.characterInventory.Dollars += (int)item.Upd.StackObjectsCount;
                 if (item.Tpl == moneyEur) Lang.characterInventory.Euros += (int)item.Upd.StackObjectsCount;
                 if (item.Tpl == moneyRub) Lang.characterInventory.Rubles += (int)item.Upd.StackObjectsCount;
+                if (item.ParentId == Lang.Character.Inventory.Stash && (Lang.ItemsForDelete == null || !Lang.ItemsForDelete.Contains(item.Id)))
+                    Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = item.Id, name = globalLang.Templates[item.Tpl].Name });
             }
             LoadBackups();
         }
@@ -407,8 +412,7 @@ namespace SP_EFT_ProfileEditor
                 jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Experience"] = Lang.Character.Info.Experience;
                 for (int index = 0; index < Lang.Character.Inventory.Items.Count(); ++index)
                 {
-                    var count = jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToObject<Character.Character_Inventory.Character_Inventory_Item[]>();
-                    if (index < count.Count())
+                    if (index < jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToObject<Character.Character_Inventory.Character_Inventory_Item[]>().Count())
                     {
                         var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index].ToObject<Character.Character_Inventory.Character_Inventory_Item>();
                         if (probe.Tpl == "557ffd194bdc2d28148b457f" || probe.Tpl == "5af99e9186f7747c447120b8")
@@ -418,6 +422,18 @@ namespace SP_EFT_ProfileEditor
                     }
                     else
                         jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").Last().AddAfterSelf(ExtMethods.RemoveNullAndEmptyProperties(JObject.FromObject(Lang.Character.Inventory.Items[index])));
+                }
+                if (Lang.ItemsForDelete != null && Lang.ItemsForDelete.Count > 0)
+                {
+                    foreach (var del in jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToList())
+                    {
+                        string id = del.ToObject<Character.Character_Inventory.Character_Inventory_Item>().Id;
+                        if (Lang.ItemsForDelete.Contains(id))
+                        {
+                            del.Remove();
+                            Lang.ItemsForDelete.Remove(id);
+                        }
+                    }
                 }
                 for (int index = 0; index < Lang.Character.Skills.Common.Count(); ++index)
                 {
@@ -527,6 +543,20 @@ namespace SP_EFT_ProfileEditor
             }
         }
 
+        private async void StashItemRemove_Click(object sender, RoutedEventArgs e)
+        {
+            if (await this.ShowMessageAsync(Lang.locale["removestashitem_title"], Lang.locale["removestashitem_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+            {
+                if (Lang.ItemsForDelete == null) Lang.ItemsForDelete = new List<string>();
+                var button = sender as System.Windows.Controls.Button;
+                var item = (InventoryItem)button.DataContext;
+                Lang.ItemsForDelete.Add(item.id);
+                Lang.characterInventory.InventoryItems.Remove(item);
+                stashGrid.ItemsSource = null;
+                stashGrid.ItemsSource = Lang.characterInventory.InventoryItems;
+            }            
+        }
+
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+");
@@ -547,7 +577,7 @@ namespace SP_EFT_ProfileEditor
                 CancelButtonText = Lang.locale["button_close"],
                 Owner = this,
                 ColorScheme = Lang.options.ColorScheme,
-                Title = Lang.locale["tab_stash_dialogmoney"]
+                MoneyTitle = Lang.locale["tab_stash_dialogmoney"]
             };
             if (AddRoubles.ShowDialog() == true)
             {
@@ -563,7 +593,7 @@ namespace SP_EFT_ProfileEditor
                 CancelButtonText = Lang.locale["button_close"],
                 Owner = this,
                 ColorScheme = Lang.options.ColorScheme,
-                Title = Lang.locale["tab_stash_dialogmoney"]
+                MoneyTitle = Lang.locale["tab_stash_dialogmoney"]
             };
             if (AddRoubles.ShowDialog() == true)
             {
@@ -579,7 +609,7 @@ namespace SP_EFT_ProfileEditor
                 CancelButtonText = Lang.locale["button_close"],
                 Owner = this,
                 ColorScheme = Lang.options.ColorScheme,
-                Title = Lang.locale["tab_stash_dialogmoney"]
+                MoneyTitle = Lang.locale["tab_stash_dialogmoney"]
             };
             if (AddRoubles.ShowDialog() == true)
             {

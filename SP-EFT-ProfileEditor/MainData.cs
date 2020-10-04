@@ -103,6 +103,7 @@ namespace SP_EFT_ProfileEditor
         public PEOptions options { get; set; }
 
         public List<string> Profiles { get; set; }
+        public List<string> ItemsForDelete { get;set;}
 
         public Character Character { get; set; }
 
@@ -168,6 +169,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_examineditems_exallbutton"] = "Examine all",
             ["tab_stash_title"] = "Stash",
             ["tab_stash_money"] = "Money",
+            ["tab_stash_items"] = "Items",
             ["tab_stash_dialogmoney"] = "Enter the amount of money you want to add",
             ["tab_stash_noslots"] = "Not enough free slots",
             ["tab_backups_title"] = "Backups",
@@ -186,7 +188,9 @@ namespace SP_EFT_ProfileEditor
             ["removebackupdialog_title"] = "Deleting a backup",
             ["removebackupdialog_caption"] = "Are you sure want to delete this backup?",
             ["restorebackupdialog_title"] = "Restoring a backup",
-            ["restorebackupdialog_caption"] = "Are you sure want to restore this backup?"
+            ["restorebackupdialog_caption"] = "Are you sure want to restore this backup?",
+            ["removestashitem_title"] = "Removing an item",
+            ["removestashitem_caption"] = "Are you sure you want to delete this item?"
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -249,6 +253,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_examineditems_exallbutton"] = "Untersuche alle",
             ["tab_stash_title"] = "Versteck",
             ["tab_stash_money"] = "Geld",
+            ["tab_stash_items"] = "Artikel",
             ["tab_stash_dialogmoney"] = "Geben Sie den Geldbetrag ein, den Sie hinzufügen möchten",
             ["tab_stash_noslots"] = "Nicht genug freie Slots",
             ["tab_backups_title"] = "Backups",
@@ -267,7 +272,9 @@ namespace SP_EFT_ProfileEditor
             ["removebackupdialog_title"] = "Backup löschen",
             ["removebackupdialog_caption"] = "Möchten Sie dieses Backup wirklich löschen?",
             ["restorebackupdialog_title"] = "Backup wiederherstellen",
-            ["restorebackupdialog_caption"] = "Möchten Sie dieses Backup wirklich wiederherstellen?"
+            ["restorebackupdialog_caption"] = "Möchten Sie dieses Backup wirklich wiederherstellen?",
+            ["removestashitem_title"] = "УEinen Gegenstand entfernen",
+            ["removestashitem_caption"] = "Möchten Sie diesen Artikel wirklich löschen?"
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -329,6 +336,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_examineditems_item"] = "Предмет",
             ["tab_examineditems_exallbutton"] = "Изучить все",
             ["tab_stash_title"] = "Схрон",
+            ["tab_stash_items"] = "Предметы",
             ["tab_stash_money"] = "Деньги",
             ["tab_stash_dialogmoney"] = "Введите сумму денег, которую хотите добавить",
             ["tab_stash_noslots"] = "Недостаточно свободных слотов",
@@ -348,7 +356,9 @@ namespace SP_EFT_ProfileEditor
             ["removebackupdialog_title"] = "Удаление бэкапа",
             ["removebackupdialog_caption"] = "Вы действительно хотите удалить этот бэкап?",
             ["restorebackupdialog_title"] = "Восстановление бэкапа",
-            ["restorebackupdialog_caption"] = "Вы действительно хотите восстановить этот бэкап?"
+            ["restorebackupdialog_caption"] = "Вы действительно хотите восстановить этот бэкап?",
+            ["removestashitem_title"] = "Удаление предмета",
+            ["removestashitem_caption"] = "Вы действительно хотите удалить этот предмет?"
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -411,6 +421,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_examineditems_exallbutton"] = "Tout examiner",
             ["tab_stash_title"] = "Réserve",
             ["tab_stash_money"] = "Argent",
+            ["tab_stash_items"] = "Articles",
             ["tab_stash_dialogmoney"] = "Entrez le montant que vous souhaitez ajouter",
             ["tab_stash_noslots"] = "Pas assez d'emplacements gratuits",
             ["tab_backups_title"] = "Sauvegardes",
@@ -429,7 +440,9 @@ namespace SP_EFT_ProfileEditor
             ["removebackupdialog_title"] = "Supprimer une sauvegarde",
             ["removebackupdialog_caption"] = "Voulez-vous vraiment supprimer cette sauvegarde?",
             ["restorebackupdialog_title"] = "Restaurer une sauvegarde",
-            ["restorebackupdialog_caption"] = "Voulez-vous vraiment restaurer cette sauvegarde?"
+            ["restorebackupdialog_caption"] = "Voulez-vous vraiment restaurer cette sauvegarde?",
+            ["removestashitem_title"] = "Supprimer un élément",
+            ["removestashitem_caption"] = "Êtes-vous sûr de bien vouloir supprimer cet élément?"
         };
     }
 
