@@ -38,6 +38,7 @@ namespace SP_EFT_ProfileEditor
         private GlobalLang globalLang;
         private Dictionary<string, Item> itemsDB;
         private List<ExaminedItem> examinedItems;
+        private BackgroundWorker SaveProfileWorker;
 
         private static string moneyRub = "5449016a4bdc2d6f028b456f";
         private static string moneyDol = "5696686a4bdc2da3298b456a";
@@ -61,6 +62,9 @@ namespace SP_EFT_ProfileEditor
             LoadDataWorker = new BackgroundWorker();
             LoadDataWorker.DoWork += LoadDataWorker_DoWork;
             LoadDataWorker.RunWorkerCompleted += LoadDataWorker_RunWorkerCompleted;
+            SaveProfileWorker = new BackgroundWorker();
+            SaveProfileWorker.DoWork += SaveProfileWorker_DoWork;
+            SaveProfileWorker.RunWorkerCompleted += SaveProfileWorker_RunWorkerCompleted;
         }
 
         private void LoadDataWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -394,96 +398,103 @@ namespace SP_EFT_ProfileEditor
             LoadData();
         }
 
+        private async void SaveProfileWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            progressDialog.CloseAsync();
+            if (e.Error != null)
+            {
+                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], e.Error.Message, MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+                ExtMethods.Log($"SaveProfileButton_Click | {e.Error.Message}");
+            }
+            else
+                await this.ShowMessageAsync(Lang.locale["saveprofiledialog_title"], Lang.locale["saveprofiledialog_caption"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+            LoadBackups();
+        }
+
+        private void SaveProfileWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            JsonSerializerSettings seriSettings = new JsonSerializerSettings { Formatting = Formatting.Indented };
+            string profilepath = Path.Combine(Lang.options.EftServerPath, "user", "profiles", Lang.options.DefaultProfile + ".json");
+            JObject jobject = JObject.Parse(File.ReadAllText(profilepath));
+            jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Nickname"] = Lang.Character.Info.Nickname;
+            jobject.SelectToken("characters")["pmc"].SelectToken("Info")["LowerNickname"] = Lang.Character.Info.Nickname.ToLower();
+            jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Side"] = Lang.Character.Info.Side;
+            jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Voice"] = Lang.Character.Info.Voice;
+            jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Level"] = Lang.Character.Info.Level;
+            jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Experience"] = Lang.Character.Info.Experience;
+            for (int index = 0; index < Lang.Character.Inventory.Items.Count(); ++index)
+            {
+                if (index < jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToObject<Character.Character_Inventory.Character_Inventory_Item[]>().Count())
+                {
+                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index].ToObject<Character.Character_Inventory.Character_Inventory_Item>();
+                    if (probe.Tpl == "557ffd194bdc2d28148b457f" || probe.Tpl == "5af99e9186f7747c447120b8")
+                    {
+                        Dispatcher.Invoke(() => jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f");                        
+                    }
+                }
+                else
+                    jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").Last().AddAfterSelf(ExtMethods.RemoveNullAndEmptyProperties(JObject.FromObject(Lang.Character.Inventory.Items[index])));
+            }
+            if (Lang.ItemsForDelete != null && Lang.ItemsForDelete.Count > 0)
+            {
+                foreach (var del in jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToList())
+                {
+                    string id = del.ToObject<Character.Character_Inventory.Character_Inventory_Item>().Id;
+                    if (Lang.ItemsForDelete.Contains(id))
+                    {
+                        del.Remove();
+                        Lang.ItemsForDelete.Remove(id);
+                    }
+                }
+            }
+            for (int index = 0; index < Lang.Character.Skills.Common.Count(); ++index)
+            {
+                var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Common")[index].ToObject<Character.Character_Skills.Character_Skill>();
+                jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Common")[index]["Progress"] = Lang.Character.Skills.Common.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
+            }
+            for (int index = 0; index < Lang.Character.Hideout.Areas.Count(); ++index)
+            {
+                var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index].ToObject<Character.Character_Hideout_Areas>();
+                jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index]["level"] = Lang.Character.Hideout.Areas.Where(x => x.Type == probe.Type).FirstOrDefault().Level;
+            }
+            foreach (var tr in Lang.Character.TraderStandings)
+            {
+                jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentLevel"] = Lang.Character.TraderStandings[tr.Key].CurrentLevel;
+                jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentSalesSum"] = Lang.Character.TraderStandings[tr.Key].CurrentSalesSum;
+                jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentStanding"] = Lang.Character.TraderStandings[tr.Key].CurrentStanding;
+                if (Lang.Character.TraderStandings[tr.Key].CurrentLevel > 1)
+                    jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["display"] = true;
+            }
+            if (Lang.Character.Quests.Count() > 0)
+            {
+                for (int index = 0; index < Lang.Character.Quests.Count(); ++index)
+                {
+                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Quests")[index].ToObject<Character.Character_Quests>();
+                    jobject.SelectToken("characters")["pmc"].SelectToken("Quests")[index]["status"] = Lang.Character.Quests.Where(x => x.Qid == probe.Qid).FirstOrDefault().Status;
+                }
+            }
+            for (int index = 0; index < Lang.Character.Skills.Mastering.Count(); ++index)
+            {
+                var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[index].ToObject<Character.Character_Skills.Character_Skill>();
+                jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[index]["Progress"] = Lang.Character.Skills.Mastering.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
+            }
+            jobject.SelectToken("characters")["pmc"].SelectToken("Encyclopedia").Replace(JToken.FromObject(Lang.Character.Encyclopedia));
+            DateTime now = DateTime.Now;
+            if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")))
+                Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups"));
+            if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)))
+                Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile));
+            string backupfile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile, $"{Lang.options.DefaultProfile}-backup-{now:dd-MM-yyyy-HH-mm-ss}.json");
+            File.Copy(profilepath, backupfile, true);
+            string json = JsonConvert.SerializeObject(jobject, seriSettings);
+            File.WriteAllText(profilepath, json);
+        }
+
         private async void SaveProfileButton_Click(object sender, RoutedEventArgs e)
         {
-            JsonSerializerSettings seriSettings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-            };
-            try
-            {
-                string profilepath = Path.Combine(Lang.options.EftServerPath, "user", "profiles", Lang.options.DefaultProfile + ".json");
-                JObject jobject = JObject.Parse(File.ReadAllText(profilepath));
-                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Nickname"] = Lang.Character.Info.Nickname;
-                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["LowerNickname"] = Lang.Character.Info.Nickname.ToLower();
-                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Side"] = Lang.Character.Info.Side;
-                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Voice"] = Lang.Character.Info.Voice;
-                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Level"] = Lang.Character.Info.Level;
-                jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Experience"] = Lang.Character.Info.Experience;
-                for (int index = 0; index < Lang.Character.Inventory.Items.Count(); ++index)
-                {
-                    if (index < jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToObject<Character.Character_Inventory.Character_Inventory_Item[]>().Count())
-                    {
-                        var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index].ToObject<Character.Character_Inventory.Character_Inventory_Item>();
-                        if (probe.Tpl == "557ffd194bdc2d28148b457f" || probe.Tpl == "5af99e9186f7747c447120b8")
-                        {
-                            jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
-                        }
-                    }
-                    else
-                        jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").Last().AddAfterSelf(ExtMethods.RemoveNullAndEmptyProperties(JObject.FromObject(Lang.Character.Inventory.Items[index])));
-                }
-                if (Lang.ItemsForDelete != null && Lang.ItemsForDelete.Count > 0)
-                {
-                    foreach (var del in jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToList())
-                    {
-                        string id = del.ToObject<Character.Character_Inventory.Character_Inventory_Item>().Id;
-                        if (Lang.ItemsForDelete.Contains(id))
-                        {
-                            del.Remove();
-                            Lang.ItemsForDelete.Remove(id);
-                        }
-                    }
-                }
-                for (int index = 0; index < Lang.Character.Skills.Common.Count(); ++index)
-                {
-                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Common")[index].ToObject<Character.Character_Skills.Character_Skill>();
-                    jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Common")[index]["Progress"] = Lang.Character.Skills.Common.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
-                }
-                for (int index = 0; index < Lang.Character.Hideout.Areas.Count(); ++index)
-                {
-                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index].ToObject<Character.Character_Hideout_Areas>();
-                    jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index]["level"] = Lang.Character.Hideout.Areas.Where(x => x.Type == probe.Type).FirstOrDefault().Level;
-                }
-                foreach (var tr in Lang.Character.TraderStandings)
-                {
-                    jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentLevel"] = Lang.Character.TraderStandings[tr.Key].CurrentLevel;
-                    jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentSalesSum"] = Lang.Character.TraderStandings[tr.Key].CurrentSalesSum;
-                    jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentStanding"] = Lang.Character.TraderStandings[tr.Key].CurrentStanding;
-                    if (Lang.Character.TraderStandings[tr.Key].CurrentLevel > 1)
-                        jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["display"] = true;
-                }
-                if (Lang.Character.Quests.Count() > 0)
-                {
-                    for (int index = 0; index < Lang.Character.Quests.Count(); ++index)
-                    {
-                        var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Quests")[index].ToObject<Character.Character_Quests>();
-                        jobject.SelectToken("characters")["pmc"].SelectToken("Quests")[index]["status"] = Lang.Character.Quests.Where(x => x.Qid == probe.Qid).FirstOrDefault().Status;
-                    }
-                }
-                for (int index = 0; index < Lang.Character.Skills.Mastering.Count(); ++index)
-                {
-                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[index].ToObject<Character.Character_Skills.Character_Skill>();
-                    jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[index]["Progress"] = Lang.Character.Skills.Mastering.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
-                }
-                jobject.SelectToken("characters")["pmc"].SelectToken("Encyclopedia").Replace(JToken.FromObject(Lang.Character.Encyclopedia));
-                DateTime now = DateTime.Now;
-                if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")))
-                    Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups"));
-                if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)))
-                    Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile));
-                string backupfile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile, $"{Lang.options.DefaultProfile}-backup-{now:dd-MM-yyyy-HH-mm-ss}.json");
-                File.Copy(profilepath, backupfile, true);
-                string json = JsonConvert.SerializeObject(jobject, seriSettings);
-                File.WriteAllText(profilepath, json);
-                await this.ShowMessageAsync(Lang.locale["saveprofiledialog_title"], Lang.locale["saveprofiledialog_caption"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
-            }
-            catch (Exception ex)
-            {
-                ExtMethods.Log($"SaveProfileButton_Click | {ex.GetType().Name}: {ex.Message}");
-                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
-            }
-            LoadBackups();
+            progressDialog = await this.ShowProgressAsync(Lang.locale["progressdialog_title"], Lang.locale["saveprofiledialog_title"]);
+            progressDialog.SetIndeterminate();
+            SaveProfileWorker.RunWorkerAsync();
         }
 
         private void LoadBackups()
