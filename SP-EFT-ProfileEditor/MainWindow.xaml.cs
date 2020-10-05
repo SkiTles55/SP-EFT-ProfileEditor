@@ -39,6 +39,7 @@ namespace SP_EFT_ProfileEditor
         private Dictionary<string, Item> itemsDB;
         private List<ExaminedItem> examinedItems;
         private BackgroundWorker SaveProfileWorker;
+        private Dictionary<string, string> ItemsForAdd;
 
         private static string moneyRub = "5449016a4bdc2d6f028b456f";
         private static string moneyDol = "5696686a4bdc2da3298b456a";
@@ -88,6 +89,9 @@ namespace SP_EFT_ProfileEditor
             DollarsLabel.Text = Lang.characterInventory.Dollars.ToString();
             if (Lang.characterInventory.InventoryItems != null)
                 stashGrid.ItemsSource = Lang.characterInventory.InventoryItems;
+            if (ItemsForAdd != null)
+                AddItemsBox.ItemsSource = ItemsForAdd;
+            AddItemsBox.SelectedIndex = 0;
             progressDialog.CloseAsync();
         }
 
@@ -147,6 +151,9 @@ namespace SP_EFT_ProfileEditor
                 if (item.ParentId == Lang.Character.Inventory.Stash && (Lang.ItemsForDelete == null || !Lang.ItemsForDelete.Contains(item.Id)))
                     Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = item.Id, name = globalLang.Templates[item.Tpl].Name });
             }
+            ItemsForAdd = new Dictionary<string, string>();
+            foreach (var item in itemsDB.Where(x => x.Value.type == "Item" && x.Value.parent != null && globalLang.Templates.ContainsKey(x.Value.parent)))
+                ItemsForAdd.Add(item.Key, $"[{globalLang.Templates[item.Value.parent].Name}] {globalLang.Templates[item.Key].Name}");
             LoadBackups();
         }
 
@@ -363,7 +370,7 @@ namespace SP_EFT_ProfileEditor
         private void ExamineAllButton_Click(object sender, RoutedEventArgs e)
         {
             if (examinedItems == null) return;
-            foreach (var item in itemsDB.Where(x => !x.Value.props.ExaminedByDefault && examinedItems.Where(c => c.id == x.Key).Count() < 1))
+            foreach (var item in itemsDB.Where(x => x.Value.parent != null && x.Value.type == "Item" && !x.Value.props.ExaminedByDefault && examinedItems.Where(c => c.id == x.Key).Count() < 1))
                 if (globalLang.Templates.ContainsKey(item.Key))
                     Lang.Character.Encyclopedia.Add(item.Key, true);
             LoadData();

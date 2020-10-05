@@ -159,6 +159,9 @@ namespace SP_EFT_ProfileEditor
 
         [JsonProperty("_parent")]
         public string parent { get; set; }
+
+        [JsonProperty("_type")]
+        public string type { get; set; }
     }
 
     public class ItemProps

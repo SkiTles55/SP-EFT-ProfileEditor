@@ -443,6 +443,9 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
+                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                        
+                    </StackPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_backups_title]}" Name="tabbackups" HeaderTemplate="{StaticResource HeaderTemplate}">
