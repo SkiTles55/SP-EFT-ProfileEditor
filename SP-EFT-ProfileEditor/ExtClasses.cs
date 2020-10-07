@@ -134,17 +134,6 @@ namespace SP_EFT_ProfileEditor
         public string id { get; set; }
         public string name { get; set; }
     }
-    /* 
-
-    public class CharacterInventory
-    {
-        public int[,] Stash { get; set; }
-        public int Rubles { get; set; }
-        public int Euros { get; set; }
-        public int Dollars { get; set; }
-    }
-
-    */
 
     public class Item
     {
@@ -181,6 +170,7 @@ namespace SP_EFT_ProfileEditor
         public int SizeReduceRight { get; set; }
         public bool ExtraSizeForceAdd { get; set; }
         public bool ExaminedByDefault { get; set; }
+        public bool QuestItem { get; set; }
     }
 
     public class Grid

@@ -39,18 +39,27 @@ namespace SP_EFT_ProfileEditor
         private Dictionary<string, Item> itemsDB;
         private List<ExaminedItem> examinedItems;
         private BackgroundWorker SaveProfileWorker;
-        private Dictionary<string, string> ItemsForAdd;
+        private Dictionary<string, Dictionary<string, string>> ItemsForAdd;
 
-        private static string moneyRub = "5449016a4bdc2d6f028b456f";
-        private static string moneyDol = "5696686a4bdc2da3298b456a";
-        private static string moneyEur = "569668774bdc2da2298b4568";
+        private readonly string moneyRub = "5449016a4bdc2d6f028b456f";
+        private readonly string moneyDol = "5696686a4bdc2da3298b456a";
+        private readonly string moneyEur = "569668774bdc2da2298b4568";
 
-        private Dictionary<string, string> Langs = new Dictionary<string, string>
+        private readonly Dictionary<string, string> Langs = new Dictionary<string, string>
         {
             ["en"] = "English",
             ["ru"] = "Русский",
             ["fr"] = "Français",
             ["ge"] = "Deutsch "
+        };
+
+        private readonly List<string> BannedItems = new List<string>
+        {
+            "543be5dd4bdc2deb348b4569",
+            "55d720f24bdc2d88028b456d",
+            "557596e64bdc2dc2118b4571",
+            "566965d44bdc2d814c8b4571",
+            "566abbb64bdc2d144c8b457d"
         };
 
 
@@ -90,8 +99,8 @@ namespace SP_EFT_ProfileEditor
             if (Lang.characterInventory.InventoryItems != null)
                 stashGrid.ItemsSource = Lang.characterInventory.InventoryItems;
             if (ItemsForAdd != null)
-                AddItemsBox.ItemsSource = ItemsForAdd;
-            AddItemsBox.SelectedIndex = 0;
+                ItemCatSelector.ItemsSource = ItemsForAdd.OrderBy(x => x.Key);
+            ItemCatSelector.SelectedIndex = 0;
             progressDialog.CloseAsync();
         }
 
@@ -151,9 +160,14 @@ namespace SP_EFT_ProfileEditor
                 if (item.ParentId == Lang.Character.Inventory.Stash && (Lang.ItemsForDelete == null || !Lang.ItemsForDelete.Contains(item.Id)))
                     Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = item.Id, name = globalLang.Templates[item.Tpl].Name });
             }
-            ItemsForAdd = new Dictionary<string, string>();
-            foreach (var item in itemsDB.Where(x => x.Value.type == "Item" && x.Value.parent != null && globalLang.Templates.ContainsKey(x.Value.parent)))
-                ItemsForAdd.Add(item.Key, $"[{globalLang.Templates[item.Value.parent].Name}] {globalLang.Templates[item.Key].Name}");
+            ItemsForAdd = new Dictionary<string, Dictionary<string, string>>();
+            foreach (var item in itemsDB.Where(x => x.Value.type == "Item" && x.Value.parent != null && globalLang.Templates.ContainsKey(x.Value.parent) && !x.Value.props.QuestItem && !BannedItems.Contains(x.Value.parent)))
+            {
+                string cat = globalLang.Templates[item.Value.parent].Name;
+                if (!ItemsForAdd.ContainsKey(cat))
+                    ItemsForAdd.Add(cat, new Dictionary<string, string>());
+                ItemsForAdd[cat].Add(item.Key, globalLang.Templates[item.Key].Name);
+            }
             LoadBackups();
         }
 
@@ -407,7 +421,7 @@ namespace SP_EFT_ProfileEditor
 
         private async void SaveProfileWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            progressDialog.CloseAsync();
+            await progressDialog.CloseAsync();
             if (e.Error != null)
             {
                 await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], e.Error.Message, MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
@@ -635,6 +649,90 @@ namespace SP_EFT_ProfileEditor
             }
         }
 
+        private async void AddItemButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ItemIdSelector.SelectedValue == null) return;
+            var item = itemsDB[ItemIdSelector.SelectedValue.ToString()];
+            var Stash = getPlayerStashSlotMap();
+            List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location> locations = new List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location>();
+            int FreeSlots = 0;
+            bool NeedStack = false;
+            int Amount = Convert.ToInt32(ItemAddAmount.Text);
+            if (item.props.StackMaxSize > 1)
+            {
+                NeedStack = true;
+                var tempAmount = Amount / item.props.StackMaxSize;
+                if (tempAmount * item.props.StackMaxSize < Amount)
+                    tempAmount++;
+                Amount = tempAmount;
+            }
+            for (int y = 0; y < Stash.GetLength(0); y++)
+                for (int x = 0; x < Stash.GetLength(1); x++)
+                    if (Stash[y, x] == 0)
+                    {
+                        FreeSlots++;
+                        locations.Add(new Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location { X = x, Y = y, R = "Horizontal" });
+                    }
+            int tempslots = item.props.Width * item.props.Height * Amount;
+            if (FreeSlots < tempslots)
+                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+            else
+            {
+                List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location> NewItemsLocations = new List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location>();
+                foreach (var slot in locations)
+                {
+                    if (item.props.Width == 1 && item.props.Height == 1)
+                        NewItemsLocations.Add(slot);
+                    else
+                    {
+                        int size = 0;
+                        for (int y = 0; y < item.props.Height; y++)
+                        {
+                            if (slot.X + item.props.Width < Stash.GetLength(1) && slot.Y + y < Stash.GetLength(0))
+                                for (int z = slot.X; z < slot.X + item.props.Width; z++)
+                                    if (Stash[slot.Y + y, z] == 0) size++;
+                        }
+                        if (size == item.props.Width * item.props.Height)
+                        {
+                            for (int y = 0; y < item.props.Height; y++)
+                            {
+                                for (int z = slot.X; z < slot.X + item.props.Width; z++)
+                                    Stash[slot.Y + y, z] = 1;
+                            }
+                            NewItemsLocations.Add(slot);
+                        }
+                        if (NewItemsLocations.Count == Amount) break;
+                        size = 0;
+                        for (int y = 0; y < item.props.Width; y++)
+                        {
+                            if (slot.X + item.props.Height < Stash.GetLength(1) && slot.Y + y < Stash.GetLength(0))
+                                for (int z = slot.X; z < slot.X + item.props.Height; z++)
+                                    if (Stash[slot.Y + y, z] == 0) size++;
+                        }
+                        if (size == item.props.Width * item.props.Height)
+                        {
+                            for (int y = 0; y < item.props.Width; y++)
+                            {
+                                for (int z = slot.X; z < slot.X + item.props.Height; z++)
+                                    Stash[slot.Y + y, z] = 1;
+                            }
+                            NewItemsLocations.Add(new Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location { X = slot.X, Y = slot.Y, R = "Vertical" });
+                        }
+                    }
+                    if (NewItemsLocations.Count == Amount) break;
+                }
+                //Debug.Print(NewItemsLocations.Count.ToString());
+                if (NewItemsLocations.Count == Amount)
+                {
+                    //give items
+                }
+                else
+                {
+                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+                }
+            }
+        }
+
         private async void AddMoney(string tpl, int count)
         {
             var mItem = itemsDB[tpl];
@@ -779,6 +877,19 @@ namespace SP_EFT_ProfileEditor
             }
 
             return new KeyValuePair<int, int>(outX + SizeLeft + SizeRight + ForcedLeft + ForcedRight, outY + SizeUp + SizeDown + ForcedUp + ForcedDown);
+        }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            if (Int32.TryParse(textBox.Text, out int money))
+            {
+                if (money < 1) textBox.Text = "1";
+            }
+            else
+            {
+                textBox.Text = Int32.MaxValue.ToString();
+            }
         }
     }
 }
