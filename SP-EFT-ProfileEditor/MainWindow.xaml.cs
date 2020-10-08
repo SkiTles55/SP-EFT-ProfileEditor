@@ -40,6 +40,7 @@ namespace SP_EFT_ProfileEditor
         private List<ExaminedItem> examinedItems;
         private BackgroundWorker SaveProfileWorker;
         private Dictionary<string, Dictionary<string, string>> ItemsForAdd;
+        private List<Character.Character_Inventory.Character_Inventory_Item> AddToStashList = new List<Character.Character_Inventory.Character_Inventory_Item>();
 
         private readonly string moneyRub = "5449016a4bdc2d6f028b456f";
         private readonly string moneyDol = "5696686a4bdc2da3298b456a";
@@ -468,6 +469,11 @@ namespace SP_EFT_ProfileEditor
                     }
                 }
             }
+            if (AddToStashList.Count > 0)
+            {
+                foreach (var item in AddToStashList)
+                    jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").Last().AddAfterSelf(ExtMethods.RemoveNullAndEmptyProperties(JObject.FromObject(item)));
+            }
             for (int index = 0; index < Lang.Character.Skills.Common.Count(); ++index)
             {
                 var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Common")[index].ToObject<Character.Character_Skills.Character_Skill>();
@@ -724,7 +730,24 @@ namespace SP_EFT_ProfileEditor
                 //Debug.Print(NewItemsLocations.Count.ToString());
                 if (NewItemsLocations.Count == Amount)
                 {
+                    List<string> iDs = Lang.Character.Inventory.Items.Select(x => x.Id).ToList();
+                    string id = iDs.Last();
                     //give items
+                    for (int i = 0; i < NewItemsLocations.Count; i++)
+                    {
+                        while (iDs.Contains(id))
+                            id = ExtMethods.generateNewId();
+                        iDs.Add(id);
+                        AddToStashList.Add(new Character.Character_Inventory.Character_Inventory_Item { 
+                            Id = id, ParentId = Lang.Character.Inventory.Stash, 
+                            SlotId = "hideout", Tpl = item.id, 
+                            Location = new Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location { R = NewItemsLocations[i].R, X = NewItemsLocations[i].X, Y = NewItemsLocations[i].Y, IsSearched = true }, 
+                            Upd = new Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Upd { StackObjectsCount = item.props.StackMaxSize } });
+                        Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = id, name = globalLang.Templates[item.id].Name });
+                    }
+                    //Lang.Character.Inventory.Items = itemList.ToArray();
+                    stashGrid.ItemsSource = null;
+                    stashGrid.ItemsSource = Lang.characterInventory.InventoryItems;
                 }
                 else
                 {
