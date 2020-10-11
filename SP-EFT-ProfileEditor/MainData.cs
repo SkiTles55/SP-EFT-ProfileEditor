@@ -57,7 +57,7 @@ namespace SP_EFT_ProfileEditor
             MainData lang = new MainData { locale = Locale, options = eOptions, characterInventory = new CharacterInventory { Rubles = 0, Euros = 0, Dollars = 0 } };
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !ExtMethods.PathIsEftServerBase(eOptions.EftServerPath))
                 eOptions.EftServerPath = null;
-            if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !Directory.Exists(eOptions.DefaultProfile) && !File.Exists(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")))
+            if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !File.Exists(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")))
                 eOptions.DefaultProfile = null;
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && ExtMethods.ServerHaveProfiles(eOptions.EftServerPath))
             {
@@ -195,8 +195,9 @@ namespace SP_EFT_ProfileEditor
             ["removestashitem_title"] = "Removing an item",
             ["removestashitem_caption"] = "Are you sure you want to delete this item?",
             ["removestashitems_caption"] = "Are you sure you want to delete all items?",
-            ["tab_stash_warningtitle"] = "The function of adding items to inventory can damage the profile. Use at your own risk.",
-            ["tab_stash_warningbutton"] = "I understood"
+            ["tab_stash_warningtitle"] = "The stash edit function can damage the profile. Use at your own risk.",
+            ["tab_stash_warningbutton"] = "I understood",
+            ["profile_empty"] = "There is no data to display. The profile is empty. Log into the game under this profile and try again."
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -286,8 +287,9 @@ namespace SP_EFT_ProfileEditor
             ["removestashitem_title"] = "УEinen Gegenstand entfernen",
             ["removestashitem_caption"] = "Möchten Sie diesen Artikel wirklich löschen?",
             ["removestashitems_caption"] = "Möchten Sie wirklich alle Elemente löschen?",
-            ["tab_stash_warningtitle"] = "Die Funktion zum Hinzufügen von Gegenständen zum Inventar kann das Profil beschädigen. Benutzung auf eigene Gefahr.",
-            ["tab_stash_warningbutton"] = "Ich habe verstanden"
+            ["tab_stash_warningtitle"] = "Die Stash-Bearbeitungsfunktion kann das Profil beschädigen. Benutzung auf eigene Gefahr.",
+            ["tab_stash_warningbutton"] = "Ich habe verstanden",
+            ["profile_empty"] = "Es sind keine Daten anzuzeigen. Das Profil ist leer. Melde dich unter diesem Profil im Spiel an und versuche es erneut."
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -377,8 +379,9 @@ namespace SP_EFT_ProfileEditor
             ["removestashitem_title"] = "Удаление предмета",
             ["removestashitem_caption"] = "Вы действительно хотите удалить этот предмет?",
             ["removestashitems_caption"] = "Вы действительно хотите удалить все предметы?",
-            ["tab_stash_warningtitle"] = "Функция добавления предметов в инвентарь может повредить профиль. Используйте на свой риск.",
-            ["tab_stash_warningbutton"] = "Я понял"
+            ["tab_stash_warningtitle"] = "Функция редактирования схрона может повредить профиль. Используйте на свой страх и риск.",
+            ["tab_stash_warningbutton"] = "Я понял",
+            ["profile_empty"] = "Нет данных для отображения. Профиль пустой. Зайдите в игру под этим профилем и попробуйте снова."
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -468,8 +471,9 @@ namespace SP_EFT_ProfileEditor
             ["removestashitem_title"] = "Supprimer un élément",
             ["removestashitem_caption"] = "Êtes-vous sûr de bien vouloir supprimer cet élément?",
             ["removestashitems_caption"] = "Voulez-vous vraiment supprimer tous les éléments?",
-            ["tab_stash_warningtitle"] = "La fonction d'ajout d'articles à l'inventaire peut endommager le profil. À utiliser à vos risques et périls.",
-            ["tab_stash_warningbutton"] = "J'ai compris"
+            ["tab_stash_warningtitle"] = "La fonction d'édition de cache peut endommager le profil. À utiliser à vos risques et périls.",
+            ["tab_stash_warningbutton"] = "J'ai compris",
+            ["profile_empty"] = "Il n'y a aucune donnée à afficher. Le profil est vide. Connectez-vous au jeu sous ce profil et réessayez."
         };
     }
 

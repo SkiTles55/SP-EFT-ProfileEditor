@@ -7,6 +7,17 @@ using System.Windows.Data;
 
 namespace SP_EFT_ProfileEditor
 {
+    public class ProfileVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null) return 0;
+            return ((Character)value).Inventory != null ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
+    }
+
     public class ExpToLevelConverter: IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

@@ -14,6 +14,7 @@ namespace SP_EFT_ProfileEditor
             if (!File.Exists(Path.Combine(sptPath, "Server.exe"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, "db"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, @"db\locales"))) return false;
+            if (!Directory.Exists(Path.Combine(sptPath, @"db\templates"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, @"user\configs"))) return false;
 
             return true;

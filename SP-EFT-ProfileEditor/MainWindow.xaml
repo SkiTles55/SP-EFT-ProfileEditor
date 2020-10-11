@@ -23,6 +23,7 @@
         <local:ExpToLevelConverter x:Key="ExpToLevelConverter"/>
         <local:ItemSelectorConverter x:Key="ItemSelectorConverter"/>
         <local:ItemAddButtonConverter x:Key="ItemAddButtonConverter"/>
+        <local:ProfileVisibilityConverter x:Key="ProfileVisibilityConverter"/>
     </Window.Resources>    
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
@@ -48,7 +49,12 @@
             <RowDefinition/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <TabControl x:Name="tabControl" Grid.Row="0" Margin="10,5" TabStripPlacement="Left" Controls:TabControlHelper.Underlined="TabPanel">
+        <Label HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Margin="0,5" FontSize="20">
+            <Label.Content>
+                <TextBlock TextWrapping="Wrap" Text="{Binding locale[profile_empty]}" TextAlignment="Center"/>
+            </Label.Content>
+        </Label>
+        <TabControl x:Name="tabControl" Grid.Row="0" Margin="10,5" TabStripPlacement="Left" Controls:TabControlHelper.Underlined="TabPanel" Visibility="{Binding Path=Character, Converter={StaticResource ProfileVisibilityConverter}}">
             <TabItem Header="{Binding locale[tab_info_title]}" x:Name="tabinfo" HeaderTemplate="{StaticResource HeaderTemplate}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -488,11 +494,11 @@
                             </Button>
                         </StackPanel>
                     </Grid>
-                    <Border x:Name="ItemsAddWarning" Grid.Row="3" Grid.Column="1" Background="{DynamicResource MahApps.Brushes.Accent}">
+                    <Border x:Name="ItemsAddWarning" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Background="{DynamicResource MahApps.Brushes.AccentBase}">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Label HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Margin="0,5">
+                            <Label HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Margin="0,5" FontSize="20">
                                 <Label.Content>
-                                    <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_stash_warningtitle]}"/>
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_stash_warningtitle]}" TextAlignment="Center"/>
                                 </Label.Content>
                             </Label>
                             <Button x:Name="HideWarningButton" Margin="0,10,0,0" Content="{Binding locale[tab_stash_warningbutton]}" Click="HideWarningButton_Click"/>

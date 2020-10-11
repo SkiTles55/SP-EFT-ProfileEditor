@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Input;
 using System.Diagnostics;
 using System.Windows.Navigation;
+using System.Reflection;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -82,6 +83,8 @@ namespace SP_EFT_ProfileEditor
             SaveProfileWorker = new BackgroundWorker();
             SaveProfileWorker.DoWork += SaveProfileWorker_DoWork;
             SaveProfileWorker.RunWorkerCompleted += SaveProfileWorker_RunWorkerCompleted;
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            Title += string.Format(" {0}.{1}", version.Major, version.Minor);
         }
 
         private void LoadDataWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -129,43 +132,58 @@ namespace SP_EFT_ProfileEditor
                     }
                 }
             }
-            traderInfos = new List<TraderInfo>();
-            foreach (var mer in Lang.Character.TraderStandings)
+            if (Lang.Character.TraderStandings != null)
             {
-                if (mer.Key == "ragfair") continue;
-                List<LoyaltyLevel> loyalties = new List<LoyaltyLevel>();
-                foreach (var lv in mer.Value.LoyaltyLevels)
-                    loyalties.Add(new LoyaltyLevel { level = Int32.Parse(lv.Key) + 1, SalesSum = lv.Value.MinSalesSum + 1000, Standing = lv.Value.MinStanding + 0.01f });
-                traderInfos.Add(new TraderInfo { id = mer.Key, name = globalLang.Traders[mer.Key].Nickname, CurrentLevel = mer.Value.CurrentLevel, Levels = loyalties });
+                traderInfos = new List<TraderInfo>();
+                foreach (var mer in Lang.Character.TraderStandings)
+                {
+                    if (mer.Key == "ragfair") continue;
+                    List<LoyaltyLevel> loyalties = new List<LoyaltyLevel>();
+                    foreach (var lv in mer.Value.LoyaltyLevels)
+                        loyalties.Add(new LoyaltyLevel { level = Int32.Parse(lv.Key) + 1, SalesSum = lv.Value.MinSalesSum + 1000, Standing = lv.Value.MinStanding + 0.01f });
+                    traderInfos.Add(new TraderInfo { id = mer.Key, name = globalLang.Traders[mer.Key].Nickname, CurrentLevel = mer.Value.CurrentLevel, Levels = loyalties });
+                }
             }
-            HideoutAreas = new List<CharacterHideoutArea>();
-            var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "hideout", "areas.json")));
-            foreach (var area in areas)
-                HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = globalLang.Interface[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
-            commonSkills = new List<SkillInfo>();
-            foreach (var skill in Lang.Character.Skills.Common)
+            if (Lang.Character.Hideout != null)
             {
-                if (globalLang.Interface.ContainsKey(skill.Id))
-                    commonSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = globalLang.Interface[skill.Id], id = skill.Id });
+                HideoutAreas = new List<CharacterHideoutArea>();
+                var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "hideout", "areas.json")));
+                foreach (var area in areas)
+                    HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = globalLang.Interface[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
             }
-            masteringSkills = new List<SkillInfo>();
-            foreach (var skill in Lang.Character.Skills.Mastering)
-                masteringSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = skill.Id, id = skill.Id });
-            //need load mastering from "C:\EFTSingle-Aki\Server\db\others\globals.json" Mastering
-            examinedItems = new List<ExaminedItem>();
-            foreach (var eItem in Lang.Character.Encyclopedia)
-                examinedItems.Add(new ExaminedItem { id = eItem.Key, name = globalLang.Templates[eItem.Key].Name });
+            if (Lang.Character.Skills != null)
+            {
+                commonSkills = new List<SkillInfo>();
+                foreach (var skill in Lang.Character.Skills.Common)
+                {
+                    if (globalLang.Interface.ContainsKey(skill.Id))
+                        commonSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = globalLang.Interface[skill.Id], id = skill.Id });
+                }
+                masteringSkills = new List<SkillInfo>();
+                foreach (var skill in Lang.Character.Skills.Mastering)
+                    masteringSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = skill.Id, id = skill.Id });
+                //need load mastering from "C:\EFTSingle-Aki\Server\db\others\globals.json" Mastering
+            }
+            if (Lang.Character.Encyclopedia != null)
+            {
+                examinedItems = new List<ExaminedItem>();
+                foreach (var eItem in Lang.Character.Encyclopedia)
+                    examinedItems.Add(new ExaminedItem { id = eItem.Key, name = globalLang.Templates[eItem.Key].Name });
+            }
             Lang.characterInventory.Dollars = 0;
             Lang.characterInventory.Euros = 0;
             Lang.characterInventory.Rubles = 0;
-            Lang.characterInventory.InventoryItems = new List<InventoryItem>();
-            foreach (var item in Lang.Character.Inventory.Items)
+            if (Lang.Character.Inventory != null)
             {
-                if (item.Tpl == moneyDol) Lang.characterInventory.Dollars += (int)item.Upd.StackObjectsCount;
-                if (item.Tpl == moneyEur) Lang.characterInventory.Euros += (int)item.Upd.StackObjectsCount;
-                if (item.Tpl == moneyRub) Lang.characterInventory.Rubles += (int)item.Upd.StackObjectsCount;
-                if (item.ParentId == Lang.Character.Inventory.Stash)
-                    Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = item.Id, name = globalLang.Templates[item.Tpl].Name });
+                Lang.characterInventory.InventoryItems = new List<InventoryItem>();
+                foreach (var item in Lang.Character.Inventory.Items)
+                {
+                    if (item.Tpl == moneyDol) Lang.characterInventory.Dollars += (int)item.Upd.StackObjectsCount;
+                    if (item.Tpl == moneyEur) Lang.characterInventory.Euros += (int)item.Upd.StackObjectsCount;
+                    if (item.Tpl == moneyRub) Lang.characterInventory.Rubles += (int)item.Upd.StackObjectsCount;
+                    if (item.ParentId == Lang.Character.Inventory.Stash)
+                        Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = item.Id, name = globalLang.Templates[item.Tpl].Name });
+                }
             }
             ItemsForAdd = new Dictionary<string, Dictionary<string, string>>();
             foreach (var item in itemsDB.Where(x => x.Value.type == "Item" && x.Value.parent != null 
@@ -235,7 +253,7 @@ namespace SP_EFT_ProfileEditor
 
         private void CheckPockets()
         {
-            if (Lang.Character == null) return;
+            if (Lang.Character == null || Lang.Character.Inventory == null) return;
             if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").Count() > 0) 
                 BigPocketsSwitcher.IsOn = false;
             if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
@@ -273,7 +291,7 @@ namespace SP_EFT_ProfileEditor
         {
             if (!IsLoaded)
                 return;
-            Lang.options.DefaultProfile = profileSelectBox.SelectedValue.ToString();
+            if (profileSelectBox.SelectedValue != null) Lang.options.DefaultProfile = profileSelectBox.SelectedValue.ToString();
             SaveAndReload();
         }
 
@@ -311,7 +329,7 @@ namespace SP_EFT_ProfileEditor
         private void infotab_Level_TextChanged(object sender, TextChangedEventArgs e)
         {
             var textBox = sender as System.Windows.Controls.TextBox;
-            Lang.Character.Info.Level = Convert.ToInt32(textBox.Text);
+            if (!string.IsNullOrEmpty(textBox.Text)) Lang.Character.Info.Level = Convert.ToInt32(textBox.Text);
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
