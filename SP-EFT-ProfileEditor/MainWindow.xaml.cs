@@ -40,7 +40,6 @@ namespace SP_EFT_ProfileEditor
         private List<ExaminedItem> examinedItems;
         private BackgroundWorker SaveProfileWorker;
         private Dictionary<string, Dictionary<string, string>> ItemsForAdd;
-        private List<Character.Character_Inventory.Character_Inventory_Item> AddToStashList = new List<Character.Character_Inventory.Character_Inventory_Item>();
 
         private readonly string moneyRub = "5449016a4bdc2d6f028b456f";
         private readonly string moneyDol = "5696686a4bdc2da3298b456a";
@@ -60,7 +59,14 @@ namespace SP_EFT_ProfileEditor
             "55d720f24bdc2d88028b456d",
             "557596e64bdc2dc2118b4571",
             "566965d44bdc2d814c8b4571",
-            "566abbb64bdc2d144c8b457d"
+            "566abbb64bdc2d144c8b457d",
+            "5448f39d4bdc2d0a728b4568",
+            "5943d9c186f7745a13413ac9",
+            "5996f6cb86f774678763a6ca",
+            "5996f6d686f77467977ba6cc",
+            "5996f6fc86f7745e585b4de3",
+            "5cdeb229d7f00c000e7ce174",
+            "5d52cc5ba4b9367408500062"
         };
 
 
@@ -158,11 +164,14 @@ namespace SP_EFT_ProfileEditor
                 if (item.Tpl == moneyDol) Lang.characterInventory.Dollars += (int)item.Upd.StackObjectsCount;
                 if (item.Tpl == moneyEur) Lang.characterInventory.Euros += (int)item.Upd.StackObjectsCount;
                 if (item.Tpl == moneyRub) Lang.characterInventory.Rubles += (int)item.Upd.StackObjectsCount;
-                if (item.ParentId == Lang.Character.Inventory.Stash && (Lang.ItemsForDelete == null || !Lang.ItemsForDelete.Contains(item.Id)))
+                if (item.ParentId == Lang.Character.Inventory.Stash)
                     Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = item.Id, name = globalLang.Templates[item.Tpl].Name });
             }
             ItemsForAdd = new Dictionary<string, Dictionary<string, string>>();
-            foreach (var item in itemsDB.Where(x => x.Value.type == "Item" && x.Value.parent != null && globalLang.Templates.ContainsKey(x.Value.parent) && !x.Value.props.QuestItem && !BannedItems.Contains(x.Value.parent)))
+            foreach (var item in itemsDB.Where(x => x.Value.type == "Item" && x.Value.parent != null 
+                && globalLang.Templates.ContainsKey(x.Value.parent) 
+                && !x.Value.props.QuestItem && !BannedItems.Contains(x.Value.parent) && !BannedItems.Contains(x.Value.id)
+                && x.Value.props.StackMaxSize == 1))
             {
                 string cat = globalLang.Templates[item.Value.parent].Name;
                 if (!ItemsForAdd.ContainsKey(cat))
@@ -444,36 +453,30 @@ namespace SP_EFT_ProfileEditor
             jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Voice"] = Lang.Character.Info.Voice;
             jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Level"] = Lang.Character.Info.Level;
             jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Experience"] = Lang.Character.Info.Experience;
-            for (int index = 0; index < Lang.Character.Inventory.Items.Count(); ++index)
+            var Stash = jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToObject<Character.Character_Inventory.Character_Inventory_Item[]>();
+            var iDs = Lang.Character.Inventory.Items.Select(b => b.Id).ToList();
+            List<JToken> ForRemove = new List<JToken>();
+            for (int index = 0; index < Stash.Count(); index++)
             {
-                if (index < jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToObject<Character.Character_Inventory.Character_Inventory_Item[]>().Count())
+                var probe = Stash[index];
+                if (probe.Tpl == "557ffd194bdc2d28148b457f" || probe.Tpl == "5af99e9186f7747c447120b8")
                 {
-                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index].ToObject<Character.Character_Inventory.Character_Inventory_Item>();
-                    if (probe.Tpl == "557ffd194bdc2d28148b457f" || probe.Tpl == "5af99e9186f7747c447120b8")
-                    {
-                        Dispatcher.Invoke(() => jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f");                        
-                    }
+                    Dispatcher.Invoke(() => jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f");
+                    continue;
                 }
-                else
-                    jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").Last().AddAfterSelf(ExtMethods.RemoveNullAndEmptyProperties(JObject.FromObject(Lang.Character.Inventory.Items[index])));
-            }
-            if (Lang.ItemsForDelete != null && Lang.ItemsForDelete.Count > 0)
-            {
-                foreach (var del in jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToList())
+                if (!iDs.Contains(probe.Id))
                 {
-                    string id = del.ToObject<Character.Character_Inventory.Character_Inventory_Item>().Id;
-                    if (Lang.ItemsForDelete.Contains(id))
+                    foreach (var obj in jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToList())
                     {
-                        del.Remove();
-                        Lang.ItemsForDelete.Remove(id);
+                        if (obj.ToObject<Character.Character_Inventory.Character_Inventory_Item>().Id == probe.Id)
+                            ForRemove.Add(obj);
                     }
                 }
             }
-            if (AddToStashList.Count > 0)
-            {
-                foreach (var item in AddToStashList)
-                    jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").Last().AddAfterSelf(ExtMethods.RemoveNullAndEmptyProperties(JObject.FromObject(item)));
-            }
+            foreach (var j in ForRemove)
+                j.Remove();
+            foreach (var item in Lang.Character.Inventory.Items.Where(x => !Stash.Select(b => b.Id).ToList().Contains(x.Id)))
+                jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").Last().AddAfterSelf(ExtMethods.RemoveNullAndEmptyProperties(JObject.FromObject(item)));
             for (int index = 0; index < Lang.Character.Skills.Common.Count(); ++index)
             {
                 var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Common")[index].ToObject<Character.Character_Skills.Character_Skill>();
@@ -585,14 +588,60 @@ namespace SP_EFT_ProfileEditor
         {
             if (await this.ShowMessageAsync(Lang.locale["removestashitem_title"], Lang.locale["removestashitem_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
             {
-                if (Lang.ItemsForDelete == null) Lang.ItemsForDelete = new List<string>();
                 var button = sender as System.Windows.Controls.Button;
-                var item = (InventoryItem)button.DataContext;
-                Lang.ItemsForDelete.Add(item.id);
-                Lang.characterInventory.InventoryItems.Remove(item);
-                stashGrid.ItemsSource = null;
-                stashGrid.ItemsSource = Lang.characterInventory.InventoryItems;
-            }            
+                var TargetItem = Lang.Character.Inventory.Items.Where(x => x.Id == ((InventoryItem)button.DataContext).id).FirstOrDefault();
+                if (TargetItem != null)
+                {
+                    var items = Lang.Character.Inventory.Items.ToList();
+                    var toDo = new List<Character.Character_Inventory.Character_Inventory_Item>();
+                    toDo.Add(TargetItem);
+                    while (toDo.Count() > 0)
+                    {
+                        if (toDo.ElementAt(0) != null)
+                        {
+                            foreach (var item in Lang.Character.Inventory.Items.Where(x => x.ParentId == toDo.ElementAt(0).Id))
+                            {
+                                toDo.Add(item);
+                            }
+                        }
+                        items.Remove(toDo.ElementAt(0));
+                        toDo.Remove(toDo.ElementAt(0));
+                    }
+                    Lang.Character.Inventory.Items = items.ToArray();
+                    LoadData();
+                }                
+            }
+        }
+
+        private async void DeleteAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            if ( await this.ShowMessageAsync(Lang.locale["removestashitem_title"], Lang.locale["removestashitems_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+            {
+                var items = Lang.Character.Inventory.Items.ToList();
+                foreach (var Titem in Lang.characterInventory.InventoryItems.ToArray())
+                {
+                    var TargetItem = Lang.Character.Inventory.Items.Where(x => x.Id == (Titem.id)).FirstOrDefault();
+                    if (TargetItem != null)
+                    {
+                        var toDo = new List<Character.Character_Inventory.Character_Inventory_Item>();
+                        toDo.Add(TargetItem);
+                        while (toDo.Count() > 0)
+                        {
+                            if (toDo.ElementAt(0) != null)
+                            {
+                                foreach (var item in Lang.Character.Inventory.Items.Where(x => x.ParentId == toDo.ElementAt(0).Id))
+                                {
+                                    toDo.Add(item);
+                                }
+                            }
+                            items.Remove(toDo.ElementAt(0));
+                            toDo.Remove(toDo.ElementAt(0));
+                        }
+                    }
+                }
+                Lang.Character.Inventory.Items = items.ToArray();
+                LoadData();
+            }
         }
 
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
@@ -657,21 +706,13 @@ namespace SP_EFT_ProfileEditor
 
         private async void AddItemButton_Click(object sender, RoutedEventArgs e)
         {
+            //может быть доделаю позже. выдача предметов со стаками, выдача аптечек
             if (ItemIdSelector.SelectedValue == null) return;
             var item = itemsDB[ItemIdSelector.SelectedValue.ToString()];
             var Stash = getPlayerStashSlotMap();
             List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location> locations = new List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location>();
             int FreeSlots = 0;
-            bool NeedStack = false;
             int Amount = Convert.ToInt32(ItemAddAmount.Text);
-            if (item.props.StackMaxSize > 1)
-            {
-                NeedStack = true;
-                var tempAmount = Amount / item.props.StackMaxSize;
-                if (tempAmount * item.props.StackMaxSize < Amount)
-                    tempAmount++;
-                Amount = tempAmount;
-            }
             for (int y = 0; y < Stash.GetLength(0); y++)
                 for (int x = 0; x < Stash.GetLength(1); x++)
                     if (Stash[y, x] == 0)
@@ -727,27 +768,24 @@ namespace SP_EFT_ProfileEditor
                     }
                     if (NewItemsLocations.Count == Amount) break;
                 }
-                //Debug.Print(NewItemsLocations.Count.ToString());
                 if (NewItemsLocations.Count == Amount)
                 {
                     List<string> iDs = Lang.Character.Inventory.Items.Select(x => x.Id).ToList();
                     string id = iDs.Last();
-                    //give items
+                    var items = Lang.Character.Inventory.Items.ToList();
                     for (int i = 0; i < NewItemsLocations.Count; i++)
                     {
                         while (iDs.Contains(id))
                             id = ExtMethods.generateNewId();
                         iDs.Add(id);
-                        AddToStashList.Add(new Character.Character_Inventory.Character_Inventory_Item { 
+                        items.Add(new Character.Character_Inventory.Character_Inventory_Item { 
                             Id = id, ParentId = Lang.Character.Inventory.Stash, 
                             SlotId = "hideout", Tpl = item.id, 
                             Location = new Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location { R = NewItemsLocations[i].R, X = NewItemsLocations[i].X, Y = NewItemsLocations[i].Y, IsSearched = true }, 
                             Upd = new Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Upd { StackObjectsCount = item.props.StackMaxSize } });
-                        Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = id, name = globalLang.Templates[item.id].Name });
                     }
-                    //Lang.Character.Inventory.Items = itemList.ToArray();
-                    stashGrid.ItemsSource = null;
-                    stashGrid.ItemsSource = Lang.characterInventory.InventoryItems;
+                    Lang.Character.Inventory.Items = items.ToArray();
+                    LoadData();
                 }
                 else
                 {
@@ -914,5 +952,7 @@ namespace SP_EFT_ProfileEditor
                 textBox.Text = Int32.MaxValue.ToString();
             }
         }
+
+        private void HideWarningButton_Click(object sender, RoutedEventArgs e) => ItemsAddWarning.Visibility = ItemsAddWarning.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
     }
 }

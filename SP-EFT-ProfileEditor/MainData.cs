@@ -103,7 +103,6 @@ namespace SP_EFT_ProfileEditor
         public PEOptions options { get; set; }
 
         public List<string> Profiles { get; set; }
-        public List<string> ItemsForDelete { get;set;}
 
         public Character Character { get; set; }
 
@@ -175,6 +174,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_stash_category"] = "Category",
             ["tab_stash_amount"] = "Amount",
             ["tab_stash_add"] = "Add",
+            ["tab_stash_remove"] = "Remove all",
             ["tab_backups_title"] = "Backups",
             ["tab_backups_date"] = "Date",
             ["tab_backups_actions"] = "Actions",
@@ -193,7 +193,10 @@ namespace SP_EFT_ProfileEditor
             ["restorebackupdialog_title"] = "Restoring a backup",
             ["restorebackupdialog_caption"] = "Are you sure want to restore this backup?",
             ["removestashitem_title"] = "Removing an item",
-            ["removestashitem_caption"] = "Are you sure you want to delete this item?"
+            ["removestashitem_caption"] = "Are you sure you want to delete this item?",
+            ["removestashitems_caption"] = "Are you sure you want to delete all items?",
+            ["tab_stash_warningtitle"] = "The function of adding items to inventory can damage the profile. Use at your own risk.",
+            ["tab_stash_warningbutton"] = "I understood"
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -262,6 +265,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_stash_category"] = "Kategorie",
             ["tab_stash_amount"] = "Menge",
             ["tab_stash_add"] = "Hinzufügen",
+            ["tab_stash_remove"] = "Alles entfernen",
             ["tab_backups_title"] = "Backups",
             ["tab_backups_date"] = "Datum",
             ["tab_backups_actions"] = "Aktionen",
@@ -280,7 +284,10 @@ namespace SP_EFT_ProfileEditor
             ["restorebackupdialog_title"] = "Backup wiederherstellen",
             ["restorebackupdialog_caption"] = "Möchten Sie dieses Backup wirklich wiederherstellen?",
             ["removestashitem_title"] = "УEinen Gegenstand entfernen",
-            ["removestashitem_caption"] = "Möchten Sie diesen Artikel wirklich löschen?"
+            ["removestashitem_caption"] = "Möchten Sie diesen Artikel wirklich löschen?",
+            ["removestashitems_caption"] = "Möchten Sie wirklich alle Elemente löschen?",
+            ["tab_stash_warningtitle"] = "Die Funktion zum Hinzufügen von Gegenständen zum Inventar kann das Profil beschädigen. Benutzung auf eigene Gefahr.",
+            ["tab_stash_warningbutton"] = "Ich habe verstanden"
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -349,6 +356,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_stash_category"] = "Категория",
             ["tab_stash_amount"] = "Количество",
             ["tab_stash_add"] = "Добавить",
+            ["tab_stash_remove"] = "Удалить все",
             ["tab_backups_title"] = "Бэкапы",
             ["tab_backups_date"] = "Дата",
             ["tab_backups_actions"] = "Действия",
@@ -367,7 +375,10 @@ namespace SP_EFT_ProfileEditor
             ["restorebackupdialog_title"] = "Восстановление бэкапа",
             ["restorebackupdialog_caption"] = "Вы действительно хотите восстановить этот бэкап?",
             ["removestashitem_title"] = "Удаление предмета",
-            ["removestashitem_caption"] = "Вы действительно хотите удалить этот предмет?"
+            ["removestashitem_caption"] = "Вы действительно хотите удалить этот предмет?",
+            ["removestashitems_caption"] = "Вы действительно хотите удалить все предметы?",
+            ["tab_stash_warningtitle"] = "Функция добавления предметов в инвентарь может повредить профиль. Используйте на свой риск.",
+            ["tab_stash_warningbutton"] = "Я понял"
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -436,6 +447,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_stash_category"] = "Catégorie",
             ["tab_stash_amount"] = "Montant",
             ["tab_stash_add"] = "Ajouter",
+            ["tab_stash_remove"] = "Enlever tout",
             ["tab_backups_title"] = "Sauvegardes",
             ["tab_backups_date"] = "Date",
             ["tab_backups_actions"] = "Actions",
@@ -454,7 +466,10 @@ namespace SP_EFT_ProfileEditor
             ["restorebackupdialog_title"] = "Restaurer une sauvegarde",
             ["restorebackupdialog_caption"] = "Voulez-vous vraiment restaurer cette sauvegarde?",
             ["removestashitem_title"] = "Supprimer un élément",
-            ["removestashitem_caption"] = "Êtes-vous sûr de bien vouloir supprimer cet élément?"
+            ["removestashitem_caption"] = "Êtes-vous sûr de bien vouloir supprimer cet élément?",
+            ["removestashitems_caption"] = "Voulez-vous vraiment supprimer tous les éléments?",
+            ["tab_stash_warningtitle"] = "La fonction d'ajout d'articles à l'inventaire peut endommager le profil. À utiliser à vos risques et périls.",
+            ["tab_stash_warningbutton"] = "J'ai compris"
         };
     }
 

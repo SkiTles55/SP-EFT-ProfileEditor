@@ -367,6 +367,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition MaxHeight="50"/>
                         <RowDefinition/>
+                        <RowDefinition MaxHeight="50"/>
                         <RowDefinition  MaxHeight="120"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
@@ -445,7 +446,8 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <Grid Grid.Row="2" Grid.Column="1">
+                    <Button x:Name="DeleteAllButton" Grid.Column="1" Grid.Row="2" Content="{Binding locale[tab_stash_remove]}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" Click="DeleteAllButton_Click"/>
+                    <Grid Grid.Row="3" Grid.Column="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition MaxWidth="120"/>
                             <ColumnDefinition/>
@@ -486,6 +488,16 @@
                             </Button>
                         </StackPanel>
                     </Grid>
+                    <Border x:Name="ItemsAddWarning" Grid.Row="3" Grid.Column="1" Background="{DynamicResource MahApps.Brushes.Accent}">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Label HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Margin="0,5">
+                                <Label.Content>
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_stash_warningtitle]}"/>
+                                </Label.Content>
+                            </Label>
+                            <Button x:Name="HideWarningButton" Margin="0,10,0,0" Content="{Binding locale[tab_stash_warningbutton]}" Click="HideWarningButton_Click"/>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_backups_title]}" Name="tabbackups" HeaderTemplate="{StaticResource HeaderTemplate}">
