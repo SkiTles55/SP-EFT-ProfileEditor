@@ -17,6 +17,7 @@ using System.Windows.Input;
 using System.Diagnostics;
 using System.Windows.Navigation;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -25,6 +26,7 @@ namespace SP_EFT_ProfileEditor
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        private bool _shutdown;
         private FolderBrowserDialog folderBrowserDialogSPT;
         private MainData Lang = new MainData();
         private BackgroundWorker LoadDataWorker;
@@ -149,7 +151,7 @@ namespace SP_EFT_ProfileEditor
                 HideoutAreas = new List<CharacterHideoutArea>();
                 var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "hideout", "areas.json")));
                 foreach (var area in areas)
-                    HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = globalLang.Interface[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level });
+                    HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = globalLang.Interface[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level, stages = area.stages });
             }
             if (Lang.Character.Skills != null)
             {
@@ -277,7 +279,7 @@ namespace SP_EFT_ProfileEditor
                 if (ExtMethods.PathIsEftServerBase(folderBrowserDialogSPT.SelectedPath)) pathOK = true;
             } while (
                 !pathOK &&
-                (await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["invalid_server_location_text"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+                (await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["invalid_server_location_text"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateHide = true, AnimateShow = true }) == MessageDialogResult.Affirmative)
             );
 
             if (pathOK)
@@ -394,7 +396,7 @@ namespace SP_EFT_ProfileEditor
 
         private async void ResetProfileButton_Click(object sender, RoutedEventArgs e)
         {
-            if (await this.ShowMessageAsync(Lang.locale["reloadprofiledialog_title"], Lang.locale["reloadprofiledialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+            if (await this.ShowMessageAsync(Lang.locale["reloadprofiledialog_title"], Lang.locale["reloadprofiledialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateHide = true, AnimateShow = true }) == MessageDialogResult.Affirmative)
             {
                 SaveAndReload();
                 LoadData();
@@ -452,12 +454,13 @@ namespace SP_EFT_ProfileEditor
             await progressDialog.CloseAsync();
             if (e.Error != null)
             {
-                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], e.Error.Message, MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], e.Error.Message, MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
                 ExtMethods.Log($"SaveProfileButton_Click | {e.Error.Message}");
             }
             else
-                await this.ShowMessageAsync(Lang.locale["saveprofiledialog_title"], Lang.locale["saveprofiledialog_caption"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
-            LoadBackups();
+                await this.ShowMessageAsync(Lang.locale["saveprofiledialog_title"], Lang.locale["saveprofiledialog_caption"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateHide = true, AnimateShow = true });
+            SaveAndReload();
+            LoadData();
         }
 
         private void SaveProfileWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -503,7 +506,39 @@ namespace SP_EFT_ProfileEditor
             for (int index = 0; index < Lang.Character.Hideout.Areas.Count(); ++index)
             {
                 var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index].ToObject<Character.Character_Hideout_Areas>();
-                jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index]["level"] = Lang.Character.Hideout.Areas.Where(x => x.Type == probe.Type).FirstOrDefault().Level;
+                int probeLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == probe.Type).FirstOrDefault().Level;
+                jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index]["level"] = probeLevel;
+                /*
+                if (probeLevel > 1)
+                {
+                    for (int i = 0; i < probeLevel; i++)
+                    {
+                        var areaBonuses = HideoutAreas.Where(x => x.type == probe.Type).FirstOrDefault().stages[i.ToString()];
+                        if (areaBonuses != null)
+                        {
+                            var test = areaBonuses.SelectToken("bonuses").ToObject<List<JToken>>();
+                            if (test != null && test.Count() > 0)
+                            {
+                                foreach (var t in test)
+                                {
+                                    var bonus = t.ToObject<Character.Character_Bonuses>();
+                                    if (bonus != null)
+                                    {
+                                        if (Lang.Character.Bonuses.Where(x => x.TemplateId == bonus.TemplateId).Count() == 0)
+                                        {
+                                            jobject.SelectToken("characters")["pmc"].SelectToken("Bonuses").Last().AddAfterSelf(JObject.FromObject(t));
+                                            continue;
+                                        }
+                                        if (Lang.Character.Bonuses.Where(x => x.Type == bonus.Type && x.Value == bonus.Value).Count() == 0)
+                                        {
+                                            jobject.SelectToken("characters")["pmc"].SelectToken("Bonuses").Last().AddAfterSelf(JObject.FromObject(t));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }*/
             }
             foreach (var tr in Lang.Character.TraderStandings)
             {
@@ -566,7 +601,7 @@ namespace SP_EFT_ProfileEditor
 
         private async void backupRemove_Click(object sender, RoutedEventArgs e)
         {
-            if (await this.ShowMessageAsync(Lang.locale["removebackupdialog_title"], Lang.locale["removebackupdialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+            if (await this.ShowMessageAsync(Lang.locale["removebackupdialog_title"], Lang.locale["removebackupdialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateShow = true, AnimateHide = true }) == MessageDialogResult.Affirmative)
             {
                 try
                 {
@@ -576,7 +611,7 @@ namespace SP_EFT_ProfileEditor
                 catch (Exception ex)
                 {
                     ExtMethods.Log($"backupRemove_Click | {ex.GetType().Name}: {ex.Message}");
-                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
                 }                
                 LoadBackups();
             }
@@ -584,7 +619,7 @@ namespace SP_EFT_ProfileEditor
 
         private async void backupRestore_Click(object sender, RoutedEventArgs e)
         {
-            if (await this.ShowMessageAsync(Lang.locale["restorebackupdialog_title"], Lang.locale["restorebackupdialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+            if (await this.ShowMessageAsync(Lang.locale["restorebackupdialog_title"], Lang.locale["restorebackupdialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateShow = true, AnimateHide = true }) == MessageDialogResult.Affirmative)
             {
                 try
                 {
@@ -595,7 +630,7 @@ namespace SP_EFT_ProfileEditor
                 catch (Exception ex)
                 {
                     ExtMethods.Log($"backupRestore_Click | {ex.GetType().Name}: {ex.Message}");
-                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
                 } 
                 SaveAndReload();
                 LoadData();
@@ -604,7 +639,7 @@ namespace SP_EFT_ProfileEditor
 
         private async void StashItemRemove_Click(object sender, RoutedEventArgs e)
         {
-            if (await this.ShowMessageAsync(Lang.locale["removestashitem_title"], Lang.locale["removestashitem_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+            if (await this.ShowMessageAsync(Lang.locale["removestashitem_title"], Lang.locale["removestashitem_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateShow = true, AnimateHide = true }) == MessageDialogResult.Affirmative)
             {
                 var button = sender as System.Windows.Controls.Button;
                 var TargetItem = Lang.Character.Inventory.Items.Where(x => x.Id == ((InventoryItem)button.DataContext).id).FirstOrDefault();
@@ -633,7 +668,7 @@ namespace SP_EFT_ProfileEditor
 
         private async void DeleteAllButton_Click(object sender, RoutedEventArgs e)
         {
-            if ( await this.ShowMessageAsync(Lang.locale["removestashitem_title"], Lang.locale["removestashitems_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"] }) == MessageDialogResult.Affirmative)
+            if ( await this.ShowMessageAsync(Lang.locale["removestashitem_title"], Lang.locale["removestashitems_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateShow = true, AnimateHide = true }) == MessageDialogResult.Affirmative)
             {
                 var items = Lang.Character.Inventory.Items.ToList();
                 foreach (var Titem in Lang.characterInventory.InventoryItems.ToArray())
@@ -674,53 +709,27 @@ namespace SP_EFT_ProfileEditor
             e.Handled = true;
         }
 
-        private void ShowRublesAddDialog(object sender, RoutedEventArgs e)
+        private void AddMoneyDialog(string moneytpl)
         {
-            AddMoneyDialog AddRoubles = new AddMoneyDialog
+            AddMoneyDialog AddMoneys = new AddMoneyDialog
             {
                 OkButtonText = Lang.locale["saveprofiledialog_ok"],
                 CancelButtonText = Lang.locale["button_close"],
                 Owner = this,
-                ColorScheme = Lang.options.ColorScheme,
+                ColorScheme = ThemeManager.Current.DetectTheme(this).Name,
                 MoneyTitle = Lang.locale["tab_stash_dialogmoney"]
             };
-            if (AddRoubles.ShowDialog() == true)
+            if (AddMoneys.ShowDialog() == true)
             {
-                AddMoney("5449016a4bdc2d6f028b456f", AddRoubles.MoneyCount);
+                AddMoney(moneytpl, AddMoneys.MoneyCount);
             }
         }
 
-        private void ShowEurosAddDialog(object sender, RoutedEventArgs e)
-        {
-            AddMoneyDialog AddRoubles = new AddMoneyDialog
-            {
-                OkButtonText = Lang.locale["saveprofiledialog_ok"],
-                CancelButtonText = Lang.locale["button_close"],
-                Owner = this,
-                ColorScheme = Lang.options.ColorScheme,
-                MoneyTitle = Lang.locale["tab_stash_dialogmoney"]
-            };
-            if (AddRoubles.ShowDialog() == true)
-            {
-                AddMoney("569668774bdc2da2298b4568", AddRoubles.MoneyCount);
-            }
-        }
+        private void ShowRublesAddDialog(object sender, RoutedEventArgs e) => AddMoneyDialog(moneyRub);
 
-        private void ShowDollarsAddDialog(object sender, RoutedEventArgs e)
-        {
-            AddMoneyDialog AddRoubles = new AddMoneyDialog
-            {
-                OkButtonText = Lang.locale["saveprofiledialog_ok"],
-                CancelButtonText = Lang.locale["button_close"],
-                Owner = this,
-                ColorScheme = Lang.options.ColorScheme,
-                MoneyTitle = Lang.locale["tab_stash_dialogmoney"]
-            };
-            if (AddRoubles.ShowDialog() == true)
-            {
-                AddMoney("5696686a4bdc2da3298b456a", AddRoubles.MoneyCount);
-            }
-        }
+        private void ShowEurosAddDialog(object sender, RoutedEventArgs e) => AddMoneyDialog(moneyEur);
+
+        private void ShowDollarsAddDialog(object sender, RoutedEventArgs e) => AddMoneyDialog(moneyDol);
 
         private async void AddItemButton_Click(object sender, RoutedEventArgs e)
         {
@@ -740,7 +749,7 @@ namespace SP_EFT_ProfileEditor
                     }
             int tempslots = item.props.Width * item.props.Height * Amount;
             if (FreeSlots < tempslots)
-                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
             else
             {
                 List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location> NewItemsLocations = new List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location>();
@@ -807,7 +816,7 @@ namespace SP_EFT_ProfileEditor
                 }
                 else
                 {
-                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
                 }
             }
         }
@@ -851,7 +860,7 @@ namespace SP_EFT_ProfileEditor
             }
             else
             {
-                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"] });
+                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
             }
         }        
 
@@ -972,5 +981,26 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void HideWarningButton_Click(object sender, RoutedEventArgs e) => ItemsAddWarning.Visibility = ItemsAddWarning.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+
+        private void MetroWindow_Closing(object sender, CancelEventArgs e)
+        {
+            if (e.Cancel)
+                return;
+
+            if (ExtMethods.ProfileChanged(Lang)  && _shutdown == false)
+            {
+                e.Cancel = true;
+                Dispatcher.BeginInvoke(new Action(async () => await ConfirmShutdown()));
+            }
+        }
+
+        private async Task ConfirmShutdown()
+        {
+            var mySettings = new MetroDialogSettings { AffirmativeButtonText = Lang.locale["button_quit"], NegativeButtonText = Lang.locale["button_cancel"], AnimateShow = true, AnimateHide = true };
+            var result = await this.ShowMessageAsync(Lang.locale["app_quit"], Lang.locale["reloadprofiledialog_caption"], MessageDialogStyle.AffirmativeAndNegative, mySettings);
+            _shutdown = result == MessageDialogResult.Affirmative;
+            if (_shutdown)
+                System.Windows.Application.Current.Shutdown();
+        }
     }
 }

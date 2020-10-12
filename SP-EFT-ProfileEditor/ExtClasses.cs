@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
 namespace SP_EFT_ProfileEditor
@@ -77,12 +78,14 @@ namespace SP_EFT_ProfileEditor
         public string name { get; set; }
         public int MaxLevel { get; set; }
         public int CurrentLevel { get; set; }
+
+        public Dictionary<string, JToken> stages { get; set; }
     }
 
     public class AreaInfo
     {
         public int type { get; set; }
-        public Dictionary<string, object> stages { get; set; }
+        public Dictionary<string, JToken> stages { get; set; }
     }
 
     public class TraderInfo

@@ -67,6 +67,8 @@ namespace SP_EFT_ProfileEditor
             }
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !string.IsNullOrEmpty(eOptions.DefaultProfile))
                 lang.Character = JsonConvert.DeserializeObject<Profile>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json"))).characters.pmc;
+            if (lang.Character != null && lang.Character.Info != null && lang.Character.Inventory != null && lang.Character.TraderStandings != null && lang.Character.Skills != null)
+                lang.ProfileHash = JsonConvert.SerializeObject(lang.Character).ToString().GetHashCode();
             return lang;
         }
 
@@ -107,6 +109,8 @@ namespace SP_EFT_ProfileEditor
         public Character Character { get; set; }
 
         public CharacterInventory characterInventory { get; set; }
+
+        public int ProfileHash { get; set; }
 
         static Dictionary<string, string> EN => new Dictionary<string, string>()
         {
@@ -197,7 +201,10 @@ namespace SP_EFT_ProfileEditor
             ["removestashitems_caption"] = "Are you sure you want to delete all items?",
             ["tab_stash_warningtitle"] = "The stash edit function can damage the profile. Use at your own risk.",
             ["tab_stash_warningbutton"] = "I understood",
-            ["profile_empty"] = "There is no data to display. The profile is empty. Log into the game under this profile and try again."
+            ["profile_empty"] = "There is no data to display. The profile is empty. Log into the game under this profile and try again.",
+            ["app_quit"] = "Quit application?",
+            ["button_quit"] = "Quit",
+            ["button_cancel"] = "Cancel"
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -289,7 +296,10 @@ namespace SP_EFT_ProfileEditor
             ["removestashitems_caption"] = "Möchten Sie wirklich alle Elemente löschen?",
             ["tab_stash_warningtitle"] = "Die Stash-Bearbeitungsfunktion kann das Profil beschädigen. Benutzung auf eigene Gefahr.",
             ["tab_stash_warningbutton"] = "Ich habe verstanden",
-            ["profile_empty"] = "Es sind keine Daten anzuzeigen. Das Profil ist leer. Melde dich unter diesem Profil im Spiel an und versuche es erneut."
+            ["profile_empty"] = "Es sind keine Daten anzuzeigen. Das Profil ist leer. Melde dich unter diesem Profil im Spiel an und versuche es erneut.",
+            ["app_quit"] = "Bewerbung beenden?",
+            ["button_quit"] = "Verlassen",
+            ["button_cancel"] = "Stornieren"
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -381,7 +391,10 @@ namespace SP_EFT_ProfileEditor
             ["removestashitems_caption"] = "Вы действительно хотите удалить все предметы?",
             ["tab_stash_warningtitle"] = "Функция редактирования схрона может повредить профиль. Используйте на свой страх и риск.",
             ["tab_stash_warningbutton"] = "Я понял",
-            ["profile_empty"] = "Нет данных для отображения. Профиль пустой. Зайдите в игру под этим профилем и попробуйте снова."
+            ["profile_empty"] = "Нет данных для отображения. Профиль пустой. Зайдите в игру под этим профилем и попробуйте снова.",
+            ["app_quit"] = "Выйти из приложения?",
+            ["button_quit"] = "Выход",
+            ["button_cancel"] = "Отмена"
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -473,7 +486,10 @@ namespace SP_EFT_ProfileEditor
             ["removestashitems_caption"] = "Voulez-vous vraiment supprimer tous les éléments?",
             ["tab_stash_warningtitle"] = "La fonction d'édition de cache peut endommager le profil. À utiliser à vos risques et périls.",
             ["tab_stash_warningbutton"] = "J'ai compris",
-            ["profile_empty"] = "Il n'y a aucune donnée à afficher. Le profil est vide. Connectez-vous au jeu sous ce profil et réessayez."
+            ["profile_empty"] = "Il n'y a aucune donnée à afficher. Le profil est vide. Connectez-vous au jeu sous ce profil et réessayez.",
+            ["app_quit"] = "Quitter l'application?",
+            ["button_quit"] = "Quitter",
+            ["button_cancel"] = "Annuler"
         };
     }
 

@@ -32,6 +32,9 @@ namespace SP_EFT_ProfileEditor
         [JsonProperty("Hideout")]
         public Character_Hideout Hideout { get; set; }
 
+        [JsonProperty("Bonuses")]
+        public Character_Bonuses[] Bonuses { get; set; }
+
         [JsonProperty("Quests")]
         public Character_Quests[] Quests { get; set; }
 
@@ -347,6 +350,21 @@ namespace SP_EFT_ProfileEditor
 
             [JsonProperty("level")]
             public int Level { get; set; } // 3,
+        }
+
+        public class Character_Bonuses
+        {
+            [JsonProperty("value")]
+            public int Value { get; set; }
+
+            [JsonProperty("id")]
+            public string Id { get; set; } // "5d8b89addfc57a648453e89d",
+
+            [JsonProperty("type")]
+            public string Type { get; set; } // "StashSize",
+
+            [JsonProperty("templateId")]
+            public string TemplateId { get; set; } // "566abbc34bdc2d92178b4576"
         }
 
         public class Character_Quests

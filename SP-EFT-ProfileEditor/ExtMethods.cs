@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Linq;
@@ -82,5 +83,7 @@ namespace SP_EFT_ProfileEditor
                     jt.Remove();
             return jObject;
         }
+
+        public static bool ProfileChanged(MainData data) => data.ProfileHash != JsonConvert.SerializeObject(data.Character).ToString().GetHashCode();
     }
 }

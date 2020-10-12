@@ -11,6 +11,7 @@
         GlowBrush="{DynamicResource MahApps.Brushes.Accent}"
         BorderThickness="2"
         SaveWindowPosition="True"
+        Closing="MetroWindow_Closing"
         Title="SP EFT Profile Editor by SkiTles" MinHeight="600" MinWidth="800" Loaded="Window_Loaded" >
     <Window.Resources>
         <local:PathBoolConverter x:Key="PathBoolConverter" />
