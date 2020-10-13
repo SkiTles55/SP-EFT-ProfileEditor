@@ -43,6 +43,7 @@ namespace SP_EFT_ProfileEditor
         private List<ExaminedItem> examinedItems;
         private BackgroundWorker SaveProfileWorker;
         private Dictionary<string, Dictionary<string, string>> ItemsForAdd;
+        private ServerGlobals serverGlobals;
 
         private readonly string moneyRub = "5449016a4bdc2d6f028b456f";
         private readonly string moneyDol = "5696686a4bdc2da3298b456a";
@@ -118,6 +119,7 @@ namespace SP_EFT_ProfileEditor
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            serverGlobals = JsonConvert.DeserializeObject<ServerGlobals>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "globals.json")));
             globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "locales", "global", Lang.options.Language + ".json")));
             itemsDB = new Dictionary<string, Item>();
             itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "templates", "items.json")));
@@ -125,6 +127,7 @@ namespace SP_EFT_ProfileEditor
             {
                 Quests = new List<Quest>();
                 List<QuestData> qData = JsonConvert.DeserializeObject<List<QuestData>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "templates", "quests.json")));
+                List<Character.Character_Quests> forAdd = new List<Character.Character_Quests>();
                 foreach (var qd in qData)
                 {
                     if (Lang.Character.Quests.Where(x => x.Qid == qd._id).Count() > 0)
@@ -132,7 +135,59 @@ namespace SP_EFT_ProfileEditor
                         var quest = Lang.Character.Quests.Where(x => x.Qid == qd._id).FirstOrDefault();
                         Quests.Add(new Quest { qid = quest.Qid, name = globalLang.Quests[quest.Qid].name, status = quest.Status, trader = globalLang.Traders[qd.traderId].Nickname });
                     }
+                    else
+                    {
+                        forAdd.Add(new Character.Character_Quests { Qid = qd._id, Status = "Locked", CompletedConditions = new string[0], StartTime = 0, StatusTimers = new Dictionary<string, decimal>() });
+                        Quests.Add(new Quest { qid = qd._id, name = globalLang.Quests[qd._id].name, status = "Locked", trader = globalLang.Traders[qd.traderId].Nickname });
+                    }
                 }
+                if (forAdd.Count > 0)
+                {
+                    var temp = Lang.Character.Quests.ToList();
+                    foreach (var add in forAdd)
+                        temp.Add(add);
+                    Lang.Character.Quests = temp.ToArray();
+                }
+            }
+            if (Lang.Character.Skills != null)
+            {
+                commonSkills = new List<SkillInfo>();
+                masteringSkills = new List<SkillInfo>();
+                List<Character.Character_Skills.Character_Skill> forAdd = new List<Character.Character_Skills.Character_Skill>();
+                foreach (var skill in Lang.Character.Skills.Common)
+                {
+                    if (globalLang.Interface.ContainsKey(skill.Id))
+                        commonSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = globalLang.Interface[skill.Id], id = skill.Id });
+                }
+                foreach (var md in serverGlobals.config.Mastering)
+                {
+                    string weapons = string.Empty;
+                    foreach (var tmp in md.Templates)
+                        if (globalLang.Templates.ContainsKey(tmp))
+                        {
+                            if (!string.IsNullOrEmpty(weapons)) weapons += ", ";
+                            weapons += globalLang.Templates[tmp].Name;
+                        }
+                    if (string.IsNullOrEmpty(weapons)) weapons = md.Name;
+                    if (Lang.Character.Skills.Mastering.Where(x => x.Id == md.Name).Count() > 0)
+                    {
+                        var mastering = Lang.Character.Skills.Mastering.Where(x => x.Id == md.Name).FirstOrDefault();
+                        masteringSkills.Add(new SkillInfo { progress = (int)mastering.Progress, name = weapons, id = mastering.Id, Max = md.Level3 });
+                    }
+                    else
+                    {
+                        forAdd.Add(new Character.Character_Skills.Character_Skill { Id = md.Name, Progress = 0 });
+                        masteringSkills.Add(new SkillInfo { progress = 0, name = weapons, id = md.Name, Max = md.Level3 });
+                    }
+                }
+                if (forAdd.Count > 0)
+                {
+                    var temp = Lang.Character.Skills.Mastering.ToList();
+                    foreach (var add in forAdd)
+                        temp.Add(add);
+                    Lang.Character.Skills.Mastering = temp.ToArray();
+                }
+                Dispatcher.Invoke(() => { allmastering_exp.Maximum = serverGlobals.config.Mastering.OrderByDescending(x => x.Level3).First()?.Level3 ?? 1000; });
             }
             if (Lang.Character.TraderStandings != null)
             {
@@ -152,19 +207,6 @@ namespace SP_EFT_ProfileEditor
                 var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "hideout", "areas.json")));
                 foreach (var area in areas)
                     HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = globalLang.Interface[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level, stages = area.stages });
-            }
-            if (Lang.Character.Skills != null)
-            {
-                commonSkills = new List<SkillInfo>();
-                foreach (var skill in Lang.Character.Skills.Common)
-                {
-                    if (globalLang.Interface.ContainsKey(skill.Id))
-                        commonSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = globalLang.Interface[skill.Id], id = skill.Id });
-                }
-                masteringSkills = new List<SkillInfo>();
-                foreach (var skill in Lang.Character.Skills.Mastering)
-                    masteringSkills.Add(new SkillInfo { progress = (int)skill.Progress, name = skill.Id, id = skill.Id });
-                //need load mastering from "C:\EFTSingle-Aki\Server\db\others\globals.json" Mastering
             }
             if (Lang.Character.Encyclopedia != null)
             {
@@ -366,7 +408,9 @@ namespace SP_EFT_ProfileEditor
             if (!IsLoaded)
                 return;
             var slider = sender as Slider;
-            Lang.Character.Skills.Common.Where(x => x.Id == ((SkillInfo)slider.DataContext).id).FirstOrDefault().Progress = (float)slider.Value;
+            var skill = (SkillInfo)slider.DataContext;
+            if (Math.Abs(skill.progress - Lang.Character.Skills.Common.Where(x => x.Id == skill.id).FirstOrDefault().Progress) > 1)
+                Lang.Character.Skills.Common.Where(x => x.Id == skill.id).FirstOrDefault().Progress = (float)slider.Value;
         }
 
         private void masteringskill_exp_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -374,7 +418,9 @@ namespace SP_EFT_ProfileEditor
             if (!IsLoaded)
                 return;
             var slider = sender as Slider;
-            Lang.Character.Skills.Mastering.Where(x => x.Id == ((SkillInfo)slider.DataContext).id).FirstOrDefault().Progress = (int)slider.Value;
+            var skill = (SkillInfo)slider.DataContext;
+            if (Math.Abs(skill.progress - Lang.Character.Skills.Mastering.Where(x => x.Id == skill.id).FirstOrDefault().Progress) > 1)
+                Lang.Character.Skills.Mastering.Where(x => x.Id == skill.id).FirstOrDefault().Progress = (int)slider.Value <= skill.Max ? (int)slider.Value : skill.Max;
         }
 
         private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
@@ -553,16 +599,33 @@ namespace SP_EFT_ProfileEditor
             }
             if (Lang.Character.Quests.Count() > 0)
             {
-                for (int index = 0; index < Lang.Character.Quests.Count(); ++index)
+                var questsObject = jobject.SelectToken("characters")["pmc"].SelectToken("Quests").ToObject<Character.Character_Quests[]>();
+                for (int i = 0; i < questsObject.Count(); i++)
                 {
-                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Quests")[index].ToObject<Character.Character_Quests>();
-                    jobject.SelectToken("characters")["pmc"].SelectToken("Quests")[index]["status"] = Lang.Character.Quests.Where(x => x.Qid == probe.Qid).FirstOrDefault().Status;
+                    var quest = jobject.SelectToken("characters")["pmc"].SelectToken("Quests")[i].ToObject<Character.Character_Quests>();
+                    if (quest != null)
+                        jobject.SelectToken("characters")["pmc"].SelectToken("Quests")[i]["status"] = Lang.Character.Quests.Where(x => x.Qid == quest.Qid).FirstOrDefault().Status;
+                }
+                foreach (var quest in Lang.Character.Quests)
+                {
+                    if (questsObject.Where(x => x.Qid == quest.Qid).Count() < 1)
+                        jobject.SelectToken("characters")["pmc"].SelectToken("Quests").Last().AddAfterSelf(JObject.FromObject(quest));
                 }
             }
-            for (int index = 0; index < Lang.Character.Skills.Mastering.Count(); ++index)
+            if (Lang.Character.Skills.Mastering.Count() > 0)
             {
-                var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[index].ToObject<Character.Character_Skills.Character_Skill>();
-                jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[index]["Progress"] = Lang.Character.Skills.Mastering.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
+                var masteringObject = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering").ToObject<Character.Character_Skills.Character_Skill[]>();
+                for (int i = 0; i < masteringObject.Count(); i++)
+                {
+                    var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[i].ToObject<Character.Character_Skills.Character_Skill>();
+                    if (probe != null)
+                        jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[i]["Progress"] = Lang.Character.Skills.Mastering.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
+                }
+                foreach (var master in Lang.Character.Skills.Mastering)
+                {
+                    if (masteringObject.Where(x => x.Id == master.Id).Count() < 1)
+                        jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering").Last().AddAfterSelf(JObject.FromObject(master));
+                }
             }
             jobject.SelectToken("characters")["pmc"].SelectToken("Encyclopedia").Replace(JToken.FromObject(Lang.Character.Encyclopedia));
             DateTime now = DateTime.Now;

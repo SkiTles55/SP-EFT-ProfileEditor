@@ -372,6 +372,15 @@ namespace SP_EFT_ProfileEditor
             [JsonProperty("qid")]
             public string Qid { get; set; } // "59674eb386f774539f14813a",
 
+            [JsonProperty("startTime")]
+            public long StartTime { get; set; }
+
+            [JsonProperty("completedConditions")]
+            public string[] CompletedConditions { get; set; }
+
+            [JsonProperty("statusTimers")]
+            public Dictionary<string, decimal> StatusTimers { get; set; }
+
             [JsonProperty("status")]
             public string Status { get; set; } // "Success", "Locked", "Started"
         }

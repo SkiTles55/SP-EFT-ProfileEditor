@@ -322,7 +322,7 @@
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
                                             <TextBox Grid.Column="0" Text="{Binding ElementName=masteringskill_exp, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberValidationTextBox" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" MinWidth="43"/>
-                                            <Slider x:Name="masteringskill_exp" Grid.Column="1" Maximum="3500" TickPlacement="None" TickFrequency="1" Value="{Binding progress}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="masteringskill_exp_ValueChanged"/>
+                                            <Slider x:Name="masteringskill_exp" Grid.Column="1" Maximum="{Binding Path=Max}" TickPlacement="None" TickFrequency="1" Value="{Binding progress}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="masteringskill_exp_ValueChanged"/>
                                         </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -441,6 +441,13 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=name}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_info_id], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=id}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

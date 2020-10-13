@@ -70,6 +70,8 @@ namespace SP_EFT_ProfileEditor
         public string id { get; set; }
         public string name { get; set; }
         public int progress { get; set; }
+
+        public int Max { get; set; }
     }
 
     public class CharacterHideoutArea
@@ -186,5 +188,22 @@ namespace SP_EFT_ProfileEditor
     {
         public int cellsH { get; set; } //10
         public int cellsV { get; set; } //68
+    }
+
+    public class ServerGlobals
+    {
+        public Global config { get; set; }
+    }
+
+    public class Global
+    {
+        public Mastering[] Mastering { get; set; }
+    }
+
+    public class Mastering
+    {
+        public string Name { get; set; }
+        public string[] Templates { get; set; }
+        public int Level3 { get; set; }
     }
 }
