@@ -86,6 +86,6 @@ namespace SP_EFT_ProfileEditor
             return jObject;
         }
 
-        public static bool ProfileChanged(MainData data) => data.ProfileHash != JsonConvert.SerializeObject(data.Character).ToString().GetHashCode();
+        public static bool ProfileChanged(MainData data) => data.ProfileHash != 0 && data.ProfileHash != JsonConvert.SerializeObject(data.Character).ToString().GetHashCode();
     }
 }

@@ -162,13 +162,9 @@ namespace SP_EFT_ProfileEditor
                 foreach (var md in serverGlobals.config.Mastering)
                 {
                     string weapons = string.Empty;
-                    foreach (var tmp in md.Templates)
-                        if (globalLang.Templates.ContainsKey(tmp))
-                        {
-                            if (!string.IsNullOrEmpty(weapons)) weapons += ", ";
-                            weapons += globalLang.Templates[tmp].Name;
-                        }
-                    if (string.IsNullOrEmpty(weapons)) weapons = md.Name;
+                    foreach (var tmp in md.Templates.Where(x => globalLang.Templates.ContainsKey(x)))
+                        weapons += globalLang.Templates[tmp].Name;
+                    if (string.IsNullOrEmpty(weapons)) continue;
                     if (Lang.Character.Skills.Mastering.Where(x => x.Id == md.Name).Count() > 0)
                     {
                         var mastering = Lang.Character.Skills.Mastering.Where(x => x.Id == md.Name).FirstOrDefault();
@@ -469,7 +465,7 @@ namespace SP_EFT_ProfileEditor
         private void SkillsExpButton_Click(object sender, RoutedEventArgs e)
         {
             if (commonSkills == null) return;
-            foreach (var exp in Lang.Character.Skills.Common)
+            foreach (var exp in Lang.Character.Skills.Common.Where(x => globalLang.Interface.ContainsKey(x.Id)))
                 exp.Progress = (float)allskill_exp.Value;
             LoadData();
         }
@@ -478,7 +474,7 @@ namespace SP_EFT_ProfileEditor
         {
             if (masteringSkills == null) return;
             foreach (var ms in Lang.Character.Skills.Mastering)
-                ms.Progress = (int)allmastering_exp.Value;
+                ms.Progress = (int)allmastering_exp.Value <= masteringSkills.Where(x => x.id == ms.Id).FirstOrDefault().Max ? (int)allmastering_exp.Value : masteringSkills.Where(x => x.id == ms.Id).FirstOrDefault().Max;
             LoadData();
         }
 
@@ -543,7 +539,7 @@ namespace SP_EFT_ProfileEditor
             foreach (var j in ForRemove)
                 j.Remove();
             foreach (var item in Lang.Character.Inventory.Items.Where(x => !Stash.Select(b => b.Id).ToList().Contains(x.Id)))
-                jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").Last().AddAfterSelf(ExtMethods.RemoveNullAndEmptyProperties(JObject.FromObject(item)));
+                jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").LastOrDefault().AddAfterSelf(ExtMethods.RemoveNullAndEmptyProperties(JObject.FromObject(item)));
             for (int index = 0; index < Lang.Character.Skills.Common.Count(); ++index)
             {
                 var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Common")[index].ToObject<Character.Character_Skills.Character_Skill>();
@@ -581,7 +577,7 @@ namespace SP_EFT_ProfileEditor
                                             default:
                                                 break;
                                         }
-                                        jobject.SelectToken("characters")["pmc"].SelectToken("Bonuses").Last().AddAfterSelf(JObject.FromObject(t));
+                                        jobject.SelectToken("characters")["pmc"].SelectToken("Bonuses").LastOrDefault().AddAfterSelf(JObject.FromObject(t));
                                     }
                                 }
                             }
@@ -606,11 +602,16 @@ namespace SP_EFT_ProfileEditor
                     if (quest != null)
                         jobject.SelectToken("characters")["pmc"].SelectToken("Quests")[i]["status"] = Lang.Character.Quests.Where(x => x.Qid == quest.Qid).FirstOrDefault().Status;
                 }
-                foreach (var quest in Lang.Character.Quests)
+                if (questsObject.Count() > 0)
                 {
-                    if (questsObject.Where(x => x.Qid == quest.Qid).Count() < 1)
-                        jobject.SelectToken("characters")["pmc"].SelectToken("Quests").Last().AddAfterSelf(JObject.FromObject(quest));
+                    foreach (var quest in Lang.Character.Quests)
+                    {
+                        if (questsObject.Where(x => x.Qid == quest.Qid).Count() < 1)
+                            jobject.SelectToken("characters")["pmc"].SelectToken("Quests").LastOrDefault().AddAfterSelf(JObject.FromObject(quest));
+                    }
                 }
+                else
+                    jobject.SelectToken("characters")["pmc"].SelectToken("Quests").Replace(JToken.FromObject(Lang.Character.Quests));
             }
             if (Lang.Character.Skills.Mastering.Count() > 0)
             {
@@ -621,11 +622,16 @@ namespace SP_EFT_ProfileEditor
                     if (probe != null)
                         jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering")[i]["Progress"] = Lang.Character.Skills.Mastering.Where(x => x.Id == probe.Id).FirstOrDefault().Progress;
                 }
-                foreach (var master in Lang.Character.Skills.Mastering)
+                if (masteringObject.Count() > 0)
                 {
-                    if (masteringObject.Where(x => x.Id == master.Id).Count() < 1)
-                        jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering").Last().AddAfterSelf(JObject.FromObject(master));
+                    foreach (var master in Lang.Character.Skills.Mastering)
+                    {
+                        if (masteringObject.Where(x => x.Id == master.Id).Count() < 1)
+                            jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering").LastOrDefault().AddAfterSelf(JObject.FromObject(master));
+                    }
                 }
+                else
+                    jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering").Replace(JToken.FromObject(Lang.Character.Skills.Mastering));
             }
             jobject.SelectToken("characters")["pmc"].SelectToken("Encyclopedia").Replace(JToken.FromObject(Lang.Character.Encyclopedia));
             DateTime now = DateTime.Now;
@@ -1067,7 +1073,7 @@ namespace SP_EFT_ProfileEditor
         {
             if (e.Cancel)
                 return;
-
+            
             if (ExtMethods.ProfileChanged(Lang)  && _shutdown == false)
             {
                 e.Cancel = true;

@@ -237,7 +237,7 @@
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
                                             <TextBox Grid.Column="0" Text="{Binding ElementName=hideoutarea_Level, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberValidationTextBox" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0"/>
-                                            <Slider x:Name="hideoutarea_Level" Grid.Column="1" Maximum="{Binding MaxLevel}" TickPlacement="BottomRight" TickFrequency="1" Value="{Binding CurrentLevel}" VerticalAlignment="Center" IsSnapToTickEnabled="True" Margin="5" ValueChanged="hideoutarea_Level_ValueChanged"/>
+                                            <Slider x:Name="hideoutarea_Level" Grid.Column="1" Maximum="{Binding MaxLevel}" TickPlacement="BottomRight" TickFrequency="1" Value="{Binding CurrentLevel, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" IsSnapToTickEnabled="True" Margin="5" ValueChanged="hideoutarea_Level_ValueChanged"/>
                                         </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -275,7 +275,7 @@
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
                                             <TextBox Grid.Column="0" Text="{Binding ElementName=commonskill_exp, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberValidationTextBox" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0"/>
-                                            <Slider x:Name="commonskill_exp" Grid.Column="1" Maximum="5100" TickPlacement="None" TickFrequency="1" Value="{Binding progress}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="commonskill_exp_ValueChanged"/>
+                                            <Slider x:Name="commonskill_exp" Grid.Column="1" Maximum="5100" TickPlacement="None" TickFrequency="1" Value="{Binding progress, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="commonskill_exp_ValueChanged"/>
                                         </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -322,7 +322,7 @@
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
                                             <TextBox Grid.Column="0" Text="{Binding ElementName=masteringskill_exp, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberValidationTextBox" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" MinWidth="43"/>
-                                            <Slider x:Name="masteringskill_exp" Grid.Column="1" Maximum="{Binding Path=Max}" TickPlacement="None" TickFrequency="1" Value="{Binding progress}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="masteringskill_exp_ValueChanged"/>
+                                            <Slider x:Name="masteringskill_exp" Grid.Column="1" Maximum="{Binding Path=Max}" TickPlacement="None" TickFrequency="1" Value="{Binding progress, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" ValueChanged="masteringskill_exp_ValueChanged"/>
                                         </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -341,7 +341,7 @@
                     </Label>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,0" Visibility="{ Binding ElementName=masteringsGrid, Path=ItemsSource.Count, Converter={StaticResource RevertedQuestEmptyBoolConverter}}">
                         <TextBox Text="{Binding ElementName=allmastering_exp, Path=Value, UpdateSourceTrigger=PropertyChanged }" PreviewTextInput="NumberValidationTextBox" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0" Width="60"/>
-                        <Slider x:Name="allmastering_exp" Grid.Column="1" Maximum="3500" TickPlacement="None" TickFrequency="1" Value="0" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" Width="200"/>
+                        <Slider x:Name="allmastering_exp" Grid.Column="1" TickPlacement="None" TickFrequency="1" Value="0" VerticalAlignment="Center" Margin="5" IsSnapToTickEnabled="True" Width="200"/>
                         <Button x:Name="MasteringsExpButton" Content="{Binding locale[tab_quests_editallbutton]}" Margin="5,0" Width="100" Click="MasteringsExpButton_Click"/>
                     </StackPanel>
                 </Grid>
