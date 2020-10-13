@@ -57,7 +57,7 @@ namespace SP_EFT_ProfileEditor
             MainData lang = new MainData { locale = Locale, options = eOptions, characterInventory = new CharacterInventory { Rubles = 0, Euros = 0, Dollars = 0 } };
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !ExtMethods.PathIsEftServerBase(eOptions.EftServerPath))
                 eOptions.EftServerPath = null;
-            if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !File.Exists(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")))
+            if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !string.IsNullOrEmpty(eOptions.EftServerPath) && !File.Exists(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")))
                 eOptions.DefaultProfile = null;
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && ExtMethods.ServerHaveProfiles(eOptions.EftServerPath))
             {

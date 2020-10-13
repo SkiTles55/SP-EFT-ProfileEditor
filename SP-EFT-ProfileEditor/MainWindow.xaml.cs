@@ -118,13 +118,13 @@ namespace SP_EFT_ProfileEditor
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "locales", "global_" + Lang.options.Language + ".json")));
+            globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "locales", "global", Lang.options.Language + ".json")));
             itemsDB = new Dictionary<string, Item>();
-            itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "templates", "items.json")));
+            itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "templates", "items.json")));
             if (Lang.Character.Quests != null)
             {
                 Quests = new List<Quest>();
-                List<QuestData> qData = JsonConvert.DeserializeObject<List<QuestData>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "templates", "quests.json")));
+                List<QuestData> qData = JsonConvert.DeserializeObject<List<QuestData>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "templates", "quests.json")));
                 foreach (var qd in qData)
                 {
                     if (Lang.Character.Quests.Where(x => x.Qid == qd._id).Count() > 0)
@@ -149,7 +149,7 @@ namespace SP_EFT_ProfileEditor
             if (Lang.Character.Hideout != null)
             {
                 HideoutAreas = new List<CharacterHideoutArea>();
-                var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "db", "hideout", "areas.json")));
+                var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "hideout", "areas.json")));
                 foreach (var area in areas)
                     HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = globalLang.Interface[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level, stages = area.stages });
             }
@@ -507,38 +507,41 @@ namespace SP_EFT_ProfileEditor
             {
                 var probe = jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index].ToObject<Character.Character_Hideout_Areas>();
                 int probeLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == probe.Type).FirstOrDefault().Level;
+                var startLevel = Int32.Parse(jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index]["level"].ToString());
                 jobject.SelectToken("characters")["pmc"].SelectToken("Hideout").SelectToken("Areas")[index]["level"] = probeLevel;
-                /*
-                if (probeLevel > 1)
+                if (probeLevel > 0 && probeLevel > startLevel)
                 {
-                    for (int i = 0; i < probeLevel; i++)
+                    for (int i = startLevel; i <= probeLevel; i++)
                     {
                         var areaBonuses = HideoutAreas.Where(x => x.type == probe.Type).FirstOrDefault().stages[i.ToString()];
                         if (areaBonuses != null)
                         {
-                            var test = areaBonuses.SelectToken("bonuses").ToObject<List<JToken>>();
-                            if (test != null && test.Count() > 0)
+                            var BonusesList = areaBonuses.SelectToken("bonuses").ToObject<List<JToken>>();
+                            if (BonusesList != null && BonusesList.Count() > 0)
                             {
-                                foreach (var t in test)
+                                foreach (var t in BonusesList)
                                 {
                                     var bonus = t.ToObject<Character.Character_Bonuses>();
                                     if (bonus != null)
                                     {
-                                        if (Lang.Character.Bonuses.Where(x => x.TemplateId == bonus.TemplateId).Count() == 0)
+                                        switch (bonus.Type)
                                         {
-                                            jobject.SelectToken("characters")["pmc"].SelectToken("Bonuses").Last().AddAfterSelf(JObject.FromObject(t));
-                                            continue;
+                                            case "StashSize":
+                                                ChangeStash(bonus.TemplateId);
+                                                break;
+                                            case "MaximumEnergyReserve":
+                                                jobject.SelectToken("characters")["pmc"].SelectToken("Health").SelectToken("Energy")["Maximum"] = 110;
+                                                break;
+                                            default:
+                                                break;
                                         }
-                                        if (Lang.Character.Bonuses.Where(x => x.Type == bonus.Type && x.Value == bonus.Value).Count() == 0)
-                                        {
-                                            jobject.SelectToken("characters")["pmc"].SelectToken("Bonuses").Last().AddAfterSelf(JObject.FromObject(t));
-                                        }
+                                        jobject.SelectToken("characters")["pmc"].SelectToken("Bonuses").Last().AddAfterSelf(JObject.FromObject(t));
                                     }
                                 }
                             }
                         }
                     }
-                }*/
+                }
             }
             foreach (var tr in Lang.Character.TraderStandings)
             {
@@ -571,6 +574,21 @@ namespace SP_EFT_ProfileEditor
             File.Copy(profilepath, backupfile, true);
             string json = JsonConvert.SerializeObject(jobject, seriSettings);
             File.WriteAllText(profilepath, json);
+
+            void ChangeStash(string tpl)
+            {
+                if (!string.IsNullOrEmpty(tpl))
+                {
+                    for (int index = 0; index < Stash.Count(); index++)
+                    {
+                        var probe = Stash[index];
+                        if (probe.Id == Lang.Character.Inventory.Stash)
+                        {
+                            jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = tpl;
+                        }
+                    }
+                }
+            }
         }
 
         private async void SaveProfileButton_Click(object sender, RoutedEventArgs e)
