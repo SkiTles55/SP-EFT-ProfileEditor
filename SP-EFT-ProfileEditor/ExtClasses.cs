@@ -208,13 +208,16 @@ namespace SP_EFT_ProfileEditor
         public int Level3 { get; set; }
     }
 
-    public class Suit
+    public class SuitInfo
     {
-        public SuitProps _props { get; set; }
+        public string Name { get; set; }
+        public string ID { get; set; }
+        public bool Bought { get; set; }
     }
 
-    public class SuitProps
+    public class TraderSuit
     {
-        public string[] Side { get; set; }
+        public string _id { get; set; }
+        public string suiteId { get; set; }
     }
 }

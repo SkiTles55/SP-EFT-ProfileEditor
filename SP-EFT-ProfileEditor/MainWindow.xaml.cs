@@ -44,7 +44,7 @@ namespace SP_EFT_ProfileEditor
         private BackgroundWorker SaveProfileWorker;
         private Dictionary<string, Dictionary<string, string>> ItemsForAdd;
         private ServerGlobals serverGlobals;
-        private Dictionary<string, Suit> suitsDb;
+        private List<SuitInfo> Suits;
 
         private readonly string moneyRub = "5449016a4bdc2d6f028b456f";
         private readonly string moneyDol = "5696686a4bdc2da3298b456a";
@@ -115,6 +115,8 @@ namespace SP_EFT_ProfileEditor
             if (ItemsForAdd != null)
                 ItemCatSelector.ItemsSource = ItemsForAdd.OrderBy(x => x.Key);
             ItemCatSelector.SelectedIndex = 0;
+            if (Suits != null)
+                suitsGrid.ItemsSource = Suits;
             progressDialog.CloseAsync();
         }
 
@@ -237,7 +239,17 @@ namespace SP_EFT_ProfileEditor
                     ItemsForAdd.Add(cat, new Dictionary<string, string>());
                 ItemsForAdd[cat].Add(item.Key, globalLang.Templates[item.Key].Name);
             }
-            suitsDb = JsonConvert.DeserializeObject<Dictionary<string, Suit>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "templates", "suits.json")));
+            Suits = new List<SuitInfo>();
+            foreach (var s in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "traders")).Where(x => File.Exists(Path.Combine(x, "suits.json"))))
+            {
+                var temp = JsonConvert.DeserializeObject<TraderSuit[]>(File.ReadAllText(Path.Combine(s, "suits.json")));
+                if (temp != null)
+                {
+                    foreach (var suit in temp)
+                        if (globalLang.Templates.ContainsKey(suit.suiteId))
+                            Suits.Add(new SuitInfo { Name = globalLang.Templates[suit.suiteId].Name, ID = suit._id, Bought = Lang.Suits.Contains(suit._id) });
+                }
+            }
             LoadBackups();
         }
 

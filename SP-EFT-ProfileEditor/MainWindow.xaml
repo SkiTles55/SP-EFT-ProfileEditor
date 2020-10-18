@@ -516,7 +516,20 @@
             </TabItem>
             <TabItem Header="{Binding locale[tab_clothing_title]}" Name="tabclothing" HeaderTemplate="{StaticResource HeaderTemplate}">
                 <Grid>
-                    
+                    <DataGrid  x:Name="suitsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Resources>
+                            <local:BindingProxy x:Key="proxy" Data="{Binding}" />
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Название" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=Name}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_backups_title]}" Name="tabbackups" HeaderTemplate="{StaticResource HeaderTemplate}">
