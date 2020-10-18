@@ -7,6 +7,7 @@ namespace SP_EFT_ProfileEditor
     public class Profile
     {
         public ProfileCharacter characters { get; set; }
+        public string[] suits { get; set; }
     }
 
     public class ProfileCharacter
@@ -205,5 +206,15 @@ namespace SP_EFT_ProfileEditor
         public string Name { get; set; }
         public string[] Templates { get; set; }
         public int Level3 { get; set; }
+    }
+
+    public class Suit
+    {
+        public SuitProps _props { get; set; }
+    }
+
+    public class SuitProps
+    {
+        public string[] Side { get; set; }
     }
 }

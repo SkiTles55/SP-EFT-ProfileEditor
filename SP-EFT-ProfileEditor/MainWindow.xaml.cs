@@ -26,6 +26,7 @@ namespace SP_EFT_ProfileEditor
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        private GlobalLang globalLang;
         private bool _shutdown;
         private FolderBrowserDialog folderBrowserDialogSPT;
         private MainData Lang = new MainData();
@@ -38,12 +39,12 @@ namespace SP_EFT_ProfileEditor
         private List<CharacterHideoutArea> HideoutAreas;
         private List<TraderInfo> traderInfos;
         private List<Quest> Quests;
-        private GlobalLang globalLang;
         private Dictionary<string, Item> itemsDB;
         private List<ExaminedItem> examinedItems;
         private BackgroundWorker SaveProfileWorker;
         private Dictionary<string, Dictionary<string, string>> ItemsForAdd;
         private ServerGlobals serverGlobals;
+        private Dictionary<string, Suit> suitsDb;
 
         private readonly string moneyRub = "5449016a4bdc2d6f028b456f";
         private readonly string moneyDol = "5696686a4bdc2da3298b456a";
@@ -126,9 +127,9 @@ namespace SP_EFT_ProfileEditor
             if (Lang.Character.Quests != null)
             {
                 Quests = new List<Quest>();
-                List<QuestData> qData = JsonConvert.DeserializeObject<List<QuestData>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "templates", "quests.json")));
+                Dictionary<string, QuestData> qData = JsonConvert.DeserializeObject<Dictionary<string, QuestData>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "templates", "quests.json")));
                 List<Character.Character_Quests> forAdd = new List<Character.Character_Quests>();
-                foreach (var qd in qData)
+                foreach (var qd in qData.Values)
                 {
                     if (Lang.Character.Quests.Where(x => x.Qid == qd._id).Count() > 0)
                     {
@@ -236,6 +237,7 @@ namespace SP_EFT_ProfileEditor
                     ItemsForAdd.Add(cat, new Dictionary<string, string>());
                 ItemsForAdd[cat].Add(item.Key, globalLang.Templates[item.Key].Name);
             }
+            suitsDb = JsonConvert.DeserializeObject<Dictionary<string, Suit>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "templates", "suits.json")));
             LoadBackups();
         }
 

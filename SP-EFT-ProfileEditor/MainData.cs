@@ -66,7 +66,11 @@ namespace SP_EFT_ProfileEditor
                     eOptions.DefaultProfile = lang.Profiles.FirstOrDefault();
             }
             if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !string.IsNullOrEmpty(eOptions.DefaultProfile))
-                lang.Character = JsonConvert.DeserializeObject<Profile>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json"))).characters.pmc;
+            {
+                var Pr = JsonConvert.DeserializeObject<Profile>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")));
+                lang.Character = Pr.characters.pmc;
+                if (Pr.suits != null && Pr.suits.Count() > 0) lang.Suits = Pr.suits.ToList();
+            }
             if (lang.Character != null && lang.Character.Info != null && lang.Character.Inventory != null && lang.Character.TraderStandings != null && lang.Character.Skills != null)
                 lang.ProfileHash = JsonConvert.SerializeObject(lang.Character).ToString().GetHashCode();
             return lang;
@@ -108,6 +112,8 @@ namespace SP_EFT_ProfileEditor
 
         public Character Character { get; set; }
 
+        public List<string> Suits { get; set; }
+ 
         public CharacterInventory characterInventory { get; set; }
 
         public int ProfileHash { get; set; }
@@ -204,7 +210,8 @@ namespace SP_EFT_ProfileEditor
             ["profile_empty"] = "There is no data to display. The profile is empty. Log into the game under this profile and try again.",
             ["app_quit"] = "Quit application?",
             ["button_quit"] = "Quit",
-            ["button_cancel"] = "Cancel"
+            ["button_cancel"] = "Cancel",
+            ["tab_clothing_title"] = "Clothing"
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -299,7 +306,8 @@ namespace SP_EFT_ProfileEditor
             ["profile_empty"] = "Es sind keine Daten anzuzeigen. Das Profil ist leer. Melde dich unter diesem Profil im Spiel an und versuche es erneut.",
             ["app_quit"] = "Bewerbung beenden?",
             ["button_quit"] = "Verlassen",
-            ["button_cancel"] = "Stornieren"
+            ["button_cancel"] = "Stornieren",
+            ["tab_clothing_title"] = "Kleidung"
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -394,7 +402,8 @@ namespace SP_EFT_ProfileEditor
             ["profile_empty"] = "Нет данных для отображения. Профиль пустой. Зайдите в игру под этим профилем и попробуйте снова.",
             ["app_quit"] = "Выйти из приложения?",
             ["button_quit"] = "Выход",
-            ["button_cancel"] = "Отмена"
+            ["button_cancel"] = "Отмена",
+            ["tab_clothing_title"] = "Одежда"
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -489,7 +498,8 @@ namespace SP_EFT_ProfileEditor
             ["profile_empty"] = "Il n'y a aucune donnée à afficher. Le profil est vide. Connectez-vous au jeu sous ce profil et réessayez.",
             ["app_quit"] = "Quitter l'application?",
             ["button_quit"] = "Quitter",
-            ["button_cancel"] = "Annuler"
+            ["button_cancel"] = "Annuler",
+            ["tab_clothing_title"] = "Vêtements"
         };
     }
 
