@@ -41,6 +41,8 @@ namespace SP_EFT_ProfileEditor
         [JsonProperty("TraderStandings")]
         public Dictionary<string, Character_TraderStandings> TraderStandings { get; set; }
 
+        public List<string> Suits { get; set; }
+
 
         // Subnode classes
 

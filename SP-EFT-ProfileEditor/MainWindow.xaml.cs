@@ -247,7 +247,7 @@ namespace SP_EFT_ProfileEditor
                 {
                     foreach (var suit in temp)
                         if (globalLang.Templates.ContainsKey(suit.suiteId))
-                            Suits.Add(new SuitInfo { Name = globalLang.Templates[suit.suiteId].Name, ID = suit._id, Bought = Lang.Suits.Contains(suit._id) });
+                            Suits.Add(new SuitInfo { Name = globalLang.Templates[suit.suiteId].Name, ID = suit._id, Bought = Lang.Character.Suits.Contains(suit._id) });
                 }
             }
             LoadBackups();
@@ -431,6 +431,28 @@ namespace SP_EFT_ProfileEditor
             var skill = (SkillInfo)slider.DataContext;
             if (Math.Abs(skill.progress - Lang.Character.Skills.Mastering.Where(x => x.Id == skill.id).FirstOrDefault().Progress) > 1)
                 Lang.Character.Skills.Mastering.Where(x => x.Id == skill.id).FirstOrDefault().Progress = (int)slider.Value <= skill.Max ? (int)slider.Value : skill.Max;
+        }
+
+        private void SuitBought_Checked(object sender, RoutedEventArgs e) => ProcessSuit(sender);
+
+        private void SuitBought_Unchecked(object sender, RoutedEventArgs e) => ProcessSuit(sender);
+
+        private void ProcessSuit(object sender)
+        {
+            if (!IsLoaded)
+                return;
+            var checkBox = sender as System.Windows.Controls.CheckBox;
+            var suit = (SuitInfo)checkBox.DataContext;
+            suit.Bought = checkBox.IsChecked == true ? true : false;
+            switch (suit.Bought)
+            {
+                case true:
+                    if (!Lang.Character.Suits.Contains(suit.ID)) Lang.Character.Suits.Add(suit.ID);
+                    break;
+                case false:
+                    if (Lang.Character.Suits.Contains(suit.ID)) Lang.Character.Suits.Remove(suit.ID);
+                    break;
+            }
         }
 
         private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
@@ -648,6 +670,7 @@ namespace SP_EFT_ProfileEditor
                     jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering").Replace(JToken.FromObject(Lang.Character.Skills.Mastering));
             }
             jobject.SelectToken("characters")["pmc"].SelectToken("Encyclopedia").Replace(JToken.FromObject(Lang.Character.Encyclopedia));
+            jobject.SelectToken("suits").Replace(JToken.FromObject(Lang.Character.Suits.ToArray()));
             DateTime now = DateTime.Now;
             if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")))
                 Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups"));

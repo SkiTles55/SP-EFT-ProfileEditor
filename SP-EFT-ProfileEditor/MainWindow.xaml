@@ -521,10 +521,17 @@
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="Название" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_name], Source={StaticResource proxy}}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=Name}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_clothing_acquired], Source={StaticResource proxy}}" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox x:Name="SuitBought" IsChecked="{Binding Path=Bought}" Checked="SuitBought_Checked" Unchecked="SuitBought_Unchecked"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

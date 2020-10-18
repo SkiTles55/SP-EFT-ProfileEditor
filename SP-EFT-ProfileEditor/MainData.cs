@@ -69,7 +69,7 @@ namespace SP_EFT_ProfileEditor
             {
                 var Pr = JsonConvert.DeserializeObject<Profile>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")));
                 lang.Character = Pr.characters.pmc;
-                if (Pr.suits != null && Pr.suits.Count() > 0) lang.Suits = Pr.suits.ToList();
+                if (Pr.suits != null && Pr.suits.Count() > 0) lang.Character.Suits = Pr.suits.ToList();
             }
             if (lang.Character != null && lang.Character.Info != null && lang.Character.Inventory != null && lang.Character.TraderStandings != null && lang.Character.Skills != null)
                 lang.ProfileHash = JsonConvert.SerializeObject(lang.Character).ToString().GetHashCode();
@@ -111,8 +111,6 @@ namespace SP_EFT_ProfileEditor
         public List<string> Profiles { get; set; }
 
         public Character Character { get; set; }
-
-        public List<string> Suits { get; set; }
  
         public CharacterInventory characterInventory { get; set; }
 
@@ -211,7 +209,8 @@ namespace SP_EFT_ProfileEditor
             ["app_quit"] = "Quit application?",
             ["button_quit"] = "Quit",
             ["button_cancel"] = "Cancel",
-            ["tab_clothing_title"] = "Clothing"
+            ["tab_clothing_title"] = "Clothing",
+            ["tab_clothing_acquired"] = "Acquired"
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -307,7 +306,8 @@ namespace SP_EFT_ProfileEditor
             ["app_quit"] = "Bewerbung beenden?",
             ["button_quit"] = "Verlassen",
             ["button_cancel"] = "Stornieren",
-            ["tab_clothing_title"] = "Kleidung"
+            ["tab_clothing_title"] = "Kleidung",
+            ["tab_clothing_acquired"] = "Erworben"
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -403,7 +403,8 @@ namespace SP_EFT_ProfileEditor
             ["app_quit"] = "Выйти из приложения?",
             ["button_quit"] = "Выход",
             ["button_cancel"] = "Отмена",
-            ["tab_clothing_title"] = "Одежда"
+            ["tab_clothing_title"] = "Одежда",
+            ["tab_clothing_acquired"] = "Приобретено"
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -499,7 +500,8 @@ namespace SP_EFT_ProfileEditor
             ["app_quit"] = "Quitter l'application?",
             ["button_quit"] = "Quitter",
             ["button_cancel"] = "Annuler",
-            ["tab_clothing_title"] = "Vêtements"
+            ["tab_clothing_title"] = "Vêtements",
+            ["tab_clothing_acquired"] = "Acquise"
         };
     }
 
