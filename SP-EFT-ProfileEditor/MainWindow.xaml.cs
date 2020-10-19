@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Windows.Navigation;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -436,6 +437,18 @@ namespace SP_EFT_ProfileEditor
         private void SuitBought_Checked(object sender, RoutedEventArgs e) => ProcessSuit(sender);
 
         private void SuitBought_Unchecked(object sender, RoutedEventArgs e) => ProcessSuit(sender);
+
+        private void SuitsAcquireAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (Lang.Character.Suits == null || Suits == null) return;
+            foreach (var suit in Suits)
+            {
+                suit.Bought = true;
+                if (!Lang.Character.Suits.Contains(suit.ID)) Lang.Character.Suits.Add(suit.ID);
+            }
+            suitsGrid.ItemsSource = null;
+            suitsGrid.ItemsSource = Suits;
+        }
 
         private void ProcessSuit(object sender)
         {

@@ -210,7 +210,8 @@ namespace SP_EFT_ProfileEditor
             ["button_quit"] = "Quit",
             ["button_cancel"] = "Cancel",
             ["tab_clothing_title"] = "Clothing",
-            ["tab_clothing_acquired"] = "Acquired"
+            ["tab_clothing_acquired"] = "Acquired",
+            ["tab_clothing_acquireall"]= "Acquire all"
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -307,7 +308,8 @@ namespace SP_EFT_ProfileEditor
             ["button_quit"] = "Verlassen",
             ["button_cancel"] = "Stornieren",
             ["tab_clothing_title"] = "Kleidung",
-            ["tab_clothing_acquired"] = "Erworben"
+            ["tab_clothing_acquired"] = "Erworben",
+            ["tab_clothing_acquireall"] = "Erwerben Sie alle"
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -404,7 +406,8 @@ namespace SP_EFT_ProfileEditor
             ["button_quit"] = "Выход",
             ["button_cancel"] = "Отмена",
             ["tab_clothing_title"] = "Одежда",
-            ["tab_clothing_acquired"] = "Приобретено"
+            ["tab_clothing_acquired"] = "Приобретено",
+            ["tab_clothing_acquireall"] = "Получить все"
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -501,7 +504,8 @@ namespace SP_EFT_ProfileEditor
             ["button_quit"] = "Quitter",
             ["button_cancel"] = "Annuler",
             ["tab_clothing_title"] = "Vêtements",
-            ["tab_clothing_acquired"] = "Acquise"
+            ["tab_clothing_acquired"] = "Acquise",
+            ["tab_clothing_acquireall"] = "Acquérir tout"
         };
     }
 

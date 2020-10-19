@@ -516,6 +516,10 @@
             </TabItem>
             <TabItem Header="{Binding locale[tab_clothing_title]}" Name="tabclothing" HeaderTemplate="{StaticResource HeaderTemplate}">
                 <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
                     <DataGrid  x:Name="suitsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
                         <DataGrid.Resources>
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
@@ -537,6 +541,7 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
+                    <Button x:Name="SuitsAcquireAll" Grid.Row="1" Content="{Binding locale[tab_clothing_acquireall]}" Width="200" Margin="5,10,5,0" Click="SuitsAcquireAll_Click"/>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_backups_title]}" Name="tabbackups" HeaderTemplate="{StaticResource HeaderTemplate}">
