@@ -18,7 +18,6 @@ using System.Diagnostics;
 using System.Windows.Navigation;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows.Media;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -240,15 +239,18 @@ namespace SP_EFT_ProfileEditor
                     ItemsForAdd.Add(cat, new Dictionary<string, string>());
                 ItemsForAdd[cat].Add(item.Key, globalLang.Templates[item.Key].Name);
             }
-            Suits = new List<SuitInfo>();
-            foreach (var s in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "traders")).Where(x => File.Exists(Path.Combine(x, "suits.json"))))
+            if (Lang.Character.Suits != null)
             {
-                var temp = JsonConvert.DeserializeObject<TraderSuit[]>(File.ReadAllText(Path.Combine(s, "suits.json")));
-                if (temp != null)
+                Suits = new List<SuitInfo>();
+                foreach (var s in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "traders")).Where(x => File.Exists(Path.Combine(x, "suits.json"))))
                 {
-                    foreach (var suit in temp)
-                        if (globalLang.Templates.ContainsKey(suit.suiteId))
-                            Suits.Add(new SuitInfo { Name = globalLang.Templates[suit.suiteId].Name, ID = suit._id, Bought = Lang.Character.Suits.Contains(suit._id) });
+                    var temp = JsonConvert.DeserializeObject<TraderSuit[]>(File.ReadAllText(Path.Combine(s, "suits.json")));
+                    if (temp != null)
+                    {
+                        foreach (var suit in temp)
+                            if (globalLang.Templates.ContainsKey(suit.suiteId))
+                                Suits.Add(new SuitInfo { Name = globalLang.Templates[suit.suiteId].Name, ID = suit._id, Bought = Lang.Character.Suits.Contains(suit._id) });
+                    }
                 }
             }
             LoadBackups();
@@ -683,7 +685,7 @@ namespace SP_EFT_ProfileEditor
                     jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering").Replace(JToken.FromObject(Lang.Character.Skills.Mastering));
             }
             jobject.SelectToken("characters")["pmc"].SelectToken("Encyclopedia").Replace(JToken.FromObject(Lang.Character.Encyclopedia));
-            jobject.SelectToken("suits").Replace(JToken.FromObject(Lang.Character.Suits.ToArray()));
+            //jobject.SelectToken("suits").Replace(JToken.FromObject(Lang.Character.Suits.ToArray())); //одежда сломана
             DateTime now = DateTime.Now;
             if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")))
                 Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups"));

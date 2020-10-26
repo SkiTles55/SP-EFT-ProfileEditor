@@ -514,7 +514,7 @@
                     </Border>
                 </Grid>
             </TabItem>
-            <TabItem Header="{Binding locale[tab_clothing_title]}" Name="tabclothing" HeaderTemplate="{StaticResource HeaderTemplate}">
+            <TabItem Header="{Binding locale[tab_clothing_title]}" Name="tabclothing" HeaderTemplate="{StaticResource HeaderTemplate}" IsEnabled="False" Visibility="Collapsed">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition/>

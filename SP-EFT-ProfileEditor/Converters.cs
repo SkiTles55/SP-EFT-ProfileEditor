@@ -114,7 +114,8 @@ namespace SP_EFT_ProfileEditor
             return new List<string>
             {
                 value.ToString() + "_1",
-                value.ToString() + "_2"
+                value.ToString() + "_2",
+                value.ToString() + "_3"
             };
         }
 
