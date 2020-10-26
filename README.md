@@ -16,6 +16,8 @@
 * Мультиязычность, с возможностью редактирования локализации
 * Автоматические бэкапы при каждом сохранении профиля
 
+[Версия 1.3 для серверов SPT-AKI Alpha R4](https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/tag/1.3)
+
 [Версия 1.2 для серверов SPT-AKI Alpha R2](https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/tag/1.2)
 
 [Версия 1.1 для серверов SPT-AKI Alpha](https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/tag/1.1)
