@@ -514,7 +514,7 @@
                     </Border>
                 </Grid>
             </TabItem>
-            <TabItem Header="{Binding locale[tab_clothing_title]}" Name="tabclothing" HeaderTemplate="{StaticResource HeaderTemplate}" IsEnabled="False" Visibility="Collapsed">
+            <TabItem Header="{Binding locale[tab_clothing_title]}" Name="tabclothing" HeaderTemplate="{StaticResource HeaderTemplate}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition/>
@@ -606,6 +606,14 @@
                     </Label>
                     <TextBlock Margin="6,0,0,5">
                         <Hyperlink NavigateUri="https://money.yandex.ru/to/410015658095326" RequestNavigate="Hyperlink_RequestNavigate" Style="{DynamicResource LinkStyle}">https://money.yandex.ru/to/410015658095326</Hyperlink>
+                    </TextBlock>
+                    <Label Style="{DynamicResource DescriptionHeaderStyle}" Margin="0,5,0,0">
+                        <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="JRT Russian Community Discord"/>
+                        </Label.Content>
+                    </Label>
+                    <TextBlock Margin="6,0,0,5">
+                        <Hyperlink NavigateUri="https://discord.gg/7JhZHcP" RequestNavigate="Hyperlink_RequestNavigate" Style="{DynamicResource LinkStyle}">https://discord.gg/7JhZHcP</Hyperlink>
                     </TextBlock>
                 </StackPanel>
             </TabItem>

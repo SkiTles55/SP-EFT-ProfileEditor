@@ -248,8 +248,7 @@ namespace SP_EFT_ProfileEditor
                     if (temp != null)
                     {
                         foreach (var suit in temp)
-                            if (globalLang.Templates.ContainsKey(suit.suiteId))
-                                Suits.Add(new SuitInfo { Name = globalLang.Templates[suit.suiteId].Name, ID = suit._id, Bought = Lang.Character.Suits.Contains(suit._id) });
+                            Suits.Add(new SuitInfo { Name = globalLang.Templates.ContainsKey(suit.suiteId) ? globalLang.Templates[suit.suiteId].Name : suit._id, ID = suit.suiteId, Bought = Lang.Character.Suits.Contains(suit.suiteId) });
                     }
                 }
             }
@@ -685,7 +684,7 @@ namespace SP_EFT_ProfileEditor
                     jobject.SelectToken("characters")["pmc"].SelectToken("Skills").SelectToken("Mastering").Replace(JToken.FromObject(Lang.Character.Skills.Mastering));
             }
             jobject.SelectToken("characters")["pmc"].SelectToken("Encyclopedia").Replace(JToken.FromObject(Lang.Character.Encyclopedia));
-            //jobject.SelectToken("suits").Replace(JToken.FromObject(Lang.Character.Suits.ToArray())); //одежда сломана
+            jobject.SelectToken("suits").Replace(JToken.FromObject(Lang.Character.Suits.ToArray()));
             DateTime now = DateTime.Now;
             if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")))
                 Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups"));
