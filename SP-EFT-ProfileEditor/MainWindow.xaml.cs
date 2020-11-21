@@ -152,6 +152,11 @@ namespace SP_EFT_ProfileEditor
                         Quests.Add(new Quest { qid = qd._id, name = globalLang.Quests[qd._id].name, status = "Locked", trader = globalLang.Traders[qd.traderId].Nickname });
                     }
                 }
+                foreach (var qd in Lang.Character.Quests)
+                {
+                    if (Quests.Where(x => x.qid == qd.Qid).Count() < 1)
+                        Quests.Add(new Quest { qid = qd.Qid, name = qd.Qid, status = qd.Status, trader = "Unknown Custom Trader" });
+                }
                 if (forAdd.Count > 0)
                 {
                     var temp = Lang.Character.Quests.ToList();
@@ -205,7 +210,7 @@ namespace SP_EFT_ProfileEditor
                     List<LoyaltyLevel> loyalties = new List<LoyaltyLevel>();
                     foreach (var lv in mer.Value.LoyaltyLevels)
                         loyalties.Add(new LoyaltyLevel { level = Int32.Parse(lv.Key) + 1, SalesSum = lv.Value.MinSalesSum + 1000, Standing = lv.Value.MinStanding + 0.01f });
-                    traderInfos.Add(new TraderInfo { id = mer.Key, name = globalLang.Traders[mer.Key].Nickname, CurrentLevel = mer.Value.CurrentLevel, Levels = loyalties });
+                    traderInfos.Add(new TraderInfo { id = mer.Key, name = globalLang.Traders.ContainsKey(mer.Key) ? globalLang.Traders[mer.Key].Nickname : mer.Key, CurrentLevel = mer.Value.CurrentLevel, Levels = loyalties });
                 }
             }
             if (Lang.Character.Hideout != null)
@@ -219,7 +224,7 @@ namespace SP_EFT_ProfileEditor
             {
                 examinedItems = new List<ExaminedItem>();
                 foreach (var eItem in Lang.Character.Encyclopedia)
-                    examinedItems.Add(new ExaminedItem { id = eItem.Key, name = globalLang.Templates[eItem.Key].Name });
+                    examinedItems.Add(new ExaminedItem { id = eItem.Key, name = globalLang.Templates.ContainsKey(eItem.Key) ? globalLang.Templates[eItem.Key].Name : eItem.Key });
             }
             Lang.characterInventory.Dollars = 0;
             Lang.characterInventory.Euros = 0;
