@@ -74,6 +74,11 @@ namespace SP_EFT_ProfileEditor
             "5d52cc5ba4b9367408500062"
         };
 
+        private readonly List<string> BannedSuits = new List<string>
+        {
+            "wild_body_meteor",
+            "wild_feet_sklon"
+        };
 
         public MainWindow()
         {
@@ -118,6 +123,9 @@ namespace SP_EFT_ProfileEditor
             if (Suits != null)
                 suitsGrid.ItemsSource = Suits;
             progressDialog.CloseAsync();
+            var tempProcessList = Process.GetProcessesByName("Server");
+            if (tempProcessList.Where(x => x.MainModule.FileName == Path.Combine(Lang.options.EftServerPath, "Server.exe")).Count() > 0)
+                ShutdownCozServerRunned();
         }
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -248,7 +256,10 @@ namespace SP_EFT_ProfileEditor
                     if (temp != null)
                     {
                         foreach (var suit in temp)
-                            Suits.Add(new SuitInfo { Name = globalLang.Templates.ContainsKey(suit.suiteId) ? globalLang.Templates[suit.suiteId].Name : suit._id, ID = suit.suiteId, Bought = Lang.Character.Suits.Contains(suit.suiteId) });
+                        {
+                            string tName = globalLang.Templates.ContainsKey(suit.suiteId) ? globalLang.Templates[suit.suiteId].Name : suit._id;
+                            if (!BannedSuits.Contains(tName)) Suits.Add(new SuitInfo { Name = tName, ID = suit.suiteId, Bought = Lang.Character.Suits.Contains(suit.suiteId) });
+                        }
                     }
                 }
             }
@@ -1136,6 +1147,15 @@ namespace SP_EFT_ProfileEditor
         {
             var mySettings = new MetroDialogSettings { AffirmativeButtonText = Lang.locale["button_quit"], NegativeButtonText = Lang.locale["button_cancel"], AnimateShow = true, AnimateHide = true };
             var result = await this.ShowMessageAsync(Lang.locale["app_quit"], Lang.locale["reloadprofiledialog_caption"], MessageDialogStyle.AffirmativeAndNegative, mySettings);
+            _shutdown = result == MessageDialogResult.Affirmative;
+            if (_shutdown)
+                System.Windows.Application.Current.Shutdown();
+        }
+
+        private async Task ShutdownCozServerRunned()
+        {
+            var mySettings = new MetroDialogSettings { AffirmativeButtonText = Lang.locale["button_quit"], AnimateShow = true, AnimateHide = true };
+            var result = await this.ShowMessageAsync(Lang.locale["app_quit"], Lang.locale["server_runned"], MessageDialogStyle.Affirmative, mySettings);
             _shutdown = result == MessageDialogResult.Affirmative;
             if (_shutdown)
                 System.Windows.Application.Current.Shutdown();

@@ -211,7 +211,8 @@ namespace SP_EFT_ProfileEditor
             ["button_cancel"] = "Cancel",
             ["tab_clothing_title"] = "Clothing",
             ["tab_clothing_acquired"] = "Acquired",
-            ["tab_clothing_acquireall"]= "Acquire all"
+            ["tab_clothing_acquireall"]= "Acquire all",
+            ["server_runned"] = "The server you selected is currently running. Shut down the server and restart the program."
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -309,7 +310,8 @@ namespace SP_EFT_ProfileEditor
             ["button_cancel"] = "Stornieren",
             ["tab_clothing_title"] = "Kleidung",
             ["tab_clothing_acquired"] = "Erworben",
-            ["tab_clothing_acquireall"] = "Erwerben Sie alle"
+            ["tab_clothing_acquireall"] = "Erwerben Sie alle",
+            ["server_runned"] = "Der von Ihnen ausgewählte Server wird derzeit ausgeführt. Fahren Sie den Server herunter und starten Sie das Programm neu."
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -407,7 +409,8 @@ namespace SP_EFT_ProfileEditor
             ["button_cancel"] = "Отмена",
             ["tab_clothing_title"] = "Одежда",
             ["tab_clothing_acquired"] = "Приобретено",
-            ["tab_clothing_acquireall"] = "Получить все"
+            ["tab_clothing_acquireall"] = "Получить все",
+            ["server_runned"] = "Выбранный вами сервер запущен в данный момент. Выключите сервер и перезапустите программу."
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -505,7 +508,8 @@ namespace SP_EFT_ProfileEditor
             ["button_cancel"] = "Annuler",
             ["tab_clothing_title"] = "Vêtements",
             ["tab_clothing_acquired"] = "Acquise",
-            ["tab_clothing_acquireall"] = "Acquérir tout"
+            ["tab_clothing_acquireall"] = "Acquérir tout",
+            ["server_runned"] = "Le serveur que vous avez sélectionné est en cours d’exécution. Arrêtez le serveur et redémarrez le programme."
         };
     }
 
