@@ -155,7 +155,7 @@ namespace SP_EFT_ProfileEditor
                 foreach (var qd in Lang.Character.Quests)
                 {
                     if (Quests.Where(x => x.qid == qd.Qid).Count() < 1)
-                        Quests.Add(new Quest { qid = qd.Qid, name = qd.Qid, status = qd.Status, trader = "Unknown Custom Trader" });
+                        Quests.Add(new Quest { qid = qd.Qid, name = qd.Qid, status = qd.Status, trader = "Unknown" });
                 }
                 if (forAdd.Count > 0)
                 {
@@ -1157,7 +1157,7 @@ namespace SP_EFT_ProfileEditor
                 System.Windows.Application.Current.Shutdown();
         }
 
-        private async Task ShutdownCozServerRunned()
+        private async void ShutdownCozServerRunned()
         {
             var mySettings = new MetroDialogSettings { AffirmativeButtonText = Lang.locale["button_quit"], AnimateShow = true, AnimateHide = true };
             var result = await this.ShowMessageAsync(Lang.locale["app_quit"], Lang.locale["server_runned"], MessageDialogStyle.Affirmative, mySettings);
