@@ -212,7 +212,9 @@ namespace SP_EFT_ProfileEditor
             ["tab_clothing_title"] = "Clothing",
             ["tab_clothing_acquired"] = "Acquired",
             ["tab_clothing_acquireall"]= "Acquire all",
-            ["server_runned"] = "The server you selected is currently running. Shut down the server and restart the program."
+            ["server_runned"] = "The server you selected is currently running. Shut down the server and restart the program.",
+            ["update_avialable"] = "Update available",
+            ["update_caption"] = "A new version of the program is available. Open the download page?"
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -311,7 +313,9 @@ namespace SP_EFT_ProfileEditor
             ["tab_clothing_title"] = "Kleidung",
             ["tab_clothing_acquired"] = "Erworben",
             ["tab_clothing_acquireall"] = "Erwerben Sie alle",
-            ["server_runned"] = "Der von Ihnen ausgewählte Server wird derzeit ausgeführt. Fahren Sie den Server herunter und starten Sie das Programm neu."
+            ["server_runned"] = "Der von Ihnen ausgewählte Server wird derzeit ausgeführt. Fahren Sie den Server herunter und starten Sie das Programm neu.",
+            ["update_avialable"] = "Update verfügbar",
+            ["update_caption"] = "Eine neue Version des Programms ist verfügbar. Download-Seite öffnen?"
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -410,7 +414,9 @@ namespace SP_EFT_ProfileEditor
             ["tab_clothing_title"] = "Одежда",
             ["tab_clothing_acquired"] = "Приобретено",
             ["tab_clothing_acquireall"] = "Получить все",
-            ["server_runned"] = "Выбранный вами сервер запущен в данный момент. Выключите сервер и перезапустите программу."
+            ["server_runned"] = "Выбранный вами сервер запущен в данный момент. Выключите сервер и перезапустите программу.",
+            ["update_avialable"] = "Доступно обновление",
+            ["update_caption"] = "Доступна новая версия программы. Открыть страницу загрузки?"
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -509,7 +515,9 @@ namespace SP_EFT_ProfileEditor
             ["tab_clothing_title"] = "Vêtements",
             ["tab_clothing_acquired"] = "Acquise",
             ["tab_clothing_acquireall"] = "Acquérir tout",
-            ["server_runned"] = "Le serveur que vous avez sélectionné est en cours d’exécution. Arrêtez le serveur et redémarrez le programme."
+            ["server_runned"] = "Le serveur que vous avez sélectionné est en cours d’exécution. Arrêtez le serveur et redémarrez le programme.",
+            ["update_avialable"] = "Mise à jour disponible",
+            ["update_caption"] = "Une nouvelle version du programme est disponible. Ouvrez la page de téléchargement?"
         };
     }
 

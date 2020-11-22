@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Windows.Navigation;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -92,8 +93,8 @@ namespace SP_EFT_ProfileEditor
             SaveProfileWorker = new BackgroundWorker();
             SaveProfileWorker.DoWork += SaveProfileWorker_DoWork;
             SaveProfileWorker.RunWorkerCompleted += SaveProfileWorker_RunWorkerCompleted;
-            Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            Title += string.Format(" {0}.{1}", version.Major, version.Minor);
+            //Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            //Title += string.Format(" {0}.{1}", version.Major, version.Minor);
         }
 
         private void LoadDataWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -298,6 +299,31 @@ namespace SP_EFT_ProfileEditor
                 lastdata = Lang.options.EftServerPath + Lang.options.Language + Lang.Character.Aid;
                 LoadData();
             }
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            Title += string.Format(" {0}.{1}", version.Major, version.Minor);
+            try
+            {
+                WebRequest request = WebRequest.Create("https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/latest");
+                WebResponse response = request.GetResponse();
+                float currentVersion = float.Parse(string.Format(" {0},{1}", version.Major, version.Minor));
+                float latestVersion = currentVersion;
+                if (response.ResponseUri != null)
+                    latestVersion = float.Parse(response.ResponseUri.ToString().Split('/').Last().Replace(".", ","));
+                if (latestVersion > currentVersion)
+                    UpdateNotification();
+            }
+            catch (Exception ex)
+            {
+                ExtMethods.Log($"UpdatesCheck | {ex.GetType().Name}: {ex.Message}");
+            }
+        }
+
+        private async void UpdateNotification()
+        {
+            var mySettings = new MetroDialogSettings { AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateShow = true, AnimateHide = true, DefaultButtonFocus = MessageDialogResult.Affirmative };
+            var result = await this.ShowMessageAsync(Lang.locale["update_avialable"], Lang.locale["update_caption"], MessageDialogStyle.AffirmativeAndNegative, mySettings);
+            if (result == MessageDialogResult.Affirmative)
+                Process.Start(new ProcessStartInfo("https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/latest"));
         }
 
         private async void LoadData()
