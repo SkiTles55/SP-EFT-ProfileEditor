@@ -147,6 +147,13 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_merchants_enabled], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox x:Name="merchantDisplay" IsChecked="{Binding Path=Display}" Checked="merchantDisplay_Checked" Unchecked="merchantDisplay_Checked"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTemplateColumn Header="{Binding Data.locale[tab_merchants_level], Source={StaticResource proxy}}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

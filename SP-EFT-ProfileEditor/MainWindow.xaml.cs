@@ -211,7 +211,7 @@ namespace SP_EFT_ProfileEditor
                     List<LoyaltyLevel> loyalties = new List<LoyaltyLevel>();
                     foreach (var lv in mer.Value.LoyaltyLevels)
                         loyalties.Add(new LoyaltyLevel { level = Int32.Parse(lv.Key) + 1, SalesSum = lv.Value.MinSalesSum + 1000, Standing = lv.Value.MinStanding + 0.01f });
-                    traderInfos.Add(new TraderInfo { id = mer.Key, name = globalLang.Traders.ContainsKey(mer.Key) ? globalLang.Traders[mer.Key].Nickname : mer.Key, CurrentLevel = mer.Value.CurrentLevel, Levels = loyalties });
+                    traderInfos.Add(new TraderInfo { id = mer.Key, name = globalLang.Traders.ContainsKey(mer.Key) ? globalLang.Traders[mer.Key].Nickname : mer.Key, CurrentLevel = mer.Value.CurrentLevel, Levels = loyalties, Display = mer.Value.Display });
                 }
             }
             if (Lang.Character.Hideout != null)
@@ -511,6 +511,12 @@ namespace SP_EFT_ProfileEditor
             }
         }
 
+        private void merchantDisplay_Checked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as System.Windows.Controls.CheckBox;
+            Lang.Character.TraderStandings[((TraderInfo)checkBox.DataContext).id].Display = checkBox.IsChecked == true ? true : false;
+        }
+
         private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
         {
             if (!IsLoaded)
@@ -577,6 +583,7 @@ namespace SP_EFT_ProfileEditor
             {
                 var max = tr.Value.LoyaltyLevels.Last();
                 tr.Value.CurrentLevel = Int32.Parse(max.Key) + 1;
+                tr.Value.Display = true;
                 if (tr.Value.CurrentSalesSum < max.Value.MinSalesSum + 1000) tr.Value.CurrentSalesSum = max.Value.MinSalesSum + 1000;
                 if (tr.Value.CurrentStanding < max.Value.MinStanding + 0.01f) tr.Value.CurrentStanding = max.Value.MinStanding + 0.01f;
             }
@@ -682,8 +689,7 @@ namespace SP_EFT_ProfileEditor
                 jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentLevel"] = Lang.Character.TraderStandings[tr.Key].CurrentLevel;
                 jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentSalesSum"] = Lang.Character.TraderStandings[tr.Key].CurrentSalesSum;
                 jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["currentStanding"] = Lang.Character.TraderStandings[tr.Key].CurrentStanding;
-                if (Lang.Character.TraderStandings[tr.Key].CurrentLevel > 1)
-                    jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["display"] = true;
+                jobject.SelectToken("characters")["pmc"].SelectToken("TraderStandings").SelectToken(tr.Key)["display"] = Lang.Character.TraderStandings[tr.Key].Display;
             }
             if (Lang.Character.Quests.Count() > 0)
             {

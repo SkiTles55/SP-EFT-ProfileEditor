@@ -96,7 +96,7 @@ namespace SP_EFT_ProfileEditor
         public string id { get; set; }
         public string name { get; set; }
         public int CurrentLevel { get; set; }
-
+        public bool Display { get; set; }
         public List<LoyaltyLevel> Levels { get; set; }
     }
 
