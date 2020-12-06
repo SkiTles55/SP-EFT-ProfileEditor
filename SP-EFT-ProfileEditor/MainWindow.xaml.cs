@@ -239,7 +239,7 @@ namespace SP_EFT_ProfileEditor
                     if (item.Tpl == moneyEur) Lang.characterInventory.Euros += (int)item.Upd.StackObjectsCount;
                     if (item.Tpl == moneyRub) Lang.characterInventory.Rubles += (int)item.Upd.StackObjectsCount;
                     if (item.ParentId == Lang.Character.Inventory.Stash)
-                        Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = item.Id, name = globalLang.Templates[item.Tpl].Name });
+                        Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = item.Id, name = globalLang.Templates.ContainsKey(item.Tpl) ? globalLang.Templates[item.Tpl].Name : item.Tpl  });
                 }
             }
             ItemsForAdd = new Dictionary<string, Dictionary<string, string>>();
