@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 
 namespace SP_EFT_ProfileEditor
@@ -18,7 +19,7 @@ namespace SP_EFT_ProfileEditor
     public class BackupFile
     {
         public string Path { get; set; }
-        public string date { get; set; }
+        public DateTime date { get; set; }
     }
 
     public class AccentItem
@@ -127,6 +128,8 @@ namespace SP_EFT_ProfileEditor
     {
         public string id { get; set; }
         public string name { get; set; }
+
+        public string tpl { get; set; }
     }
 
     public class QuestData

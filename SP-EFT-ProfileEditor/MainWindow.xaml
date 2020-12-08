@@ -25,6 +25,7 @@
         <local:ItemSelectorConverter x:Key="ItemSelectorConverter"/>
         <local:ItemAddButtonConverter x:Key="ItemAddButtonConverter"/>
         <local:ProfileVisibilityConverter x:Key="ProfileVisibilityConverter"/>
+        <local:BackupDateConverter x:Key="BackupDateConverter"/>
     </Window.Resources>    
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
@@ -393,7 +394,7 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_stash_money]}"/>
                         </Label.Content>
                     </Label>
-                    <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" >
+                    <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" x:Name="MoneysPanel">
                         <iconPacks:PackIconFontAwesome Width="15" Height="15" VerticalAlignment="Center" Kind="RubleSignSolid" />
                         <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0,0,0">
                             <Label.Content>
@@ -468,7 +469,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     <Button x:Name="DeleteAllButton" Grid.Column="1" Grid.Row="2" Content="{Binding locale[tab_stash_remove]}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" Click="DeleteAllButton_Click"/>
-                    <Grid Grid.Row="3" Grid.Column="1">
+                    <Grid Grid.Row="3" Grid.Column="1" x:Name="AddItemsGrid">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition MaxWidth="120"/>
                             <ColumnDefinition/>
@@ -519,6 +520,16 @@
                             <Button x:Name="HideWarningButton" Margin="0,10,0,0" Content="{Binding locale[tab_stash_warningbutton]}" Click="HideWarningButton_Click"/>
                         </StackPanel>
                     </Border>
+                    <Border x:Name="ModItemsWarning" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Background="{DynamicResource MahApps.Brushes.AccentBase}" Visibility="Hidden">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Label HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Margin="0,5" FontSize="20">
+                                <Label.Content>
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_stash_moditems]}" TextAlignment="Center"/>
+                                </Label.Content>
+                            </Label>
+                            <Button x:Name="HideModWarningButton"  Margin="0,10,0,0" Content="{Binding locale[tab_stash_warningbutton]}" Click="HideModWarningButton_Click"/>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_clothing_title]}" Name="tabclothing" HeaderTemplate="{StaticResource HeaderTemplate}">
@@ -565,7 +576,7 @@
                             <DataGridTemplateColumn Header="{Binding Data.locale[tab_backups_date], Source={StaticResource proxy}}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Label Content="{Binding Path=date}"/>
+                                        <Label Content="{Binding Path=date, Converter={StaticResource BackupDateConverter}}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

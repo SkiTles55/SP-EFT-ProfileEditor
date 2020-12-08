@@ -7,6 +7,16 @@ using System.Windows.Data;
 
 namespace SP_EFT_ProfileEditor
 {
+    public class BackupDateConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null) return DateTime.Now;
+            return ((DateTime)value).ToString("dd.MM.yyyy HH:mm:ss");
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
+    }
     public class ProfileVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

@@ -99,6 +99,8 @@ namespace SP_EFT_ProfileEditor
 
         private void LoadDataWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            MoneysPanel.IsEnabled = true;
+            AddItemsGrid.IsEnabled = true;
             if (traderInfos != null)
                 merchantsGrid.ItemsSource = traderInfos;
             if (Quests != null)
@@ -127,6 +129,12 @@ namespace SP_EFT_ProfileEditor
             var tempProcessList = Process.GetProcessesByName("Server");
             if (tempProcessList.Where(x => x.MainModule.FileName == Path.Combine(Lang.options.EftServerPath, "Server.exe")).Count() > 0)
                 ShutdownCozServerRunned();
+            if (Lang.characterInventory.InventoryItems.Any(x => !itemsDB.ContainsKey(x.tpl)))
+            {
+                MoneysPanel.IsEnabled = false;
+                AddItemsGrid.IsEnabled = false;
+                ModItemsWarning.Visibility = Visibility.Visible;
+            }
         }
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -239,7 +247,7 @@ namespace SP_EFT_ProfileEditor
                     if (item.Tpl == moneyEur) Lang.characterInventory.Euros += (int)item.Upd.StackObjectsCount;
                     if (item.Tpl == moneyRub) Lang.characterInventory.Rubles += (int)item.Upd.StackObjectsCount;
                     if (item.ParentId == Lang.Character.Inventory.Stash)
-                        Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = item.Id, name = globalLang.Templates.ContainsKey(item.Tpl) ? globalLang.Templates[item.Tpl].Name : item.Tpl  });
+                        Lang.characterInventory.InventoryItems.Add(new InventoryItem { id = item.Id, name = globalLang.Templates.ContainsKey(item.Tpl) ? globalLang.Templates[item.Tpl].Name : item.Tpl, tpl = item.Tpl  });
                 }
             }
             ItemsForAdd = new Dictionary<string, Dictionary<string, string>>();
@@ -771,13 +779,14 @@ namespace SP_EFT_ProfileEditor
             backups = new List<BackupFile>();
             if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")) && Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)))
             {
-                foreach (var bk in Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)).Where(x => x.Contains("backup")).OrderByDescending(i => i))
+                foreach (var bk in Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)).Where(x => x.Contains("backup")))
                 {
-                    try { backups.Add(new BackupFile { Path = bk, date = DateTime.ParseExact(Path.GetFileNameWithoutExtension(bk).Remove(0, Lang.options.DefaultProfile.Count() + 8), "dd-MM-yyyy-HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.None).ToString("dd.MM.yyyy HH:mm:ss") }); }
+                    try { backups.Add(new BackupFile { Path = bk, date = DateTime.ParseExact(Path.GetFileNameWithoutExtension(bk).Remove(0, Lang.options.DefaultProfile.Count() + 8), "dd-MM-yyyy-HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.None) }); }
                     catch (Exception ex)
                     { ExtMethods.Log($"LoadBackups | {ex.GetType().Name}: {ex.Message}"); }
                 }
             }
+            if (backups.Count() > 1) backups = backups.OrderByDescending(x => x.date).ToList();
             if (!LoadDataWorker.IsBusy)
             {
                 backupsGrid.ItemsSource = null;
@@ -1167,6 +1176,9 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void HideWarningButton_Click(object sender, RoutedEventArgs e) => ItemsAddWarning.Visibility = ItemsAddWarning.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+
+
+        private void HideModWarningButton_Click(object sender, RoutedEventArgs e) => ModItemsWarning.Visibility = Visibility.Hidden;
 
         private void MetroWindow_Closing(object sender, CancelEventArgs e)
         {
