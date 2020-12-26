@@ -128,14 +128,14 @@ namespace SP_EFT_ProfileEditor
                 suitsGrid.ItemsSource = Suits;
             if (Presets != null)
                 PresetsList.ItemsSource = Presets;
-            progressDialog.CloseAsync();
-            if (Lang.characterInventory.InventoryItems.Any(x => !itemsDB.ContainsKey(x.tpl)))
+            if (Lang.characterInventory.InventoryItems != null && Lang.characterInventory.InventoryItems.Any(x => !itemsDB.ContainsKey(x.tpl)))
             {
                 MoneysPanel.IsEnabled = false;
                 AddItemsGrid.IsEnabled = false;
                 if (!_modItemNotif)
                     ModItemsWarning.Visibility = Visibility.Visible;
             }
+            progressDialog.CloseAsync();
         }
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -324,7 +324,7 @@ namespace SP_EFT_ProfileEditor
             }
             DataContext = Lang;
             CheckPockets();
-            if (readyToLoad)
+            if (readyToLoad && Lang.Character != null)
             {
                 lastdata = Lang.options.EftServerPath + Lang.options.Language + Lang.Character.Aid;
                 LoadData();
@@ -440,10 +440,10 @@ namespace SP_EFT_ProfileEditor
         private void TabSettingsClose_Click(object sender, RoutedEventArgs e)
         {
             SettingsBorder.Visibility = Visibility.Collapsed;
-            if (lastdata != Lang.options.EftServerPath + Lang.options.Language + Lang.Character.Aid)
+            if (lastdata != Lang.options.EftServerPath + Lang.options.Language + Lang.Character?.Aid)
             {
-                LoadData();
-                lastdata = Lang.options.EftServerPath + Lang.options.Language + Lang.Character.Aid;
+                if (Lang.Character != null) LoadData();
+                lastdata = Lang.options.EftServerPath + Lang.options.Language + Lang.Character?.Aid;
             }
         }
 
@@ -766,6 +766,7 @@ namespace SP_EFT_ProfileEditor
             }
             jobject.SelectToken("characters")["pmc"].SelectToken("Encyclopedia").Replace(JToken.FromObject(Lang.Character.Encyclopedia));
             jobject.SelectToken("suits").Replace(JToken.FromObject(Lang.Character.Suits.ToArray()));
+            jobject.SelectToken("weaponbuilds").Replace(JToken.FromObject(Lang.Character.WeaponPresets));
             DateTime now = DateTime.Now;
             if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")))
                 Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups"));
@@ -854,6 +855,64 @@ namespace SP_EFT_ProfileEditor
                 } 
                 SaveAndReload();
                 LoadData();
+            }
+        }
+
+        private async void PresetRemove_Click(object sender, RoutedEventArgs e)
+        {
+            if (await this.ShowMessageAsync(Lang.locale["restorebackupdialog_title"], Lang.locale["restorebackupdialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateShow = true, AnimateHide = true }) == MessageDialogResult.Affirmative)
+            {
+                try
+                {
+                    var button = sender as System.Windows.Controls.Button;
+                    PresetInfo preset = (PresetInfo)button.DataContext;
+                    if (Lang.Character.WeaponPresets.ContainsKey(preset.Name)) Lang.Character.WeaponPresets.Remove(preset.Name);
+                    Presets.Remove(Presets.Where(x => x.Name == preset.Name).FirstOrDefault());
+                    PresetsList.ItemsSource = null;
+                    PresetsList.ItemsSource = Presets;
+                }
+                catch (Exception ex)
+                {
+                    ExtMethods.Log($"PresetRemove_Click | {ex.GetType().Name}: {ex.Message}");
+                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                }
+            }
+        }
+
+        private void PresetExport_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as System.Windows.Controls.Button;
+            PresetInfo preset = (PresetInfo)button.DataContext;
+            if (Lang.Character.WeaponPresets.ContainsKey(preset.Name))
+            {
+                WeaponPreset weaponPreset = Lang.Character.WeaponPresets[preset.Name];
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "Файл JSON (*.json)|*.json|All files (*.*)|*.*";
+                saveFileDialog.FileName = $"Weapon preset {preset.Name}";
+                saveFileDialog.RestoreDirectory = true;
+                if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    File.WriteAllText(saveFileDialog.FileName, JsonConvert.SerializeObject(weaponPreset, Formatting.Indented));
+            }
+        }
+
+        private async void PresetImport_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Файл JSON (*.json)|*.json|All files (*.*)|*.*";
+            openFileDialog.RestoreDirectory = true;
+            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                try
+                {
+                    WeaponPreset weaponPreset = JsonConvert.DeserializeObject<WeaponPreset>(File.ReadAllText(openFileDialog.FileName));
+                    if (weaponPreset.name == null)
+                        Debug.Print("wrong preset file!");
+                }
+                catch (Exception ex)
+                {
+                    ExtMethods.Log($"PresetImport_Click | {ex.GetType().Name}: {ex.Message}");
+                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                }
             }
         }
 

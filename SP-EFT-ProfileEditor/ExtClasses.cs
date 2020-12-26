@@ -243,6 +243,7 @@ namespace SP_EFT_ProfileEditor
     {
         [JsonProperty("_id")]
         public string Id { get; set; }
+
         [JsonProperty("_tpl")]
         public string Tpl { get; set; }
 

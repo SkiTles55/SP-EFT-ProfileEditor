@@ -47,16 +47,20 @@
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <Label HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Margin="0,5" FontSize="20">
+        <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Margin="30" FontSize="20">
             <Label.Content>
                 <TextBlock TextWrapping="Wrap" Text="{Binding locale[profile_empty]}" TextAlignment="Center"/>
             </Label.Content>
         </Label>
-        <TabControl x:Name="tabControl" Grid.Row="0" Margin="10,5" TabStripPlacement="Left" Controls:TabControlHelper.Underlined="TabPanel" Visibility="{Binding Path=Character, Converter={StaticResource ProfileVisibilityConverter}}">
+        <TabControl x:Name="tabControl" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,5" TabStripPlacement="Left" Controls:TabControlHelper.Underlined="TabPanel" Visibility="{Binding Path=Character, Converter={StaticResource ProfileVisibilityConverter}}">
             <TabItem Header="{Binding locale[tab_info_title]}" x:Name="tabinfo" HeaderTemplate="{StaticResource HeaderTemplate}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -385,16 +389,7 @@
                         <RowDefinition MaxHeight="50"/>
                         <RowDefinition  MaxHeight="120"/>
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
-                        <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_stash_money]}"/>
-                        </Label.Content>
-                    </Label>
-                    <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" x:Name="MoneysPanel">
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" x:Name="MoneysPanel">
                         <iconPacks:PackIconFontAwesome Width="15" Height="15" VerticalAlignment="Center" Kind="RubleSignSolid" />
                         <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0,0,0">
                             <Label.Content>
@@ -435,12 +430,7 @@
                             </Button.ContentTemplate>
                         </Button>
                     </StackPanel>
-                    <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="Bold" Margin="10,0,0,0">
-                        <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_stash_items]}"/>
-                        </Label.Content>
-                    </Label>
-                    <DataGrid x:Name="stashGrid" Grid.Column="1" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10">
+                    <DataGrid x:Name="stashGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10">
                         <DataGrid.Resources>
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
@@ -470,8 +460,8 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <Button x:Name="DeleteAllButton" Grid.Column="1" Grid.Row="2" Content="{Binding locale[tab_stash_remove]}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" Click="DeleteAllButton_Click"/>
-                    <Grid Grid.Row="3" Grid.Column="1" x:Name="AddItemsGrid">
+                    <Button x:Name="DeleteAllButton" Grid.Row="2" Content="{Binding locale[tab_stash_remove]}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" Click="DeleteAllButton_Click"/>
+                    <Grid Grid.Row="3" x:Name="AddItemsGrid">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition MaxWidth="120"/>
                             <ColumnDefinition/>
@@ -512,7 +502,7 @@
                             </Button>
                         </StackPanel>
                     </Grid>
-                    <Border x:Name="ItemsAddWarning" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Background="{DynamicResource MahApps.Brushes.AccentBase}">
+                    <Border x:Name="ItemsAddWarning" Grid.Row="0" Grid.RowSpan="4" Background="{DynamicResource MahApps.Brushes.AccentBase}">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Label HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Margin="0,5" FontSize="20">
                                 <Label.Content>
@@ -522,7 +512,7 @@
                             <Button x:Name="HideWarningButton" Margin="10" Content="{Binding locale[tab_stash_warningbutton]}" Click="HideWarningButton_Click"/>
                         </StackPanel>
                     </Border>
-                    <Border x:Name="ModItemsWarning" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Background="{DynamicResource MahApps.Brushes.AccentBase}" Visibility="Hidden">
+                    <Border x:Name="ModItemsWarning" Grid.Row="0" Grid.RowSpan="4" Background="{DynamicResource MahApps.Brushes.AccentBase}" Visibility="Hidden">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Label HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Margin="0,5" FontSize="20">
                                 <Label.Content>
@@ -566,7 +556,14 @@
             </TabItem>
             <TabItem Header="{Binding locale[tab_presets_title]}" Name="tabpresets" HeaderTemplate="{StaticResource HeaderTemplate}">
                 <Grid>
-                    <ListBox x:Name="PresetsList">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <ListBox x:Name="PresetsList" Grid.Row="0">
+                        <ListBox.Resources>
+                            <local:BindingProxy x:Key="proxy" Data="{Binding}" />
+                        </ListBox.Resources>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="{DynamicResource MahApps.Brushes.AccentBase}" BorderThickness="1" Margin="5">
@@ -579,18 +576,19 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>
                                             <ColumnDefinition/>
-                                            <ColumnDefinition/>
+                                            <ColumnDefinition MaxWidth="150"/>
                                         </Grid.ColumnDefinitions>
                                         <Label Content="{Binding Path=Name}" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold" FontSize="14"/>
-                                        <Label Content="Оружие" Grid.Row="1" Grid.Column="0"/>
+                                        <Label Content="{Binding Data.locale[tab_mastering_weapon], Source={StaticResource proxy}}" Grid.Row="1" Grid.Column="0"/>
                                         <Label Content="{Binding Path=Weapon}" Grid.Row="1" Grid.Column="1"/>
-                                        <Button x:Name="PresetExport" Content="Export" Grid.Row="1" Grid.Column="2" Margin="5"/>
-                                        <Button x:Name="PresetRemove" Content="Remove" Grid.Row="2" Grid.Column="2" Margin="5"/>
+                                        <Button x:Name="PresetExport" Content="{Binding Data.locale[tab_presets_export], Source={StaticResource proxy}}" Grid.Row="1" Grid.Column="2" Margin="5" Click="PresetExport_Click"/>
+                                        <Button x:Name="PresetRemove" Content="{Binding Data.locale[tab_backups_remove], Source={StaticResource proxy}}" Grid.Row="2" Grid.Column="2" Margin="5" Click="PresetRemove_Click"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+                    <Button x:Name="PresetImport" Grid.Row="1" Content="{Binding locale[tab_presets_import]}" Width="200" Margin="5,10,5,0" Click="PresetImport_Click"/>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_backups_title]}" Name="tabbackups" HeaderTemplate="{StaticResource HeaderTemplate}">
@@ -667,7 +665,7 @@
                 </StackPanel>
             </TabItem>
         </TabControl>
-        <StackPanel Margin="10,0,10,5" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+        <StackPanel Margin="10,0,10,5" Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button x:Name="ResetProfileButton" Content="{Binding locale[button_reloadprofile]}" Margin="10,5,5,0" Width="250" Click="ResetProfileButton_Click">
                 <Button.ContentTemplate>
                     <DataTemplate>
@@ -699,7 +697,7 @@
                 </Button.ContentTemplate>
             </Button>
         </StackPanel>
-        <Border x:Name="SettingsBorder" Grid.RowSpan="2" Background="{DynamicResource MahApps.Brushes.Accent4}" BorderThickness="1" Visibility="Collapsed">
+        <Border x:Name="SettingsBorder" Grid.ColumnSpan="2" Grid.RowSpan="2" Background="{DynamicResource MahApps.Brushes.Accent4}" BorderThickness="1" Visibility="Collapsed">
             <Border BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" Background="{DynamicResource MahApps.Brushes.Window.Background}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid>
                     <Grid.RowDefinitions>

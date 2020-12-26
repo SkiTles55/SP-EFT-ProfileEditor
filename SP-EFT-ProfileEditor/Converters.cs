@@ -21,7 +21,7 @@ namespace SP_EFT_ProfileEditor
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null) return 0;
+            if (value == null) return Visibility.Hidden;
             return ((Character)value).Inventory != null ? Visibility.Visible : Visibility.Hidden;
         }
 
