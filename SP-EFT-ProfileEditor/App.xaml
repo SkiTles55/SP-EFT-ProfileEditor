@@ -25,7 +25,7 @@
                 <Setter Property="TextDecorations" Value="Underline"/>
             </Style>
             <DataTemplate x:Key="HeaderTemplate">
-                <TextBlock Text="{Binding}" Width="170" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding}" Width="180" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

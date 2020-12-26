@@ -47,6 +47,7 @@ namespace SP_EFT_ProfileEditor
         private Dictionary<string, Dictionary<string, string>> ItemsForAdd;
         private ServerGlobals serverGlobals;
         private List<SuitInfo> Suits;
+        private List<PresetInfo> Presets;
 
         private readonly string moneyRub = "5449016a4bdc2d6f028b456f";
         private readonly string moneyDol = "5696686a4bdc2da3298b456a";
@@ -125,6 +126,8 @@ namespace SP_EFT_ProfileEditor
             ItemCatSelector.SelectedIndex = 0;
             if (Suits != null)
                 suitsGrid.ItemsSource = Suits;
+            if (Presets != null)
+                PresetsList.ItemsSource = Presets;
             progressDialog.CloseAsync();
             if (Lang.characterInventory.InventoryItems.Any(x => !itemsDB.ContainsKey(x.tpl)))
             {
@@ -272,6 +275,28 @@ namespace SP_EFT_ProfileEditor
                             if (!BannedSuits.Contains(tName)) Suits.Add(new SuitInfo { Name = tName, ID = suit.suiteId, Bought = Lang.Character.Suits.Contains(suit.suiteId) });
                         }
                     }
+                }
+            }
+            if (Lang.Character.WeaponPresets != null)
+            {
+                Presets = new List<PresetInfo>();
+                foreach (var pr in Lang.Character.WeaponPresets.Values)
+                {
+                    //var items = JsonConvert.DeserializeObject<PresetItem[]>(pr.items.ToString());
+                    //foreach (var it in items)
+                    //    Debug.Print(it.Tpl);
+                    //List<PresetItem> items = new List<PresetItem>();
+                    PresetInfo preset = new PresetInfo();
+                    preset.Name = pr.name;
+                    foreach (var obj in pr.items)
+                    {
+                        var item = JsonConvert.DeserializeObject<PresetItem>(obj.ToString());
+                        if (item.Id == pr.root)
+                            preset.Weapon = globalLang.Templates.ContainsKey(item.Tpl) ? globalLang.Templates[item.Tpl].Name : item.Tpl;
+                        //Debug.Print(i.Tpl);
+                        //items.Add(i);
+                    }
+                    Presets.Add(preset);
                 }
             }
             LoadBackups();
@@ -916,7 +941,8 @@ namespace SP_EFT_ProfileEditor
             };
             if (AddMoneys.ShowDialog() == true)
             {
-                AddNewItems(moneytpl, AddMoneys.MoneyCount);
+                if (AddNewItems(moneytpl, AddMoneys.MoneyCount).Result)
+                    LoadData();
             }
         }
 
@@ -931,10 +957,11 @@ namespace SP_EFT_ProfileEditor
             if (ItemIdSelector.SelectedValue == null) return;
             var item = itemsDB[ItemIdSelector.SelectedValue.ToString()];
             int Amount = Convert.ToInt32(ItemAddAmount.Text);
-            AddNewItems(item.id, Amount);
+            if (AddNewItems(item.id, Amount).Result)
+                LoadData();
         }
 
-        private async void AddNewItems(string tpl, int count)
+        private async Task<bool> AddNewItems(string tpl, int count)
         {
             var mItem = itemsDB[tpl];
             var Stash = getPlayerStashSlotMap();
@@ -953,7 +980,10 @@ namespace SP_EFT_ProfileEditor
                     }
             int tempslots = mItem.props.Width * mItem.props.Height * stacks;
             if (FreeSlots < tempslots)
+            {
                 await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                return false;
+            }
             else
             {
                 List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location> NewItemsLocations = new List<Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location>();
@@ -1020,11 +1050,12 @@ namespace SP_EFT_ProfileEditor
                         count -= mItem.props.StackMaxSize;
                     }
                     Lang.Character.Inventory.Items = items.ToArray();
-                    LoadData();
+                    return true;
                 }
                 else
                 {
                     await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                    return false;
                 }
             }
         }  

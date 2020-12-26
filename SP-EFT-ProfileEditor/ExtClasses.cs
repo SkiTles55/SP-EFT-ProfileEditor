@@ -9,6 +9,15 @@ namespace SP_EFT_ProfileEditor
     {
         public ProfileCharacter characters { get; set; }
         public string[] suits { get; set; }
+        public Dictionary<string, WeaponPreset> weaponbuilds { get; set; }
+    }
+
+    public class WeaponPreset
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public string root { get; set; }
+        public object[] items { get; set; }
     }
 
     public class ProfileCharacter
@@ -222,5 +231,22 @@ namespace SP_EFT_ProfileEditor
     {
         public string _id { get; set; }
         public string suiteId { get; set; }
+    }
+
+    public class PresetInfo
+    {
+        public string Name { get; set; }
+        public string Weapon { get; set; }
+    }
+
+    public class PresetItem
+    {
+        [JsonProperty("_id")]
+        public string Id { get; set; }
+        [JsonProperty("_tpl")]
+        public string Tpl { get; set; }
+
+        [JsonProperty("parentId")]
+        public string ParentId { get; set; }
     }
 }

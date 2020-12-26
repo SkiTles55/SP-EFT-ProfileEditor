@@ -42,6 +42,7 @@ namespace SP_EFT_ProfileEditor
         public Dictionary<string, Character_TraderStandings> TraderStandings { get; set; }
 
         public List<string> Suits { get; set; }
+        public Dictionary<string, WeaponPreset> WeaponPresets { get; set; }
 
 
         // Subnode classes
