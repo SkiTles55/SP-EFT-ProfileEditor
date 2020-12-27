@@ -48,6 +48,7 @@ namespace SP_EFT_ProfileEditor
         private ServerGlobals serverGlobals;
         private List<SuitInfo> Suits;
         private List<PresetInfo> Presets;
+        public Dictionary<string, BotType> BotTypes;
 
         private readonly string moneyRub = "5449016a4bdc2d6f028b456f";
         private readonly string moneyDol = "5696686a4bdc2da3298b456a";
@@ -135,6 +136,11 @@ namespace SP_EFT_ProfileEditor
                 if (!_modItemNotif)
                     ModItemsWarning.Visibility = Visibility.Visible;
             }
+            if (Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
+            {
+                infotab_Voice.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.voice;
+                infotab_Head.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.head;
+            }
             progressDialog.CloseAsync();
         }
 
@@ -144,6 +150,9 @@ namespace SP_EFT_ProfileEditor
             globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "locales", "global", Lang.options.Language + ".json")));
             itemsDB = new Dictionary<string, Item>();
             itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "templates", "items.json")));
+            BotTypes = new Dictionary<string, BotType>();
+            BotTypes.Add("Bear", JsonConvert.DeserializeObject<BotType>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "bots", "types", "bear.json"))));
+            BotTypes.Add("Usec", JsonConvert.DeserializeObject<BotType>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "bots", "types", "usec.json"))));
             if (Lang.Character.Quests != null)
             {
                 Quests = new List<Quest>();
@@ -282,19 +291,17 @@ namespace SP_EFT_ProfileEditor
                 Presets = new List<PresetInfo>();
                 foreach (var pr in Lang.Character.WeaponPresets.Values)
                 {
-                    //var items = JsonConvert.DeserializeObject<PresetItem[]>(pr.items.ToString());
-                    //foreach (var it in items)
-                    //    Debug.Print(it.Tpl);
-                    //List<PresetItem> items = new List<PresetItem>();
                     PresetInfo preset = new PresetInfo();
                     preset.Name = pr.name;
                     foreach (var obj in pr.items)
                     {
                         var item = JsonConvert.DeserializeObject<PresetItem>(obj.ToString());
                         if (item.Id == pr.root)
+                        {
                             preset.Weapon = globalLang.Templates.ContainsKey(item.Tpl) ? globalLang.Templates[item.Tpl].Name : item.Tpl;
-                        //Debug.Print(i.Tpl);
-                        //items.Add(i);
+                            if (itemsDB.ContainsKey(item.Tpl) && itemsDB[item.Tpl].props != null)
+                                preset.Recoil = itemsDB[item.Tpl].props.Recoil;
+                        }
                     }
                     Presets.Add(preset);
                 }
@@ -452,9 +459,16 @@ namespace SP_EFT_ProfileEditor
         private void infotab_Side_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!IsLoaded)
-                return;
+               return;
+            if (Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
+            {
+                infotab_Voice.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.voice;
+                infotab_Head.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.head;
+            }
             if (!infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
                 infotab_Voice.SelectedIndex = 0;
+            if (!infotab_Head.Items.Contains(infotab_Head.SelectedItem))
+                infotab_Head.SelectedIndex = 0;
         }
 
         private void infotab_Level_TextChanged(object sender, TextChangedEventArgs e)
@@ -648,6 +662,7 @@ namespace SP_EFT_ProfileEditor
             jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Voice"] = Lang.Character.Info.Voice;
             jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Level"] = Lang.Character.Info.Level;
             jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Experience"] = Lang.Character.Info.Experience;
+            jobject.SelectToken("characters")["pmc"].SelectToken("Customization")["Head"] = Lang.Character.Customization.Head;
             var Stash = jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToObject<Character.Character_Inventory.Character_Inventory_Item[]>();
             var iDs = Lang.Character.Inventory.Items.Select(b => b.Id).ToList();
             List<JToken> ForRemove = new List<JToken>();
@@ -905,8 +920,30 @@ namespace SP_EFT_ProfileEditor
                 try
                 {
                     WeaponPreset weaponPreset = JsonConvert.DeserializeObject<WeaponPreset>(File.ReadAllText(openFileDialog.FileName));
-                    if (weaponPreset.name == null)
-                        Debug.Print("wrong preset file!");
+                    if (weaponPreset.name != null)
+                    {
+                        if (Lang.Character.WeaponPresets == null) Lang.Character.WeaponPresets = new Dictionary<string, WeaponPreset>();
+                        int count = 1;
+                        string name = weaponPreset.name;
+                        string newname = weaponPreset.name;
+                        while (Lang.Character.WeaponPresets.ContainsKey(newname))
+                        {
+                            string tempFileName = string.Format("{0}({1})", name, count++);
+                            newname = tempFileName;
+                        }
+                        if (weaponPreset.name != newname) weaponPreset.name = newname;
+                        List<string> iDs = Lang.Character.WeaponPresets.Values.Select(x => x.id).ToList();
+                        string newId = weaponPreset.id;
+                        while (iDs.Contains(newId))
+                            newId = ExtMethods.generateNewId();
+                        if (weaponPreset.id != newId) weaponPreset.id = newId;
+                        Lang.Character.WeaponPresets.Add(weaponPreset.name, weaponPreset);
+                        LoadData();
+                    }
+                    else
+                    {
+                        await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_presets_wrongfile"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                    }
                 }
                 catch (Exception ex)
                 {

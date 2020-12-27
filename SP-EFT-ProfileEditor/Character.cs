@@ -20,6 +20,9 @@ namespace SP_EFT_ProfileEditor
         [JsonProperty("Info")]
         public Character_Info Info { get; set; }
 
+        [JsonProperty("Customization")]
+        public Character_Customization Customization { get; set; }
+
         [JsonProperty("Inventory")]
         public Character_Inventory Inventory { get; set; }
 
@@ -69,6 +72,21 @@ namespace SP_EFT_ProfileEditor
 
             [JsonProperty("GameVersion")]
             public string GameVersion { get; set; }
+        }
+
+        public class Character_Customization
+        {
+            [JsonProperty("Head")]
+            public string Head { get; set; }
+
+            [JsonProperty("Body")]
+            public string Body { get; set; }
+
+            [JsonProperty("Feet")]
+            public string Feet { get; set; }
+
+            [JsonProperty("Hands")]
+            public string Hands { get; set; }
         }
 
         public class Character_Inventory

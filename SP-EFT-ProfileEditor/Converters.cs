@@ -116,22 +116,6 @@ namespace SP_EFT_ProfileEditor
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
     }
 
-    public class ProfileSideConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value == null) return null;
-            return new List<string>
-            {
-                value.ToString() + "_1",
-                value.ToString() + "_2",
-                value.ToString() + "_3"
-            };
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
-    }
-
     public class ProfileLevelConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

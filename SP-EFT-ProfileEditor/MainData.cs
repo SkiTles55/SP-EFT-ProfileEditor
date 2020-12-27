@@ -69,8 +69,8 @@ namespace SP_EFT_ProfileEditor
             {
                 var Pr = JsonConvert.DeserializeObject<Profile>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")));
                 lang.Character = Pr.characters?.pmc;
-                if (Pr.suits != null && Pr.suits.Count() > 0) lang.Character.Suits = Pr.suits.ToList();
-                if (Pr.weaponbuilds != null && Pr.weaponbuilds.Count() > 0) lang.Character.WeaponPresets = Pr.weaponbuilds;
+                lang.Character.Suits = Pr.suits?.ToList();
+                lang.Character.WeaponPresets = Pr.weaponbuilds;
             }
             if (lang.Character != null && lang.Character.Info != null && lang.Character.Inventory != null && lang.Character.TraderStandings != null && lang.Character.Skills != null)
                 lang.ProfileHash = JsonConvert.SerializeObject(lang.Character).ToString().GetHashCode();
@@ -144,6 +144,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_info_experience"] = "Experience",
             ["tab_info_gameversion"] = "Game Version",
             ["tab_info_bigpockets"] = "Big pockets",
+            ["tab_info_head"] = "Head",
             ["tab_merchants_title"] = "Merchants",
             ["tab_merchants_name"] = "Name",
             ["tab_merchants_level"] = "Level",
@@ -220,7 +221,8 @@ namespace SP_EFT_ProfileEditor
             ["update_caption"] = "A new version of the program is available. Open the download page?",
             ["tab_presets_title"] = "Presets",
             ["tab_presets_export"] = "Export",
-            ["tab_presets_import"] = "Импорт"
+            ["tab_presets_import"] = "Импорт",
+            ["tab_presets_wrongfile"] = "This file does not contain the weapon assembly"
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -250,6 +252,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_info_experience"] = "Erfahrung",
             ["tab_info_gameversion"] = "Spielversion",
             ["tab_info_bigpockets"] = "Große Taschen",
+            ["tab_info_head"] = "Kopf",
             ["tab_merchants_title"] = "Händler",
             ["tab_merchants_name"] = "Name",
             ["tab_merchants_level"] = "Niveau",
@@ -326,7 +329,8 @@ namespace SP_EFT_ProfileEditor
             ["update_caption"] = "Eine neue Version des Programms ist verfügbar. Download-Seite öffnen?",
             ["tab_presets_title"] = "Vorlagen",
             ["tab_presets_export"] = "Export",
-            ["tab_presets_import"] = "Importieren"
+            ["tab_presets_import"] = "Importieren",
+            ["tab_presets_wrongfile"] = "Diese Datei enthält nicht die Waffenbaugruppe"
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -356,6 +360,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_info_experience"] = "Опыт",
             ["tab_info_gameversion"] = "Версия игры",
             ["tab_info_bigpockets"] = "Большие карманы",
+            ["tab_info_head"] = "Голова",
             ["tab_merchants_title"] = "Торговцы",
             ["tab_merchants_name"] = "Имя",
             ["tab_merchants_level"] = "Уровень",
@@ -432,7 +437,8 @@ namespace SP_EFT_ProfileEditor
             ["update_caption"] = "Доступна новая версия программы. Открыть страницу загрузки?",
             ["tab_presets_title"] = "Сборки",
             ["tab_presets_export"] = "Экспорт",
-            ["tab_presets_import"] = "Импорт"
+            ["tab_presets_import"] = "Импорт",
+            ["tab_presets_wrongfile"] = "Этот файл не содержит сборку оружия"
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -462,6 +468,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_info_experience"] = "Expérience",
             ["tab_info_gameversion"] = "Version du jeu",
             ["tab_info_bigpockets"] = "Grandes poches",
+            ["tab_info_head"] = "Tête",
             ["tab_merchants_title"] = "Marchands",
             ["tab_merchants_name"] = "Nom",
             ["tab_merchants_level"] = "Niveau",
@@ -538,7 +545,8 @@ namespace SP_EFT_ProfileEditor
             ["update_caption"] = "Une nouvelle version du programme est disponible. Ouvrez la page de téléchargement?",
             ["tab_presets_title"] = "Configurations",
             ["tab_presets_export"] = "Exportation",
-            ["tab_presets_import"] = "Importer"
+            ["tab_presets_import"] = "Importer",
+            ["tab_presets_wrongfile"] = "Ce fichier ne contient pas l'assemblage d'arme"
         };
     }
 

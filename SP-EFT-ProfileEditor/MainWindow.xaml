@@ -17,7 +17,6 @@
         <local:PathBoolConverter x:Key="PathBoolConverter" />
         <local:ProfileBoolConverter x:Key="ProfileBoolConverter" />
         <local:ButtonBoolConverter x:Key="ButtonBoolConverter"/>
-        <local:ProfileSideConverter x:Key="ProfileSideConverter"/>
         <local:ProfileLevelConverter x:Key="ProfileLevelConverter"/>
         <local:QuestEmptyBoolConverter x:Key="QuestEmptyBoolConverter"/>
         <local:RevertedQuestEmptyBoolConverter x:Key="RevertedQuestEmptyBoolConverter"/>
@@ -26,7 +25,7 @@
         <local:ItemAddButtonConverter x:Key="ItemAddButtonConverter"/>
         <local:ProfileVisibilityConverter x:Key="ProfileVisibilityConverter"/>
         <local:BackupDateConverter x:Key="BackupDateConverter"/>
-    </Window.Resources>    
+    </Window.Resources>
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
             <Button Content="{Binding locale[button_settings]}" Click="Button_Click">
@@ -72,6 +71,7 @@
                         <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150"/>
@@ -100,7 +100,7 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_voice]}"/>
                         </Label.Content>
                     </Label>
-                    <ComboBox x:Name="infotab_Voice" Grid.Column="1" Grid.Row="3" Margin="10,0" VerticalAlignment="Center" ItemsSource="{ Binding Character.Info.Side, Converter={StaticResource ProfileSideConverter}}" SelectedItem="{Binding Character.Info.Voice, Mode=TwoWay}"/>
+                    <ComboBox x:Name="infotab_Voice" Grid.Column="1" Grid.Row="3" Margin="10,0" VerticalAlignment="Center" SelectedItem="{Binding Character.Info.Voice, Mode=TwoWay}"/>
                     <Label Grid.Column="0" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_level]}"/>
@@ -128,10 +128,16 @@
                     <TextBox x:Name="infotab_GameVersion" Grid.Column="1" Grid.Row="6" TextWrapping="Wrap" Text="{Binding Character.Info.GameVersion}" Margin="10,0" VerticalAlignment="Center" IsEnabled="False"/>
                     <Label Grid.Column="0" Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_head]}"/>
+                        </Label.Content>
+                    </Label>
+                    <ComboBox x:Name="infotab_Head" Grid.Column="1" Grid.Row="7" Margin="10,0" VerticalAlignment="Center" SelectedItem="{Binding Character.Customization.Head, Mode=TwoWay}"/>
+                    <Label Grid.Column="0" Grid.Row="8" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
+                        <Label.Content>
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_bigpockets]}"/>
                         </Label.Content>
                     </Label>
-                    <mah:ToggleSwitch x:Name="BigPocketsSwitcher" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" Margin="10,0" OnContent="" OffContent="" Foreground="{DynamicResource MahApps.Brushes.Accent}" Toggled="BigPocketsSwitcher_Toggled"/>
+                    <mah:ToggleSwitch x:Name="BigPocketsSwitcher" Grid.Column="1" Grid.Row="8" HorizontalAlignment="Stretch" Margin="10,0" OnContent="" OffContent="" Foreground="{DynamicResource MahApps.Brushes.Accent}" Toggled="BigPocketsSwitcher_Toggled"/>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_merchants_title]}" x:Name="tabmerchants" HeaderTemplate="{StaticResource HeaderTemplate}">
@@ -572,6 +578,7 @@
                                             <RowDefinition/>
                                             <RowDefinition/>
                                             <RowDefinition/>
+                                            <RowDefinition/>
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>
@@ -583,6 +590,8 @@
                                         <Label Content="{Binding Path=Weapon}" Grid.Row="1" Grid.Column="1"/>
                                         <Button x:Name="PresetExport" Content="{Binding Data.locale[tab_presets_export], Source={StaticResource proxy}}" Grid.Row="1" Grid.Column="2" Margin="5" Click="PresetExport_Click"/>
                                         <Button x:Name="PresetRemove" Content="{Binding Data.locale[tab_backups_remove], Source={StaticResource proxy}}" Grid.Row="2" Grid.Column="2" Margin="5" Click="PresetRemove_Click"/>
+                                        <Label Content="Recoil" Grid.Row="2" Grid.Column="0"/>
+                                        <Label Content="{Binding Path=Recoil}" Grid.Row="2" Grid.Column="1"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

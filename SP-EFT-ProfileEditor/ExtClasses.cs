@@ -81,7 +81,6 @@ namespace SP_EFT_ProfileEditor
         public string id { get; set; }
         public string name { get; set; }
         public int progress { get; set; }
-
         public int Max { get; set; }
     }
 
@@ -91,7 +90,6 @@ namespace SP_EFT_ProfileEditor
         public string name { get; set; }
         public int MaxLevel { get; set; }
         public int CurrentLevel { get; set; }
-
         public Dictionary<string, JToken> stages { get; set; }
     }
 
@@ -137,7 +135,6 @@ namespace SP_EFT_ProfileEditor
     {
         public string id { get; set; }
         public string name { get; set; }
-
         public string tpl { get; set; }
     }
 
@@ -189,6 +186,7 @@ namespace SP_EFT_ProfileEditor
         public bool ExtraSizeForceAdd { get; set; }
         public bool ExaminedByDefault { get; set; }
         public bool QuestItem { get; set; }
+        public float Recoil { get; set; }
     }
 
     public class Grid
@@ -237,6 +235,7 @@ namespace SP_EFT_ProfileEditor
     {
         public string Name { get; set; }
         public string Weapon { get; set; }
+        public float Recoil { get; set; }
     }
 
     public class PresetItem
@@ -249,5 +248,16 @@ namespace SP_EFT_ProfileEditor
 
         [JsonProperty("parentId")]
         public string ParentId { get; set; }
+    }
+
+    public class BotType
+    {
+        public Appearance appearance { get; set; }
+    }
+
+    public class Appearance
+    {
+        public string[] head { get; set; }
+        public string[] voice { get; set; }
     }
 }
