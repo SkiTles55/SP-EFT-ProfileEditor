@@ -300,7 +300,23 @@ namespace SP_EFT_ProfileEditor
                         {
                             preset.Weapon = globalLang.Templates.ContainsKey(item.Tpl) ? globalLang.Templates[item.Tpl].Name : item.Tpl;
                             if (itemsDB.ContainsKey(item.Tpl) && itemsDB[item.Tpl].props != null)
-                                preset.Recoil = itemsDB[item.Tpl].props.Recoil;
+                            {
+                                preset.RecoilForceUp = itemsDB[item.Tpl].props.RecoilForceUp;
+                                preset.RecoilForceBack = itemsDB[item.Tpl].props.RecoilForceBack;
+                                preset.Ergonomics = itemsDB[item.Tpl].props.Ergonomics;
+                                preset.CreditsPrice = itemsDB[item.Tpl].props.CreditsPrice;
+                            }
+                        }
+                        else
+                        {
+                            if (itemsDB.ContainsKey(item.Tpl) && itemsDB[item.Tpl].props != null)
+                            {
+                                var recoilMod = ((100f - Math.Abs(itemsDB[item.Tpl].props.Recoil)) / 100f);
+                                preset.RecoilForceUp = (int)((float)preset.RecoilForceUp * recoilMod);
+                                preset.RecoilForceBack = (int)((float)preset.RecoilForceBack * recoilMod);
+                                preset.Ergonomics += itemsDB[item.Tpl].props.Ergonomics;
+                                preset.CreditsPrice += itemsDB[item.Tpl].props.CreditsPrice;
+                            }
                         }
                     }
                     Presets.Add(preset);

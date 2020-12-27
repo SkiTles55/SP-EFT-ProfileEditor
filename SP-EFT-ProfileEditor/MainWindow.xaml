@@ -579,19 +579,47 @@
                                             <RowDefinition/>
                                             <RowDefinition/>
                                             <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="200"/>
                                             <ColumnDefinition/>
                                             <ColumnDefinition MaxWidth="150"/>
                                         </Grid.ColumnDefinitions>
-                                        <Label Content="{Binding Path=Name}" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold" FontSize="14"/>
+                                        <Label Content="{Binding Path=Name}" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14"/>
                                         <Label Content="{Binding Data.locale[tab_mastering_weapon], Source={StaticResource proxy}}" Grid.Row="1" Grid.Column="0"/>
-                                        <Label Content="{Binding Path=Weapon}" Grid.Row="1" Grid.Column="1"/>
-                                        <Button x:Name="PresetExport" Content="{Binding Data.locale[tab_presets_export], Source={StaticResource proxy}}" Grid.Row="1" Grid.Column="2" Margin="5" Click="PresetExport_Click"/>
-                                        <Button x:Name="PresetRemove" Content="{Binding Data.locale[tab_backups_remove], Source={StaticResource proxy}}" Grid.Row="2" Grid.Column="2" Margin="5" Click="PresetRemove_Click"/>
-                                        <Label Content="Recoil" Grid.Row="2" Grid.Column="0"/>
-                                        <Label Content="{Binding Path=Recoil}" Grid.Row="2" Grid.Column="1"/>
+                                        <Label Grid.Row="1" Grid.Column="1">
+                                            <Label.Content>
+                                                <TextBlock TextWrapping="Wrap" Text="{Binding Path=Weapon}"/>
+                                            </Label.Content>
+                                        </Label>
+                                        <Button x:Name="PresetExport" Content="{Binding Data.locale[tab_presets_export], Source={StaticResource proxy}}" Grid.Row="0" Grid.Column="2" Margin="5" Click="PresetExport_Click"/>
+                                        <Button x:Name="PresetRemove" Content="{Binding Data.locale[tab_backups_remove], Source={StaticResource proxy}}" Grid.Row="1" Grid.Column="2" Margin="5" Click="PresetRemove_Click"/>
+                                        <Label Grid.Row="2" Grid.Column="0">
+                                            <Label.Content>
+                                                <TextBlock TextWrapping="Wrap" Text="RecoilForceUp Binding"/>
+                                            </Label.Content>
+                                        </Label>
+                                        <Label Content="{Binding Path=RecoilForceUp}" Grid.Row="2" Grid.Column="1"/>
+                                        <Label Grid.Row="3" Grid.Column="0">
+                                            <Label.Content>
+                                                <TextBlock TextWrapping="Wrap" Text="RecoilForceBack Binding"/>
+                                            </Label.Content>
+                                        </Label>
+                                        <Label Content="{Binding Path=RecoilForceBack}" Grid.Row="3" Grid.Column="1"/>
+                                        <Label Grid.Row="4" Grid.Column="0">
+                                            <Label.Content>
+                                                <TextBlock TextWrapping="Wrap" Text="Ergonomics Binding"/>
+                                            </Label.Content>
+                                        </Label>
+                                        <Label Content="{Binding Path=Ergonomics}" Grid.Row="4" Grid.Column="1"/>
+                                        <Label Grid.Row="5" Grid.Column="0">
+                                            <Label.Content>
+                                                <TextBlock TextWrapping="Wrap" Text="CreditsPrice Binding"/>
+                                            </Label.Content>
+                                        </Label>
+                                        <Label Content="{Binding Path=CreditsPrice}" Grid.Row="5" Grid.Column="1"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
