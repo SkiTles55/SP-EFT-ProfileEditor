@@ -186,7 +186,6 @@ namespace SP_EFT_ProfileEditor
         public bool ExtraSizeForceAdd { get; set; }
         public bool ExaminedByDefault { get; set; }
         public bool QuestItem { get; set; }
-        public int CreditsPrice { get; set; }
         public float Ergonomics { get; set; }
         public int RecoilForceUp { get; set; }
         public int RecoilForceBack { get; set; }
@@ -239,7 +238,6 @@ namespace SP_EFT_ProfileEditor
     {
         public string Name { get; set; }
         public string Weapon { get; set; }
-        public int CreditsPrice { get; set; }
         public float Ergonomics { get; set; }
         public int RecoilForceUp { get; set; }
         public int RecoilForceBack { get; set; }

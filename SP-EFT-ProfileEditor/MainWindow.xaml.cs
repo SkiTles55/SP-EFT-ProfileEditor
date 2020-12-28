@@ -117,9 +117,9 @@ namespace SP_EFT_ProfileEditor
                 backupsGrid.ItemsSource = backups;
             if (examinedItems != null)
                 examinedGrid.ItemsSource = examinedItems;
-            RublesLabel.Text = Lang.characterInventory.Rubles.ToString();
-            EurosLabel.Text = Lang.characterInventory.Euros.ToString();
-            DollarsLabel.Text = Lang.characterInventory.Dollars.ToString();
+            RublesLabel.Text = Lang.characterInventory.Rubles.ToString("N0");
+            EurosLabel.Text = Lang.characterInventory.Euros.ToString("N0");
+            DollarsLabel.Text = Lang.characterInventory.Dollars.ToString("N0");
             if (Lang.characterInventory.InventoryItems != null)
                 stashGrid.ItemsSource = Lang.characterInventory.InventoryItems;
             if (ItemsForAdd != null)
@@ -293,6 +293,7 @@ namespace SP_EFT_ProfileEditor
                 {
                     PresetInfo preset = new PresetInfo();
                     preset.Name = pr.name;
+                    float RecoilDelta = 0;
                     foreach (var obj in pr.items)
                     {
                         var item = JsonConvert.DeserializeObject<PresetItem>(obj.ToString());
@@ -304,21 +305,20 @@ namespace SP_EFT_ProfileEditor
                                 preset.RecoilForceUp = itemsDB[item.Tpl].props.RecoilForceUp;
                                 preset.RecoilForceBack = itemsDB[item.Tpl].props.RecoilForceBack;
                                 preset.Ergonomics = itemsDB[item.Tpl].props.Ergonomics;
-                                preset.CreditsPrice = itemsDB[item.Tpl].props.CreditsPrice;
                             }
                         }
                         else
                         {
                             if (itemsDB.ContainsKey(item.Tpl) && itemsDB[item.Tpl].props != null)
                             {
-                                var recoilMod = ((100f - Math.Abs(itemsDB[item.Tpl].props.Recoil)) / 100f);
-                                preset.RecoilForceUp = (int)((float)preset.RecoilForceUp * recoilMod);
-                                preset.RecoilForceBack = (int)((float)preset.RecoilForceBack * recoilMod);
+                                RecoilDelta += itemsDB[item.Tpl].props.Recoil;
                                 preset.Ergonomics += itemsDB[item.Tpl].props.Ergonomics;
-                                preset.CreditsPrice += itemsDB[item.Tpl].props.CreditsPrice;
                             }
                         }
                     }
+                    RecoilDelta /= 100f;
+                    preset.RecoilForceUp = (int)Math.Round(preset.RecoilForceUp + preset.RecoilForceUp * RecoilDelta);
+                    preset.RecoilForceBack = (int)Math.Round(preset.RecoilForceBack + preset.RecoilForceBack * RecoilDelta);
                     Presets.Add(preset);
                 }
             }
@@ -891,7 +891,7 @@ namespace SP_EFT_ProfileEditor
 
         private async void PresetRemove_Click(object sender, RoutedEventArgs e)
         {
-            if (await this.ShowMessageAsync(Lang.locale["restorebackupdialog_title"], Lang.locale["restorebackupdialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateShow = true, AnimateHide = true }) == MessageDialogResult.Affirmative)
+            if (await this.ShowMessageAsync(Lang.locale["removepresetdialog_title"], Lang.locale["removepresetdialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateShow = true, AnimateHide = true }) == MessageDialogResult.Affirmative)
             {
                 try
                 {
@@ -931,41 +931,48 @@ namespace SP_EFT_ProfileEditor
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Файл JSON (*.json)|*.json|All files (*.*)|*.*";
             openFileDialog.RestoreDirectory = true;
+            openFileDialog.Multiselect = true;
             if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                try
+                int SuccesCount = 0;
+                foreach (var file in openFileDialog.FileNames)
                 {
-                    WeaponPreset weaponPreset = JsonConvert.DeserializeObject<WeaponPreset>(File.ReadAllText(openFileDialog.FileName));
-                    if (weaponPreset.name != null)
+                    try
                     {
-                        if (Lang.Character.WeaponPresets == null) Lang.Character.WeaponPresets = new Dictionary<string, WeaponPreset>();
-                        int count = 1;
-                        string name = weaponPreset.name;
-                        string newname = weaponPreset.name;
-                        while (Lang.Character.WeaponPresets.ContainsKey(newname))
+                        WeaponPreset weaponPreset = JsonConvert.DeserializeObject<WeaponPreset>(File.ReadAllText(file));
+                        if (weaponPreset.name != null)
                         {
-                            string tempFileName = string.Format("{0}({1})", name, count++);
-                            newname = tempFileName;
+                            if (Lang.Character.WeaponPresets == null) Lang.Character.WeaponPresets = new Dictionary<string, WeaponPreset>();
+                            int count = 1;
+                            string name = weaponPreset.name;
+                            string newname = weaponPreset.name;
+                            while (Lang.Character.WeaponPresets.ContainsKey(newname))
+                            {
+                                string tempFileName = string.Format("{0}({1})", name, count++);
+                                newname = tempFileName;
+                            }
+                            if (weaponPreset.name != newname) weaponPreset.name = newname;
+                            List<string> iDs = Lang.Character.WeaponPresets.Values.Select(x => x.id).ToList();
+                            string newId = weaponPreset.id;
+                            while (iDs.Contains(newId))
+                                newId = ExtMethods.generateNewId();
+                            if (weaponPreset.id != newId) weaponPreset.id = newId;
+                            Lang.Character.WeaponPresets.Add(weaponPreset.name, weaponPreset);
+                            SuccesCount++;
                         }
-                        if (weaponPreset.name != newname) weaponPreset.name = newname;
-                        List<string> iDs = Lang.Character.WeaponPresets.Values.Select(x => x.id).ToList();
-                        string newId = weaponPreset.id;
-                        while (iDs.Contains(newId))
-                            newId = ExtMethods.generateNewId();
-                        if (weaponPreset.id != newId) weaponPreset.id = newId;
-                        Lang.Character.WeaponPresets.Add(weaponPreset.name, weaponPreset);
-                        LoadData();
+                        else
+                        {
+                            await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], file + Environment.NewLine + Lang.locale["tab_presets_wrongfile"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_presets_wrongfile"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                        ExtMethods.Log($"PresetImport_Click | {ex.GetType().Name}: {ex.Message}");
+                        await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
                     }
                 }
-                catch (Exception ex)
-                {
-                    ExtMethods.Log($"PresetImport_Click | {ex.GetType().Name}: {ex.Message}");
-                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
-                }
+                if (SuccesCount > 0)
+                    LoadData();
             }
         }
 
@@ -1073,7 +1080,7 @@ namespace SP_EFT_ProfileEditor
                 LoadData();
         }
 
-        private async Task<bool> AddNewItems(string tpl, int count)
+        private Task<bool> AddNewItems(string tpl, int count)
         {
             var mItem = itemsDB[tpl];
             var Stash = getPlayerStashSlotMap();
@@ -1093,8 +1100,8 @@ namespace SP_EFT_ProfileEditor
             int tempslots = mItem.props.Width * mItem.props.Height * stacks;
             if (FreeSlots < tempslots)
             {
-                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
-                return false;
+                _ = this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                return Task.FromResult(false);
             }
             else
             {
@@ -1162,12 +1169,12 @@ namespace SP_EFT_ProfileEditor
                         count -= mItem.props.StackMaxSize;
                     }
                     Lang.Character.Inventory.Items = items.ToArray();
-                    return true;
+                    return Task.FromResult(true);
                 }
                 else
                 {
-                    await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
-                    return false;
+                    _ = this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                    return Task.FromResult(false);
                 }
             }
         }  

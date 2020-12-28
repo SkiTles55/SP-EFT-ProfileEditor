@@ -221,8 +221,13 @@ namespace SP_EFT_ProfileEditor
             ["update_caption"] = "A new version of the program is available. Open the download page?",
             ["tab_presets_title"] = "Presets",
             ["tab_presets_export"] = "Export",
-            ["tab_presets_import"] = "Импорт",
-            ["tab_presets_wrongfile"] = "This file does not contain the weapon assembly"
+            ["tab_presets_import"] = "Import",
+            ["tab_presets_wrongfile"] = "This file does not contain the weapon assembly",
+            ["removepresetdialog_title"] = "Deleting a preset",
+            ["removepresetdialog_caption"] = "Are you sure want to delete this preset?",
+            ["tab_presets_ergonomics"] = "Ergonomics",
+            ["tab_preset_recoilup"] = "Recoil Up",
+            ["tab_preset_recoilback"] = "Recoil Back"
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -330,7 +335,12 @@ namespace SP_EFT_ProfileEditor
             ["tab_presets_title"] = "Vorlagen",
             ["tab_presets_export"] = "Export",
             ["tab_presets_import"] = "Importieren",
-            ["tab_presets_wrongfile"] = "Diese Datei enthält nicht die Waffenbaugruppe"
+            ["tab_presets_wrongfile"] = "Diese Datei enthält nicht die Waffenbaugruppe",
+            ["removepresetdialog_title"] = "Voreinstellung löschen",
+            ["removepresetdialog_caption"] = "Möchten Sie diese Voreinstellung wirklich löschen?",
+            ["tab_presets_ergonomics"] = "Ergonomie",
+            ["tab_preset_recoilup"] = "Vertikaler Rückstoß",
+            ["tab_preset_recoilback"] = "Horizontaler Rückstoß"
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -438,7 +448,12 @@ namespace SP_EFT_ProfileEditor
             ["tab_presets_title"] = "Сборки",
             ["tab_presets_export"] = "Экспорт",
             ["tab_presets_import"] = "Импорт",
-            ["tab_presets_wrongfile"] = "Этот файл не содержит сборку оружия"
+            ["tab_presets_wrongfile"] = "Этот файл не содержит сборку оружия",
+            ["removepresetdialog_title"] = "Удаление сборки",
+            ["removepresetdialog_caption"] = "Вы действительно хотите удалить эту сборку?",
+            ["tab_presets_ergonomics"] = "Эргономика",
+            ["tab_preset_recoilup"] = "Вертикальная отдача",
+            ["tab_preset_recoilback"] = "Горизонтальная отдача"
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -546,7 +561,12 @@ namespace SP_EFT_ProfileEditor
             ["tab_presets_title"] = "Configurations",
             ["tab_presets_export"] = "Exportation",
             ["tab_presets_import"] = "Importer",
-            ["tab_presets_wrongfile"] = "Ce fichier ne contient pas l'assemblage d'arme"
+            ["tab_presets_wrongfile"] = "Ce fichier ne contient pas l'assemblage d'arme",
+            ["removepresetdialog_title"] = "Supprimer un préréglage",
+            ["removepresetdialog_caption"] = "Voulez-vous vraiment supprimer ce préréglage?",
+            ["tab_presets_ergonomics"] = "Ergonomie",
+            ["tab_preset_recoilup"] = "Recul vertical",
+            ["tab_preset_recoilback"] = "Recul horizontal"
         };
     }
 
