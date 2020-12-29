@@ -137,26 +137,41 @@ namespace SP_EFT_ProfileEditor
                     ModItemsWarning.Visibility = Visibility.Visible;
             }
             if (Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
-            {
-                infotab_Voice.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.voice;
-                infotab_Head.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.head;
-            }
+                SetHeadsAndVoices();
             progressDialog.CloseAsync();
+        }
+
+        private void SetHeadsAndVoices()
+        {
+            //infotab_Voice.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.voice;
+            //infotab_Head.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.head.Select(x => globalLang.Customization.ContainsKey(x) ? new KeyValuePair<string, string> (x, globalLang.Customization[x].Name) : new KeyValuePair<string, string>(x, x));
+            //while spt aki have bug with mixing heads
+            List<string> Voices = BotTypes[Lang.Character.Info.Side].appearance.voice.ToList();
+            if (!Voices.Contains(Lang.Character.Info.Voice))
+                Voices.Add(Lang.Character.Info.Voice);
+            infotab_Voice.ItemsSource = Voices;
+            Dictionary<string, string> Heads = new Dictionary<string, string>();
+            foreach (var type in BotTypes.Values)
+                foreach (var head in type.appearance.head)
+                    Heads.Add(head, globalLang.Customization.ContainsKey(head) ? globalLang.Customization[head].Name : head);
+            if (!Heads.ContainsKey(Lang.Character.Customization.Head))
+                Heads.Add(Lang.Character.Customization.Head, Lang.Character.Customization.Head);
+            infotab_Head.ItemsSource = Heads;
         }
 
         private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            serverGlobals = JsonConvert.DeserializeObject<ServerGlobals>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "globals.json")));
-            globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "locales", "global", Lang.options.Language + ".json")));
+            serverGlobals = JsonConvert.DeserializeObject<ServerGlobals>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "globals.json")));
+            globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "locales", "global", Lang.options.Language + ".json")));
             itemsDB = new Dictionary<string, Item>();
-            itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "templates", "items.json")));
+            itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "templates", "items.json")));
             BotTypes = new Dictionary<string, BotType>();
-            BotTypes.Add("Bear", JsonConvert.DeserializeObject<BotType>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "bots", "types", "bear.json"))));
-            BotTypes.Add("Usec", JsonConvert.DeserializeObject<BotType>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "bots", "types", "usec.json"))));
+            BotTypes.Add("Bear", JsonConvert.DeserializeObject<BotType>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "bots", "types", "bear.json"))));
+            BotTypes.Add("Usec", JsonConvert.DeserializeObject<BotType>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "bots", "types", "usec.json"))));
             if (Lang.Character.Quests != null)
             {
                 Quests = new List<Quest>();
-                Dictionary<string, QuestData> qData = JsonConvert.DeserializeObject<Dictionary<string, QuestData>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "templates", "quests.json")));
+                Dictionary<string, QuestData> qData = JsonConvert.DeserializeObject<Dictionary<string, QuestData>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "templates", "quests.json")));
                 List<Character.Character_Quests> forAdd = new List<Character.Character_Quests>();
                 foreach (var qd in qData.Values)
                 {
@@ -235,7 +250,7 @@ namespace SP_EFT_ProfileEditor
             if (Lang.Character.Hideout != null)
             {
                 HideoutAreas = new List<CharacterHideoutArea>();
-                var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "hideout", "areas.json")));
+                var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "hideout", "areas.json")));
                 foreach (var area in areas)
                     HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = globalLang.Interface[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level, stages = area.stages });
             }
@@ -273,7 +288,7 @@ namespace SP_EFT_ProfileEditor
             if (Lang.Character.Suits != null)
             {
                 Suits = new List<SuitInfo>();
-                foreach (var s in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "packages", "eft-database", "db", "traders")).Where(x => File.Exists(Path.Combine(x, "suits.json"))))
+                foreach (var s in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "traders")).Where(x => File.Exists(Path.Combine(x, "suits.json"))))
                 {
                     var temp = JsonConvert.DeserializeObject<TraderSuit[]>(File.ReadAllText(Path.Combine(s, "suits.json")));
                     if (temp != null)
@@ -477,14 +492,13 @@ namespace SP_EFT_ProfileEditor
             if (!IsLoaded)
                return;
             if (Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
-            {
-                infotab_Voice.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.voice;
-                infotab_Head.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.head;
-            }
-            if (!infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
-                infotab_Voice.SelectedIndex = 0;
-            if (!infotab_Head.Items.Contains(infotab_Head.SelectedItem))
-                infotab_Head.SelectedIndex = 0;
+                SetHeadsAndVoices();
+            //if (!infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
+            //    infotab_Voice.SelectedIndex = 0;
+            //if (infotab_Head.SelectedItem == null)
+            //    infotab_Head.SelectedIndex = 0;
+            //if (!infotab_Head.Items.Contains(infotab_Head.SelectedItem))
+            //    infotab_Head.SelectedIndex = 0; return this after fix mixing head bug
         }
 
         private void infotab_Level_TextChanged(object sender, TextChangedEventArgs e)

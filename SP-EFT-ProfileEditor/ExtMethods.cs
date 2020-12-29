@@ -13,11 +13,12 @@ namespace SP_EFT_ProfileEditor
             if (string.IsNullOrWhiteSpace(sptPath)) return false;
             if (!Directory.Exists(sptPath)) return false;
             if (!File.Exists(Path.Combine(sptPath, "Server.exe"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, "packages"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, @"packages\eft-database"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, @"packages\eft-database\db"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, @"packages\eft-database\db\locales"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, @"packages\eft-database\db\templates"))) return false;
+            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data"))) return false;
+            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data", "Server"))) return false;
+            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data", "Server", "eft-database"))) return false;
+            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data", "Server", "eft-database", "db"))) return false;
+            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data", "Server", "eft-database", "db", "locales"))) return false;
+            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data", "Server", "eft-database", "db", "templates"))) return false;
             if (!Directory.Exists(Path.Combine(sptPath, "user"))) return false;
 
             return true;

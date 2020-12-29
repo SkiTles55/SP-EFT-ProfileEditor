@@ -51,6 +51,9 @@ namespace SP_EFT_ProfileEditor
 
         [JsonProperty("templates")]
         public Dictionary<string, Template> Templates { get; set; }
+
+        [JsonProperty("customization")]
+        public Dictionary<string, Template> Customization { get; set; }
     }
 
     public class Template
