@@ -27,13 +27,12 @@ namespace SP_EFT_ProfileEditor
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        MyWorker Worker;
         private GlobalLang globalLang;
         private bool _shutdown;
         private bool _modItemNotif = false;
         private FolderBrowserDialog folderBrowserDialogSPT;
         private MainData Lang = new MainData();
-        private BackgroundWorker LoadDataWorker;
-        private ProgressDialogController progressDialog;
         private string lastdata = null;
         private List<BackupFile> backups;
         private List<SkillInfo> commonSkills;
@@ -43,7 +42,6 @@ namespace SP_EFT_ProfileEditor
         private List<Quest> Quests;
         private Dictionary<string, Item> itemsDB;
         private List<ExaminedItem> examinedItems;
-        private BackgroundWorker SaveProfileWorker;
         private Dictionary<string, Dictionary<string, string>> ItemsForAdd;
         private ServerGlobals serverGlobals;
         private List<SuitInfo> Suits;
@@ -90,55 +88,7 @@ namespace SP_EFT_ProfileEditor
             infotab_Side.ItemsSource = new List<string> { "Bear", "Usec" };
             QuestsStatusesBox.ItemsSource = new List<string> { "Locked", "AvailableForStart", "Started", "Fail", "AvailableForFinish", "Success" };
             QuestsStatusesBox.SelectedIndex = 0;
-            LoadDataWorker = new BackgroundWorker();
-            LoadDataWorker.DoWork += LoadDataWorker_DoWork;
-            LoadDataWorker.RunWorkerCompleted += LoadDataWorker_RunWorkerCompleted;
-            SaveProfileWorker = new BackgroundWorker();
-            SaveProfileWorker.DoWork += SaveProfileWorker_DoWork;
-            SaveProfileWorker.RunWorkerCompleted += SaveProfileWorker_RunWorkerCompleted;
-        }
-
-        private void LoadDataWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            MoneysPanel.IsEnabled = true;
-            AddItemsGrid.IsEnabled = true;
-            ModItemsWarning.Visibility = Visibility.Hidden;
-            if (traderInfos != null)
-                merchantsGrid.ItemsSource = traderInfos;
-            if (Quests != null)
-                questsGrid.ItemsSource = Quests;
-            if (HideoutAreas != null)
-                hideoutGrid.ItemsSource = HideoutAreas;
-            if (commonSkills != null)
-                skillsGrid.ItemsSource = commonSkills;
-            if (masteringSkills != null)
-                masteringsGrid.ItemsSource = masteringSkills;
-            if (backups != null)
-                backupsGrid.ItemsSource = backups;
-            if (examinedItems != null)
-                examinedGrid.ItemsSource = examinedItems;
-            RublesLabel.Text = Lang.characterInventory.Rubles.ToString("N0");
-            EurosLabel.Text = Lang.characterInventory.Euros.ToString("N0");
-            DollarsLabel.Text = Lang.characterInventory.Dollars.ToString("N0");
-            if (Lang.characterInventory.InventoryItems != null)
-                stashGrid.ItemsSource = Lang.characterInventory.InventoryItems;
-            if (ItemsForAdd != null)
-                ItemCatSelector.ItemsSource = ItemsForAdd.OrderBy(x => x.Key);
-            ItemCatSelector.SelectedIndex = 0;
-            if (Suits != null)
-                suitsGrid.ItemsSource = Suits;
-            if (Presets != null)
-                PresetsList.ItemsSource = Presets;
-            if (Lang.characterInventory.InventoryItems != null && Lang.characterInventory.InventoryItems.Any(x => !itemsDB.ContainsKey(x.tpl)))
-            {
-                MoneysPanel.IsEnabled = false;
-                AddItemsGrid.IsEnabled = false;
-                if (!_modItemNotif)
-                    ModItemsWarning.Visibility = Visibility.Visible;
-            }
-            if (Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
-                SetHeadsAndVoices();
-            progressDialog.CloseAsync();
+            Worker = new MyWorker();
         }
 
         private void SetHeadsAndVoices()
@@ -159,7 +109,7 @@ namespace SP_EFT_ProfileEditor
             infotab_Head.ItemsSource = Heads;
         }
 
-        private void LoadDataWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void LoadData()
         {
             serverGlobals = JsonConvert.DeserializeObject<ServerGlobals>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "globals.json")));
             globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "locales", "global", Lang.options.Language + ".json")));
@@ -338,6 +288,47 @@ namespace SP_EFT_ProfileEditor
                 }
             }
             LoadBackups();
+            Dispatcher.Invoke(() => 
+            {
+                MoneysPanel.IsEnabled = true;
+                AddItemsGrid.IsEnabled = true;
+                ModItemsWarning.Visibility = Visibility.Hidden;
+                if (traderInfos != null)
+                    merchantsGrid.ItemsSource = traderInfos;
+                if (Quests != null)
+                    questsGrid.ItemsSource = Quests;
+                if (HideoutAreas != null)
+                    hideoutGrid.ItemsSource = HideoutAreas;
+                if (commonSkills != null)
+                    skillsGrid.ItemsSource = commonSkills;
+                if (masteringSkills != null)
+                    masteringsGrid.ItemsSource = masteringSkills;
+                if (backups != null)
+                    backupsGrid.ItemsSource = backups;
+                if (examinedItems != null)
+                    examinedGrid.ItemsSource = examinedItems;
+                RublesLabel.Text = Lang.characterInventory.Rubles.ToString("N0");
+                EurosLabel.Text = Lang.characterInventory.Euros.ToString("N0");
+                DollarsLabel.Text = Lang.characterInventory.Dollars.ToString("N0");
+                if (Lang.characterInventory.InventoryItems != null)
+                    stashGrid.ItemsSource = Lang.characterInventory.InventoryItems;
+                if (ItemsForAdd != null)
+                    ItemCatSelector.ItemsSource = ItemsForAdd.OrderBy(x => x.Key);
+                ItemCatSelector.SelectedIndex = 0;
+                if (Suits != null)
+                    suitsGrid.ItemsSource = Suits;
+                if (Presets != null)
+                    PresetsList.ItemsSource = Presets;
+                if (Lang.characterInventory.InventoryItems != null && Lang.characterInventory.InventoryItems.Any(x => !itemsDB.ContainsKey(x.tpl)))
+                {
+                    MoneysPanel.IsEnabled = false;
+                    AddItemsGrid.IsEnabled = false;
+                    if (!_modItemNotif)
+                        ModItemsWarning.Visibility = Visibility.Visible;
+                }
+                if (Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
+                    SetHeadsAndVoices();
+            });
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -365,7 +356,7 @@ namespace SP_EFT_ProfileEditor
             if (readyToLoad && Lang.Character != null)
             {
                 lastdata = Lang.options.EftServerPath + Lang.options.Language + Lang.Character.Aid;
-                LoadData();
+                PrepareForLoadData();
             }
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
             Title += string.Format(" {0}.{1}", version.Major, version.Minor);
@@ -394,14 +385,14 @@ namespace SP_EFT_ProfileEditor
                 Process.Start(new ProcessStartInfo("https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/latest"));
         }
 
-        private async void LoadData()
+        private void PrepareForLoadData()
         {
             var tempProcessList = Process.GetProcessesByName("Server");
             if (tempProcessList.Where(x => x.MainModule.FileName == Path.Combine(Lang.options.EftServerPath, "Server.exe")).Count() > 0)
                 ShutdownCozServerRunned();
-            progressDialog = await this.ShowProgressAsync(Lang.locale["progressdialog_title"], Lang.locale["progressdialog_caption"]);
-            progressDialog.SetIndeterminate();
-            LoadDataWorker.RunWorkerAsync();
+            Worker.ErrorTitle = Lang.locale["invalid_server_location_caption"];
+            Worker.ErrorConfirm = Lang.locale["saveprofiledialog_ok"];
+            Worker.AddAction(new WorkerTask { Action = LoadData, Title = Lang.locale["progressdialog_title"] , Description = Lang.locale["progressdialog_caption"] });
         }
 
         private void langSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -416,17 +407,17 @@ namespace SP_EFT_ProfileEditor
         {
             Lang.SaveOptions();
             Lang = MainData.Load();
-            DataContext = Lang;
+            Dispatcher.Invoke(() => { DataContext = Lang; });            
             CheckPockets();
         }
 
         private void CheckPockets()
         {
             if (Lang.Character == null || Lang.Character.Inventory == null) return;
-            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").Count() > 0) 
-                BigPocketsSwitcher.IsOn = false;
+            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").Count() > 0)
+                Dispatcher.Invoke(() => { BigPocketsSwitcher.IsOn = false; });
             if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
-                BigPocketsSwitcher.IsOn = true;
+                Dispatcher.Invoke(() => { BigPocketsSwitcher.IsOn = true; });
         }
 
         private async void serverSelect_Click(object sender, RoutedEventArgs e)
@@ -480,7 +471,7 @@ namespace SP_EFT_ProfileEditor
             SettingsBorder.Visibility = Visibility.Collapsed;
             if (lastdata != Lang.options.EftServerPath + Lang.options.Language + Lang.Character?.Aid)
             {
-                if (Lang.Character != null) LoadData();
+                if (Lang.Character != null) PrepareForLoadData();
                 lastdata = Lang.options.EftServerPath + Lang.options.Language + Lang.Character?.Aid;
             }
         }
@@ -608,7 +599,7 @@ namespace SP_EFT_ProfileEditor
             if (Lang.Character.Quests == null) return;
             foreach (var q in Lang.Character.Quests)
                 q.Status = QuestsStatusesBox.SelectedItem.ToString();
-            LoadData();
+            PrepareForLoadData();
         }
 
         private async void ResetProfileButton_Click(object sender, RoutedEventArgs e)
@@ -616,7 +607,7 @@ namespace SP_EFT_ProfileEditor
             if (await this.ShowMessageAsync(Lang.locale["reloadprofiledialog_title"], Lang.locale["reloadprofiledialog_caption"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateHide = true, AnimateShow = true }) == MessageDialogResult.Affirmative)
             {
                 SaveAndReload();
-                LoadData();
+                PrepareForLoadData();
             }
         }
 
@@ -625,7 +616,7 @@ namespace SP_EFT_ProfileEditor
             if (HideoutAreas == null) return;
             foreach (var a in Lang.Character.Hideout.Areas)
                 a.Level = HideoutAreas.Where(x => x.type == a.Type).FirstOrDefault().MaxLevel;
-            LoadData();
+            PrepareForLoadData();
         }
 
         private void ExamineAllButton_Click(object sender, RoutedEventArgs e)
@@ -634,7 +625,7 @@ namespace SP_EFT_ProfileEditor
             foreach (var item in itemsDB.Where(x => x.Value.parent != null && x.Value.type == "Item" && !x.Value.props.ExaminedByDefault && examinedItems.Where(c => c.id == x.Key).Count() < 1))
                 if (globalLang.Templates.ContainsKey(item.Key))
                     Lang.Character.Encyclopedia.Add(item.Key, true);
-            LoadData();
+            PrepareForLoadData();
         }
 
         private void SkillsExpButton_Click(object sender, RoutedEventArgs e)
@@ -642,7 +633,7 @@ namespace SP_EFT_ProfileEditor
             if (commonSkills == null) return;
             foreach (var exp in Lang.Character.Skills.Common.Where(x => globalLang.Interface.ContainsKey(x.Id)))
                 exp.Progress = (float)allskill_exp.Value;
-            LoadData();
+            PrepareForLoadData();
         }
 
         private void MasteringsExpButton_Click(object sender, RoutedEventArgs e)
@@ -650,7 +641,7 @@ namespace SP_EFT_ProfileEditor
             if (masteringSkills == null) return;
             foreach (var ms in Lang.Character.Skills.Mastering)
                 ms.Progress = (int)allmastering_exp.Value <= masteringSkills.Where(x => x.id == ms.Id).FirstOrDefault().Max ? (int)allmastering_exp.Value : masteringSkills.Where(x => x.id == ms.Id).FirstOrDefault().Max;
-            LoadData();
+            PrepareForLoadData();
         }
 
         private void MerchantsMaximumButton_Click(object sender, RoutedEventArgs e)
@@ -664,24 +655,10 @@ namespace SP_EFT_ProfileEditor
                 if (tr.Value.CurrentSalesSum < max.Value.MinSalesSum + 1000) tr.Value.CurrentSalesSum = max.Value.MinSalesSum + 1000;
                 if (tr.Value.CurrentStanding < max.Value.MinStanding + 0.01f) tr.Value.CurrentStanding = max.Value.MinStanding + 0.01f;
             }
-            LoadData();
+            PrepareForLoadData();
         }
 
-        private async void SaveProfileWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            await progressDialog.CloseAsync();
-            if (e.Error != null)
-            {
-                await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], e.Error.Message, MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
-                ExtMethods.Log($"SaveProfileButton_Click | {e.Error.Message}");
-            }
-            else
-                await this.ShowMessageAsync(Lang.locale["saveprofiledialog_title"], Lang.locale["saveprofiledialog_caption"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateHide = true, AnimateShow = true });
-            SaveAndReload();
-            LoadData();
-        }
-
-        private void SaveProfileWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void SaveProfile()
         {
             JsonSerializerSettings seriSettings = new JsonSerializerSettings { Formatting = Formatting.Indented };
             string profilepath = Path.Combine(Lang.options.EftServerPath, "user", "profiles", Lang.options.DefaultProfile + ".json");
@@ -821,6 +798,8 @@ namespace SP_EFT_ProfileEditor
             File.Copy(profilepath, backupfile, true);
             string json = JsonConvert.SerializeObject(jobject, seriSettings);
             File.WriteAllText(profilepath, json);
+            SaveAndReload();
+            PrepareForLoadData();
 
             void ChangeStash(string tpl)
             {
@@ -838,11 +817,15 @@ namespace SP_EFT_ProfileEditor
             }
         }
 
-        private async void SaveProfileButton_Click(object sender, RoutedEventArgs e)
+        private void SaveProfileButton_Click(object sender, RoutedEventArgs e)
         {
-            progressDialog = await this.ShowProgressAsync(Lang.locale["progressdialog_title"], Lang.locale["saveprofiledialog_title"]);
-            progressDialog.SetIndeterminate();
-            SaveProfileWorker.RunWorkerAsync();
+            Worker.AddAction(new WorkerTask 
+            { 
+                Action = SaveProfile, 
+                Title = Lang.locale["progressdialog_title"], 
+                Description = Lang.locale["saveprofiledialog_title"], 
+                WorkerNotification = new WorkerNotification { NotificationTitle = Lang.locale["saveprofiledialog_title"], NotificationDescription = Lang.locale["saveprofiledialog_caption"] } 
+            });
         }
 
         private void LoadBackups()
@@ -858,11 +841,6 @@ namespace SP_EFT_ProfileEditor
                 }
             }
             if (backups.Count() > 1) backups = backups.OrderByDescending(x => x.date).ToList();
-            if (!LoadDataWorker.IsBusy)
-            {
-                backupsGrid.ItemsSource = null;
-                backupsGrid.ItemsSource = backups;
-            }
         }
 
         private async void backupRemove_Click(object sender, RoutedEventArgs e)
@@ -899,7 +877,7 @@ namespace SP_EFT_ProfileEditor
                     await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
                 } 
                 SaveAndReload();
-                LoadData();
+                PrepareForLoadData();
             }
         }
 
@@ -986,7 +964,7 @@ namespace SP_EFT_ProfileEditor
                     }
                 }
                 if (SuccesCount > 0)
-                    LoadData();
+                    PrepareForLoadData();
             }
         }
 
@@ -1014,7 +992,7 @@ namespace SP_EFT_ProfileEditor
                         toDo.Remove(toDo.ElementAt(0));
                     }
                     Lang.Character.Inventory.Items = items.ToArray();
-                    LoadData();
+                    PrepareForLoadData();
                 }                
             }
         }
@@ -1046,7 +1024,7 @@ namespace SP_EFT_ProfileEditor
                     }
                 }
                 Lang.Character.Inventory.Items = items.ToArray();
-                LoadData();
+                PrepareForLoadData();
             }
         }
 
@@ -1075,7 +1053,7 @@ namespace SP_EFT_ProfileEditor
             if (AddMoneys.ShowDialog() == true)
             {
                 if (AddNewItems(moneytpl, AddMoneys.MoneyCount).Result)
-                    LoadData();
+                    PrepareForLoadData();
             }
         }
 
@@ -1091,7 +1069,7 @@ namespace SP_EFT_ProfileEditor
             var item = itemsDB[ItemIdSelector.SelectedValue.ToString()];
             int Amount = Convert.ToInt32(ItemAddAmount.Text);
             if (AddNewItems(item.id, Amount).Result)
-                LoadData();
+                PrepareForLoadData();
         }
 
         private Task<bool> AddNewItems(string tpl, int count)

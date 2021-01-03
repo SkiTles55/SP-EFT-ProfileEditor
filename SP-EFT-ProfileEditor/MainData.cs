@@ -69,6 +69,7 @@ namespace SP_EFT_ProfileEditor
             {
                 var Pr = JsonConvert.DeserializeObject<Profile>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")));
                 lang.Character = Pr.characters?.pmc;
+                if (lang.Character == null) lang.Character = new Character();
                 lang.Character.Suits = Pr.suits?.ToList();
                 lang.Character.WeaponPresets = Pr.weaponbuilds;
             }
