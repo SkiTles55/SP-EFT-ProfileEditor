@@ -1,9 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -55,26 +58,35 @@ namespace SP_EFT_ProfileEditor
             if (needReSave)
                 File.WriteAllText(Path.Combine(LangPath, $"{eOptions.Language}.json"), JsonConvert.SerializeObject(Locale, Formatting.Indented));
             MainData lang = new MainData { locale = Locale, options = eOptions, characterInventory = new CharacterInventory { Rubles = 0, Euros = 0, Dollars = 0 } };
-            if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !ExtMethods.PathIsEftServerBase(eOptions.EftServerPath))
-                eOptions.EftServerPath = null;
-            if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !string.IsNullOrEmpty(eOptions.EftServerPath) && !File.Exists(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")))
-                eOptions.DefaultProfile = null;
-            if (!string.IsNullOrEmpty(eOptions.EftServerPath) && ExtMethods.ServerHaveProfiles(eOptions.EftServerPath))
+
+            try
             {
-                lang.Profiles = Directory.GetFiles(eOptions.EftServerPath + "\\user\\profiles").Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
-                if (lang.Profiles.Count > 0 && (string.IsNullOrEmpty(eOptions.DefaultProfile) || !lang.Profiles.Contains(eOptions.DefaultProfile)))
-                    eOptions.DefaultProfile = lang.Profiles.FirstOrDefault();
+                if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !ExtMethods.PathIsEftServerBase(eOptions.EftServerPath))
+                    eOptions.EftServerPath = null;
+                if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !string.IsNullOrEmpty(eOptions.EftServerPath) && !File.Exists(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")))
+                    eOptions.DefaultProfile = null;
+                if (!string.IsNullOrEmpty(eOptions.EftServerPath) && ExtMethods.ServerHaveProfiles(eOptions.EftServerPath))
+                {
+                    lang.Profiles = Directory.GetFiles(eOptions.EftServerPath + "\\user\\profiles").Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
+                    if (lang.Profiles.Count > 0 && (string.IsNullOrEmpty(eOptions.DefaultProfile) || !lang.Profiles.Contains(eOptions.DefaultProfile)))
+                        eOptions.DefaultProfile = lang.Profiles.FirstOrDefault();
+                }
+                if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !string.IsNullOrEmpty(eOptions.DefaultProfile))
+                {
+                    var Pr = JsonConvert.DeserializeObject<Profile>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")));
+                    lang.Character = Pr.characters?.pmc;
+                    if (lang.Character == null) lang.Character = new Character();
+                    lang.Character.Suits = Pr.suits?.ToList();
+                    lang.Character.WeaponPresets = Pr.weaponbuilds;
+                }
+                if (lang.Character != null && lang.Character.Info != null && lang.Character.Inventory != null && lang.Character.TraderStandings != null && lang.Character.Skills != null)
+                    lang.ProfileHash = JsonConvert.SerializeObject(lang.Character).ToString().GetHashCode();
             }
-            if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !string.IsNullOrEmpty(eOptions.DefaultProfile))
+            catch (Exception ex)
             {
-                var Pr = JsonConvert.DeserializeObject<Profile>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")));
-                lang.Character = Pr.characters?.pmc;
-                if (lang.Character == null) lang.Character = new Character();
-                lang.Character.Suits = Pr.suits?.ToList();
-                lang.Character.WeaponPresets = Pr.weaponbuilds;
+                DialogManager.ShowMessageAsync(Application.Current.MainWindow as MetroWindow, lang.locale["invalid_server_location_caption"], $"{ex.GetType().Name}: {ex.Message}", MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                ExtMethods.Log($"Error loading profile: {ex.GetType().Name}: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
             }
-            if (lang.Character != null && lang.Character.Info != null && lang.Character.Inventory != null && lang.Character.TraderStandings != null && lang.Character.Skills != null)
-                lang.ProfileHash = JsonConvert.SerializeObject(lang.Character).ToString().GetHashCode();
             return lang;
         }
 

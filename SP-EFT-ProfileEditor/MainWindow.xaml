@@ -696,7 +696,7 @@
                 </StackPanel>
             </TabItem>
         </TabControl>
-        <StackPanel Margin="10,0,10,5" Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+        <StackPanel Margin="10,0,10,5" Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" Visibility="{Binding Path=Character, Converter={StaticResource ProfileVisibilityConverter}}">
             <Button x:Name="ResetProfileButton" Content="{Binding locale[button_reloadprofile]}" Margin="10,5,5,0" Width="250" Click="ResetProfileButton_Click">
                 <Button.ContentTemplate>
                     <DataTemplate>

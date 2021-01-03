@@ -14,11 +14,11 @@ using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
-using System.Diagnostics;
 using System.Windows.Navigation;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Net;
+using System.Diagnostics;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -463,7 +463,7 @@ namespace SP_EFT_ProfileEditor
             if (selectedAccent.Name == ThemeManager.Current.DetectTheme(this).DisplayName) return;
             ThemeManager.Current.ChangeTheme(this, selectedAccent.Scheme);
             Lang.options.ColorScheme = selectedAccent.Scheme;
-            SaveAndReload();
+            Lang.SaveOptions();
         }
 
         private void TabSettingsClose_Click(object sender, RoutedEventArgs e)
@@ -482,7 +482,7 @@ namespace SP_EFT_ProfileEditor
         {
             if (!IsLoaded)
                return;
-            if (Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
+            if (Lang.Character != null && Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
                 SetHeadsAndVoices();
             //if (!infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
             //    infotab_Voice.SelectedIndex = 0;
@@ -1052,9 +1052,19 @@ namespace SP_EFT_ProfileEditor
             };
             if (AddMoneys.ShowDialog() == true)
             {
-                if (AddNewItems(moneytpl, AddMoneys.MoneyCount).Result)
-                    PrepareForLoadData();
+                int count = AddMoneys.MoneyCount;
+                Worker.AddAction(new WorkerTask
+                {
+                    Action = () =>
+                    {
+                        if (AddNewItems(moneytpl, count).Result)
+                            PrepareForLoadData();
+                        return;
+                    }
+                });
             }
+            
+            
         }
 
         private void ShowRublesAddDialog(object sender, RoutedEventArgs e) => AddMoneyDialog(moneyRub);
@@ -1068,8 +1078,20 @@ namespace SP_EFT_ProfileEditor
             if (ItemIdSelector.SelectedValue == null) return;
             var item = itemsDB[ItemIdSelector.SelectedValue.ToString()];
             int Amount = Convert.ToInt32(ItemAddAmount.Text);
-            if (AddNewItems(item.id, Amount).Result)
-                PrepareForLoadData();
+
+            Worker.AddAction(new WorkerTask
+            {
+                Action = () =>
+                {
+                    if (AddNewItems(item.id, Amount).Result)
+                        PrepareForLoadData();
+                    return;
+                }
+            });
+
+
+            //if (AddNewItems(item.id, Amount).Result)
+            //    PrepareForLoadData();
         }
 
         private Task<bool> AddNewItems(string tpl, int count)
@@ -1092,7 +1114,10 @@ namespace SP_EFT_ProfileEditor
             int tempslots = mItem.props.Width * mItem.props.Height * stacks;
             if (FreeSlots < tempslots)
             {
-                _ = this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                Dispatcher.Invoke(() => 
+                {
+                    _ = this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                });                
                 return Task.FromResult(false);
             }
             else
@@ -1165,7 +1190,10 @@ namespace SP_EFT_ProfileEditor
                 }
                 else
                 {
-                    _ = this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                    Dispatcher.Invoke(() =>
+                    {
+                        _ = this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
+                    });                    
                     return Task.FromResult(false);
                 }
             }
