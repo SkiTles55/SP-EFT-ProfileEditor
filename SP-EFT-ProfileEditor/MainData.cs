@@ -58,22 +58,21 @@ namespace SP_EFT_ProfileEditor
             if (needReSave)
                 File.WriteAllText(Path.Combine(LangPath, $"{eOptions.Language}.json"), JsonConvert.SerializeObject(Locale, Formatting.Indented));
             MainData lang = new MainData { locale = Locale, options = eOptions, characterInventory = new CharacterInventory { Rubles = 0, Euros = 0, Dollars = 0 } };
-
             try
             {
-                if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !ExtMethods.PathIsEftServerBase(eOptions.EftServerPath))
+                if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !ExtMethods.PathIsEftServerBase(eOptions))
                     eOptions.EftServerPath = null;
-                if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !string.IsNullOrEmpty(eOptions.EftServerPath) && !File.Exists(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")))
+                if (!string.IsNullOrEmpty(eOptions.DefaultProfile) && !string.IsNullOrEmpty(eOptions.EftServerPath) && !File.Exists(Path.Combine(eOptions.EftServerPath, eOptions.DirsList["dir_profiles"], eOptions.DefaultProfile + ".json")))
                     eOptions.DefaultProfile = null;
-                if (!string.IsNullOrEmpty(eOptions.EftServerPath) && ExtMethods.ServerHaveProfiles(eOptions.EftServerPath))
+                if (!string.IsNullOrEmpty(eOptions.EftServerPath) && ExtMethods.ServerHaveProfiles(eOptions))
                 {
-                    lang.Profiles = Directory.GetFiles(eOptions.EftServerPath + "\\user\\profiles").Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
+                    lang.Profiles = Directory.GetFiles(Path.Combine(eOptions.EftServerPath, eOptions.DirsList["dir_profiles"])).Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
                     if (lang.Profiles.Count > 0 && (string.IsNullOrEmpty(eOptions.DefaultProfile) || !lang.Profiles.Contains(eOptions.DefaultProfile)))
                         eOptions.DefaultProfile = lang.Profiles.FirstOrDefault();
                 }
                 if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !string.IsNullOrEmpty(eOptions.DefaultProfile))
                 {
-                    var Pr = JsonConvert.DeserializeObject<Profile>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, "user\\profiles", eOptions.DefaultProfile + ".json")));
+                    var Pr = JsonConvert.DeserializeObject<Profile>(File.ReadAllText(Path.Combine(eOptions.EftServerPath, eOptions.DirsList["dir_profiles"], eOptions.DefaultProfile + ".json")));
                     lang.Character = Pr.characters?.pmc;
                     if (lang.Character == null) lang.Character = new Character();
                     lang.Character.Suits = Pr.suits?.ToList();
@@ -93,7 +92,25 @@ namespace SP_EFT_ProfileEditor
         private static PEOptions CreateOptions()
         {
             if (!File.Exists(PeoPath))
-                return new PEOptions();
+                return new PEOptions 
+                { 
+                    DirsList = new Dictionary<string, string> 
+                    {
+                        ["dir_globals"] = "Aki_Data\\Server\\eft-database\\db\\locales\\global",
+                        ["dir_traders"] = "Aki_Data\\Server\\eft-database\\db\\traders",
+                        ["dir_profiles"] = "user\\profiles"
+                    },
+                    FilesList = new Dictionary<string, string>
+                    {
+                        ["file_globals"] = "Aki_Data\\Server\\eft-database\\db\\globals.json",
+                        ["file_items"] = "Aki_Data\\Server\\eft-database\\db\\templates\\items.json",
+                        ["file_quests"] = "Aki_Data\\Server\\eft-database\\db\\templates\\quests.json",
+                        ["file_usec"] = "Aki_Data\\Server\\eft-database\\db\\bots\\types\\usec.json",
+                        ["file_bear"] = "Aki_Data\\Server\\eft-database\\db\\bots\\types\\bear.json",
+                        ["file_areas"] = "Aki_Data\\Server\\eft-database\\db\\hideout\\areas.json",
+                        ["file_serverexe"] = "Server.exe"
+                    }
+                };
 
             string json = File.ReadAllText(PeoPath);
             PEOptions peo = null;
@@ -199,6 +216,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_stash_amount"] = "Amount",
             ["tab_stash_add"] = "Add",
             ["tab_stash_remove"] = "Remove all",
+            ["tab_stash_fir"] = "Item found in raid",
             ["tab_backups_title"] = "Backups",
             ["tab_backups_date"] = "Date",
             ["tab_backups_actions"] = "Actions",
@@ -312,6 +330,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_stash_amount"] = "Menge",
             ["tab_stash_add"] = "Hinzufügen",
             ["tab_stash_remove"] = "Alles entfernen",
+            ["tab_stash_fir"] = "Im Raid gefundener Gegenstand",
             ["tab_backups_title"] = "Backups",
             ["tab_backups_date"] = "Datum",
             ["tab_backups_actions"] = "Aktionen",
@@ -425,6 +444,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_stash_amount"] = "Количество",
             ["tab_stash_add"] = "Добавить",
             ["tab_stash_remove"] = "Удалить все",
+            ["tab_stash_fir"] = "Предмет найденный в рейде",
             ["tab_backups_title"] = "Бэкапы",
             ["tab_backups_date"] = "Дата",
             ["tab_backups_actions"] = "Действия",
@@ -538,6 +558,7 @@ namespace SP_EFT_ProfileEditor
             ["tab_stash_amount"] = "Montant",
             ["tab_stash_add"] = "Ajouter",
             ["tab_stash_remove"] = "Enlever tout",
+            ["tab_stash_fir"] = "Objet trouvé en raid",
             ["tab_backups_title"] = "Sauvegardes",
             ["tab_backups_date"] = "Date",
             ["tab_backups_actions"] = "Actions",
@@ -592,5 +613,9 @@ namespace SP_EFT_ProfileEditor
         public string DefaultProfile { get; set; }
 
         public string ColorScheme { get; set; }
+
+        public Dictionary<string, string> DirsList { get; set; }
+
+        public Dictionary<string, string> FilesList { get; set; }
     }
 }

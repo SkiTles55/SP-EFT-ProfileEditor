@@ -111,17 +111,17 @@ namespace SP_EFT_ProfileEditor
 
         private void LoadData()
         {
-            serverGlobals = JsonConvert.DeserializeObject<ServerGlobals>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "globals.json")));
-            globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "locales", "global", Lang.options.Language + ".json")));
+            serverGlobals = JsonConvert.DeserializeObject<ServerGlobals>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, Lang.options.FilesList["file_globals"])));
+            globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, Lang.options.DirsList["dir_globals"], Lang.options.Language + ".json")));
             itemsDB = new Dictionary<string, Item>();
-            itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "templates", "items.json")));
+            itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, Lang.options.FilesList["file_items"])));
             BotTypes = new Dictionary<string, BotType>();
-            BotTypes.Add("Bear", JsonConvert.DeserializeObject<BotType>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "bots", "types", "bear.json"))));
-            BotTypes.Add("Usec", JsonConvert.DeserializeObject<BotType>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "bots", "types", "usec.json"))));
+            BotTypes.Add("Bear", JsonConvert.DeserializeObject<BotType>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, Lang.options.FilesList["file_bear"]))));
+            BotTypes.Add("Usec", JsonConvert.DeserializeObject<BotType>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, Lang.options.FilesList["file_usec"]))));
             if (Lang.Character.Quests != null)
             {
                 Quests = new List<Quest>();
-                Dictionary<string, QuestData> qData = JsonConvert.DeserializeObject<Dictionary<string, QuestData>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "templates", "quests.json")));
+                Dictionary<string, QuestData> qData = JsonConvert.DeserializeObject<Dictionary<string, QuestData>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, Lang.options.FilesList["file_quests"])));
                 List<Character.Character_Quests> forAdd = new List<Character.Character_Quests>();
                 foreach (var qd in qData.Values)
                 {
@@ -200,7 +200,7 @@ namespace SP_EFT_ProfileEditor
             if (Lang.Character.Hideout != null)
             {
                 HideoutAreas = new List<CharacterHideoutArea>();
-                var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "hideout", "areas.json")));
+                var areas = JsonConvert.DeserializeObject<List<AreaInfo>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, Lang.options.FilesList["file_areas"])));
                 foreach (var area in areas)
                     HideoutAreas.Add(new CharacterHideoutArea { type = area.type, name = globalLang.Interface[$"hideout_area_{area.type}_name"], MaxLevel = area.stages.Count - 1, CurrentLevel = Lang.Character.Hideout.Areas.Where(x => x.Type == area.type).FirstOrDefault().Level, stages = area.stages });
             }
@@ -238,7 +238,7 @@ namespace SP_EFT_ProfileEditor
             if (Lang.Character.Suits != null)
             {
                 Suits = new List<SuitInfo>();
-                foreach (var s in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, "Aki_Data", "Server", "eft-database", "db", "traders")).Where(x => File.Exists(Path.Combine(x, "suits.json"))))
+                foreach (var s in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, Lang.options.DirsList["dir_traders"])).Where(x => File.Exists(Path.Combine(x, "suits.json"))))
                 {
                     var temp = JsonConvert.DeserializeObject<TraderSuit[]>(File.ReadAllText(Path.Combine(s, "suits.json")));
                     if (temp != null)
@@ -336,8 +336,8 @@ namespace SP_EFT_ProfileEditor
             bool readyToLoad = false;
             Lang = MainData.Load();
             if (string.IsNullOrWhiteSpace(Lang.options.Language) || string.IsNullOrWhiteSpace(Lang.options.EftServerPath)
-                || !Directory.Exists(Lang.options.EftServerPath) || !ExtMethods.PathIsEftServerBase(Lang.options.EftServerPath)
-                || string.IsNullOrWhiteSpace(Lang.options.DefaultProfile) || !File.Exists(Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile + ".json")))
+                || !Directory.Exists(Lang.options.EftServerPath) || !ExtMethods.PathIsEftServerBase(Lang.options)
+                || string.IsNullOrWhiteSpace(Lang.options.DefaultProfile) || !File.Exists(Path.Combine(Lang.options.EftServerPath, Lang.options.DirsList["dir_profiles"], Lang.options.DefaultProfile + ".json")))
                 SettingsBorder.Visibility = Visibility.Visible;
             else
                 readyToLoad = true;
@@ -388,11 +388,14 @@ namespace SP_EFT_ProfileEditor
         private void PrepareForLoadData()
         {
             var tempProcessList = Process.GetProcessesByName("Server");
-            if (tempProcessList.Where(x => x.MainModule.FileName == Path.Combine(Lang.options.EftServerPath, "Server.exe")).Count() > 0)
+            if (tempProcessList.Where(x => x.MainModule.FileName == Path.Combine(Lang.options.EftServerPath, Lang.options.FilesList["file_serverexe"])).Count() > 0)
                 ShutdownCozServerRunned();
-            Worker.ErrorTitle = Lang.locale["invalid_server_location_caption"];
-            Worker.ErrorConfirm = Lang.locale["saveprofiledialog_ok"];
-            Worker.AddAction(new WorkerTask { Action = LoadData, Title = Lang.locale["progressdialog_title"] , Description = Lang.locale["progressdialog_caption"] });
+            else
+            {
+                Worker.ErrorTitle = Lang.locale["invalid_server_location_caption"];
+                Worker.ErrorConfirm = Lang.locale["saveprofiledialog_ok"];
+                Worker.AddAction(new WorkerTask { Action = LoadData, Title = Lang.locale["progressdialog_title"], Description = Lang.locale["progressdialog_caption"] });
+            }
         }
 
         private void langSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -433,8 +436,11 @@ namespace SP_EFT_ProfileEditor
             {
                 if (!string.IsNullOrWhiteSpace(Lang.options.EftServerPath) && Directory.Exists(Lang.options.EftServerPath))
                     folderBrowserDialogSPT.SelectedPath = Lang.options.EftServerPath;
-                if (folderBrowserDialogSPT.ShowDialog() != System.Windows.Forms.DialogResult.OK) pathOK = false;
-                if (ExtMethods.PathIsEftServerBase(folderBrowserDialogSPT.SelectedPath)) pathOK = true;
+                if (folderBrowserDialogSPT.ShowDialog() != System.Windows.Forms.DialogResult.OK) 
+                    pathOK = false;
+                else
+                    Lang.options.EftServerPath = folderBrowserDialogSPT.SelectedPath;
+                if (ExtMethods.PathIsEftServerBase(Lang.options)) pathOK = true;
             } while (
                 !pathOK &&
                 (await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["invalid_server_location_text"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateHide = true, AnimateShow = true }) == MessageDialogResult.Affirmative)
@@ -661,7 +667,7 @@ namespace SP_EFT_ProfileEditor
         private void SaveProfile()
         {
             JsonSerializerSettings seriSettings = new JsonSerializerSettings { Formatting = Formatting.Indented };
-            string profilepath = Path.Combine(Lang.options.EftServerPath, "user", "profiles", Lang.options.DefaultProfile + ".json");
+            string profilepath = Path.Combine(Lang.options.EftServerPath, Lang.options.DirsList["dir_profiles"], Lang.options.DefaultProfile + ".json");
             JObject jobject = JObject.Parse(File.ReadAllText(profilepath));
             jobject.SelectToken("characters")["pmc"].SelectToken("Info")["Nickname"] = Lang.Character.Info.Nickname;
             jobject.SelectToken("characters")["pmc"].SelectToken("Info")["LowerNickname"] = Lang.Character.Info.Nickname.ToLower();
@@ -868,7 +874,7 @@ namespace SP_EFT_ProfileEditor
                 try
                 {
                     var button = sender as System.Windows.Controls.Button;
-                    File.Copy(((BackupFile)button.DataContext).Path, Path.Combine(Lang.options.EftServerPath, "user\\profiles", Lang.options.DefaultProfile + ".json"), true);
+                    File.Copy(((BackupFile)button.DataContext).Path, Path.Combine(Lang.options.EftServerPath, Lang.options.DirsList["dir_profiles"], Lang.options.DefaultProfile + ".json"), true);
                     File.Delete(((BackupFile)button.DataContext).Path);
                 }
                 catch (Exception ex)
@@ -1078,23 +1084,19 @@ namespace SP_EFT_ProfileEditor
             if (ItemIdSelector.SelectedValue == null) return;
             var item = itemsDB[ItemIdSelector.SelectedValue.ToString()];
             int Amount = Convert.ToInt32(ItemAddAmount.Text);
-
+            bool fir = ItemFiR.IsChecked.Value;
             Worker.AddAction(new WorkerTask
             {
                 Action = () =>
                 {
-                    if (AddNewItems(item.id, Amount).Result)
+                    if (AddNewItems(item.id, Amount, fir).Result)
                         PrepareForLoadData();
                     return;
                 }
             });
-
-
-            //if (AddNewItems(item.id, Amount).Result)
-            //    PrepareForLoadData();
         }
 
-        private Task<bool> AddNewItems(string tpl, int count)
+        private Task<bool> AddNewItems(string tpl, int count, bool fir = false)
         {
             var mItem = itemsDB[tpl];
             var Stash = getPlayerStashSlotMap();
@@ -1174,15 +1176,18 @@ namespace SP_EFT_ProfileEditor
                         while (iDs.Contains(id))
                             id = ExtMethods.generateNewId();
                         iDs.Add(id);
-                        items.Add(new Character.Character_Inventory.Character_Inventory_Item 
-                        { 
+                        var newItem = new Character.Character_Inventory.Character_Inventory_Item
+                        {
                             Id = id,
                             ParentId = Lang.Character.Inventory.Stash,
                             SlotId = "hideout",
                             Tpl = mItem.id,
                             Location = new Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Location { R = NewItemsLocations[i].R, X = NewItemsLocations[i].X, Y = NewItemsLocations[i].Y, IsSearched = true },
                             Upd = new Character.Character_Inventory.Character_Inventory_Item.Character_Inventory_Item_Upd { StackObjectsCount = count > mItem.props.StackMaxSize ? mItem.props.StackMaxSize : count }
-                        });
+                        };
+                        if (fir)
+                            newItem.Upd.SpawnedInSession = fir;
+                        items.Add(newItem);
                         count -= mItem.props.StackMaxSize;
                     }
                     Lang.Character.Inventory.Items = items.ToArray();

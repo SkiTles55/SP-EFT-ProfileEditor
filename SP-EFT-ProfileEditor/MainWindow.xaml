@@ -483,13 +483,13 @@
                                 <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_stash_category]}"/>
                             </Label.Content>
                         </Label>
-                        <ComboBox x:Name="ItemCatSelector" Grid.Row="0" Grid.Column="1" SelectedValuePath="Value" DisplayMemberPath="Key" Margin="0,5"/>
+                        <ComboBox x:Name="ItemCatSelector" Grid.Row="0" Grid.Column="1" SelectedValuePath="Value" DisplayMemberPath="Key" Margin="0,5" VerticalAlignment="Center"/>
                         <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,5">
                             <Label.Content>
                                 <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_examineditems_item]}"/>
                             </Label.Content>
                         </Label>
-                        <ComboBox x:Name="ItemIdSelector" Grid.Row="1" Grid.Column="1" ItemsSource="{ Binding ElementName=ItemCatSelector, Path=SelectedValue, Converter={StaticResource ItemSelectorConverter}}" SelectedValuePath="Key" DisplayMemberPath="Value" Margin="0,5"/>
+                        <ComboBox x:Name="ItemIdSelector" Grid.Row="1" Grid.Column="1" ItemsSource="{ Binding ElementName=ItemCatSelector, Path=SelectedValue, Converter={StaticResource ItemSelectorConverter}}" SelectedValuePath="Key" DisplayMemberPath="Value" Margin="0,5" VerticalAlignment="Center"/>
                         <Label Grid.Column="0" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,5">
                             <Label.Content>
                                 <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_stash_amount]}"/>
@@ -497,7 +497,8 @@
                         </Label>
                         <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
                             <TextBox x:Name="ItemAddAmount" Text="1" PreviewTextInput="NumberValidationTextBox" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="0,5" Width="70" TextChanged="TextBox_TextChanged"/>
-                            <Button x:Name="AddItemButton" Margin="10,5,0,5" Width="190" Content="{Binding locale[tab_stash_add]}" IsEnabled="{Binding ElementName=ItemIdSelector, Path=SelectedValue, Converter={StaticResource ItemAddButtonConverter}}" Click="AddItemButton_Click">
+                            <CheckBox x:Name="ItemFiR" Content="{Binding locale[tab_stash_fir]}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                            <Button x:Name="AddItemButton" Margin="15,5,0,5" Content="{Binding locale[tab_stash_add]}" IsEnabled="{Binding ElementName=ItemIdSelector, Path=SelectedValue, Converter={StaticResource ItemAddButtonConverter}}" Click="AddItemButton_Click">
                                 <Button.ContentTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
@@ -748,7 +749,7 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_title]}"/>
                         </Label.Content>
                     </Label>
-                    <Button x:Name="TabSettingsClose" Grid.Column="2" Grid.Row="0" Content="{Binding locale[button_close]}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Width="80" Click="TabSettingsClose_Click" IsEnabled="{Binding options.EftServerPath, Converter={StaticResource ButtonBoolConverter}}"/>
+                    <Button x:Name="TabSettingsClose" Grid.Column="2" Grid.Row="0" Content="{Binding locale[button_close]}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Width="80" Click="TabSettingsClose_Click" IsEnabled="{Binding options, Converter={StaticResource ButtonBoolConverter}}"/>
                     <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_lang]}"/>
@@ -760,7 +761,7 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_server]}"/>
                         </Label.Content>
                     </Label>
-                    <Label  Grid.Column="1" Grid.Row="2" Foreground="Red" Visibility="{ Binding options.EftServerPath, Converter={StaticResource PathBoolConverter}}" ToolTip="{Binding locale[invalid_server_location_text]}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Label  Grid.Column="1" Grid.Row="2" Foreground="Red" Visibility="{ Binding options, Converter={StaticResource PathBoolConverter}}" ToolTip="{Binding locale[invalid_server_location_text]}" VerticalAlignment="Center" HorizontalAlignment="Center">
                         <iconPacks:PackIconFontAwesome Kind="ExclamationTriangleSolid" Width="24" Height="24"/>
                     </Label>
                     <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0" >
@@ -772,7 +773,7 @@
                             <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_settings_account]}"/>
                         </Label.Content>
                     </Label>
-                    <Label Grid.Column="1" Grid.Row="3" Foreground="Red" Visibility="{ Binding options.EftServerPath, Converter={StaticResource ProfileBoolConverter}}" ToolTip="{Binding locale[no_accounts]}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Label Grid.Column="1" Grid.Row="3" Foreground="Red" Visibility="{ Binding options, Converter={StaticResource ProfileBoolConverter}}" ToolTip="{Binding locale[no_accounts]}" VerticalAlignment="Center" HorizontalAlignment="Center">
                         <iconPacks:PackIconFontAwesome Kind="ExclamationTriangleSolid" Width="24" Height="24"/>
                     </Label>
                     <ComboBox x:Name="profileSelectBox" Grid.Column="2" Grid.Row="3" Margin="10,5,10,0" VerticalAlignment="Center" ItemsSource="{Binding Profiles}" SelectedItem="{Binding options.DefaultProfile}" SelectionChanged="profileSelectBox_SelectionChanged"/>

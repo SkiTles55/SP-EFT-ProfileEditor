@@ -53,11 +53,7 @@ namespace SP_EFT_ProfileEditor
 
     public class ItemAddButtonConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            //if (value == null) return false;
-            return value != null;
-        }
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value != null;
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
     }
@@ -98,7 +94,7 @@ namespace SP_EFT_ProfileEditor
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null) return Visibility.Visible;
-            return ExtMethods.PathIsEftServerBase(value.ToString()) ? Visibility.Collapsed : Visibility.Visible;
+            return ExtMethods.PathIsEftServerBase((PEOptions)value) ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
@@ -109,7 +105,7 @@ namespace SP_EFT_ProfileEditor
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null) return false;
-            return ExtMethods.PathIsEftServerBase(value.ToString()) && ExtMethods.ServerHaveProfiles(value.ToString());
+            return ExtMethods.PathIsEftServerBase((PEOptions)value) && ExtMethods.ServerHaveProfiles((PEOptions)value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
@@ -120,7 +116,7 @@ namespace SP_EFT_ProfileEditor
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null) return Visibility.Visible;
-            if (!ExtMethods.ServerHaveProfiles(value.ToString())) return Visibility.Visible;
+            if (!ExtMethods.ServerHaveProfiles((PEOptions)value)) return Visibility.Visible;
 
             return Visibility.Collapsed;
         }

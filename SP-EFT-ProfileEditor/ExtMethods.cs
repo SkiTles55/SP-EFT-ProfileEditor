@@ -8,26 +8,20 @@ namespace SP_EFT_ProfileEditor
 {
     class ExtMethods
     {
-        public static bool PathIsEftServerBase(string sptPath)
+        public static bool PathIsEftServerBase(PEOptions options)
         {
-            if (string.IsNullOrWhiteSpace(sptPath)) return false;
-            if (!Directory.Exists(sptPath)) return false;
-            if (!File.Exists(Path.Combine(sptPath, "Server.exe"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data", "Server"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data", "Server", "eft-database"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data", "Server", "eft-database", "db"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data", "Server", "eft-database", "db", "locales"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, "Aki_Data", "Server", "eft-database", "db", "templates"))) return false;
-            if (!Directory.Exists(Path.Combine(sptPath, "user"))) return false;
+            if (string.IsNullOrWhiteSpace(options.EftServerPath)) return false;
+            if (!Directory.Exists(options.EftServerPath)) return false;
+            if (options.FilesList.Any(x => !File.Exists(Path.Combine(options.EftServerPath, x.Value)))) return false;
+            if (options.DirsList.Any(x => !Directory.Exists(Path.Combine(options.EftServerPath, x.Value)))) return false;
 
             return true;
         }
 
-        public static bool ServerHaveProfiles(string sptPath)
+        public static bool ServerHaveProfiles(PEOptions options)
         {
-            if (!Directory.Exists(Path.Combine(sptPath, @"user\profiles"))) return false;
-            if (Directory.GetFiles(Path.Combine(sptPath, @"user\profiles")).Count() < 1) return false;
+            if (!Directory.Exists(Path.Combine(options.EftServerPath, options.DirsList["dir_profiles"]))) return false;
+            if (Directory.GetFiles(Path.Combine(options.EftServerPath, options.DirsList["dir_profiles"])).Count() < 1) return false;
             return true;
         }
 
