@@ -385,16 +385,30 @@ namespace SP_EFT_ProfileEditor
                 Process.Start(new ProcessStartInfo("https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/latest"));
         }
 
-        private void PrepareForLoadData()
+        private async void PrepareForLoadData()
         {
             var tempProcessList = Process.GetProcessesByName("Server");
             if (tempProcessList.Where(x => x.MainModule.FileName == Path.Combine(Lang.options.EftServerPath, Lang.options.FilesList["file_serverexe"])).Count() > 0)
                 ShutdownCozServerRunned();
             else
             {
-                Worker.ErrorTitle = Lang.locale["invalid_server_location_caption"];
-                Worker.ErrorConfirm = Lang.locale["saveprofiledialog_ok"];
-                Worker.AddAction(new WorkerTask { Action = LoadData, Title = Lang.locale["progressdialog_title"], Description = Lang.locale["progressdialog_caption"] });
+                var GroupedInventory = Lang.Character.Inventory.Items.GroupBy(x => x.Id).Where(x => x.Count() > 1);
+                if (GroupedInventory.Count() > 0)
+                {
+                    var mySettings = new MetroDialogSettings { AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateShow = true, AnimateHide = true, DefaultButtonFocus = MessageDialogResult.Affirmative };
+                    var result = await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["message_duplicateditems"], MessageDialogStyle.AffirmativeAndNegative, mySettings);
+                    if (result == MessageDialogResult.Affirmative)
+                    {
+                        RemoveDuplicatedIds(GroupedInventory.Select(x => x.Key).ToList());
+                        PrepareForLoadData();
+                    }
+                }
+                else
+                {
+                    Worker.ErrorTitle = Lang.locale["invalid_server_location_caption"];
+                    Worker.ErrorConfirm = Lang.locale["saveprofiledialog_ok"];
+                    Worker.AddAction(new WorkerTask { Action = LoadData, Title = Lang.locale["progressdialog_title"], Description = Lang.locale["progressdialog_caption"] });
+                }
             }
         }
 
@@ -662,6 +676,34 @@ namespace SP_EFT_ProfileEditor
                 if (tr.Value.CurrentStanding < max.Value.MinStanding + 0.01f) tr.Value.CurrentStanding = max.Value.MinStanding + 0.01f;
             }
             PrepareForLoadData();
+        }
+
+        private void RemoveDuplicatedIds(List<string> itemsId)
+        {
+            JsonSerializerSettings seriSettings = new JsonSerializerSettings { Formatting = Formatting.Indented };
+            string profilepath = Path.Combine(Lang.options.EftServerPath, Lang.options.DirsList["dir_profiles"], Lang.options.DefaultProfile + ".json");
+            JObject jobject = JObject.Parse(File.ReadAllText(profilepath));
+            List<JToken> ForRemove = new List<JToken>();
+            foreach (var itemObject in jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items").ToList())
+            {
+                var item = itemObject.ToObject<Character.Character_Inventory.Character_Inventory_Item>();
+                if (itemsId.Contains(item.Id))
+                    if (!ForRemove.Contains(itemObject)) ForRemove.Add(itemObject);
+                if (itemsId.Contains(item.ParentId))
+                    if (!ForRemove.Contains(itemObject)) ForRemove.Add(itemObject);
+            }
+            foreach (var j in ForRemove)
+                j.Remove();
+            DateTime now = DateTime.Now;
+            if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups")))
+                Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups"));
+            if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile)))
+                Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile));
+            string backupfile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", Lang.options.DefaultProfile, $"{Lang.options.DefaultProfile}-backup-{now:dd-MM-yyyy-HH-mm-ss}.json");
+            File.Copy(profilepath, backupfile, true);
+            string json = JsonConvert.SerializeObject(jobject, seriSettings);
+            File.WriteAllText(profilepath, json);
+            SaveAndReload();
         }
 
         private void SaveProfile()

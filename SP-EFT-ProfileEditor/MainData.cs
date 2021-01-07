@@ -258,7 +258,8 @@ namespace SP_EFT_ProfileEditor
             ["removepresetdialog_caption"] = "Are you sure want to delete this preset?",
             ["tab_presets_ergonomics"] = "Ergonomics",
             ["tab_preset_recoilup"] = "Recoil Up",
-            ["tab_preset_recoilback"] = "Recoil Back"
+            ["tab_preset_recoilback"] = "Recoil Back",
+            ["message_duplicateditems"] = "The profile contains items with the same ID. Do you want to fix it? The profile will be automatically saved with the creation of a backup."
         };
 
         static Dictionary<string, string> GE => new Dictionary<string, string>
@@ -372,7 +373,8 @@ namespace SP_EFT_ProfileEditor
             ["removepresetdialog_caption"] = "Möchten Sie diese Voreinstellung wirklich löschen?",
             ["tab_presets_ergonomics"] = "Ergonomie",
             ["tab_preset_recoilup"] = "Vertikaler Rückstoß",
-            ["tab_preset_recoilback"] = "Horizontaler Rückstoß"
+            ["tab_preset_recoilback"] = "Horizontaler Rückstoß",
+            ["message_duplicateditems"] = "Das Profil enthält Elemente mit derselben ID. Möchten Sie das Problem beheben? Das Profil wird beim Erstellen eines Backups automatisch gespeichert."
         };
 
         static Dictionary<string, string> RU => new Dictionary<string, string>
@@ -486,7 +488,8 @@ namespace SP_EFT_ProfileEditor
             ["removepresetdialog_caption"] = "Вы действительно хотите удалить эту сборку?",
             ["tab_presets_ergonomics"] = "Эргономика",
             ["tab_preset_recoilup"] = "Вертикальная отдача",
-            ["tab_preset_recoilback"] = "Горизонтальная отдача"
+            ["tab_preset_recoilback"] = "Горизонтальная отдача",
+            ["message_duplicateditems"] = "В профиле есть предметы с одинаковыми ID. Вы хотите это исправить? Профиль будет автоматически сохранен с созданием бэкапа."
         };
 
         static Dictionary<string, string> FR => new Dictionary<string, string>
@@ -600,7 +603,8 @@ namespace SP_EFT_ProfileEditor
             ["removepresetdialog_caption"] = "Voulez-vous vraiment supprimer ce préréglage?",
             ["tab_presets_ergonomics"] = "Ergonomie",
             ["tab_preset_recoilup"] = "Recul vertical",
-            ["tab_preset_recoilback"] = "Recul horizontal"
+            ["tab_preset_recoilback"] = "Recul horizontal",
+            ["message_duplicateditems"] = "Le profil contient des éléments avec le même ID. Voulez-vous le réparer? Le profil sera automatiquement sauvegardé avec la création d'une sauvegarde."
         };
     }
 
