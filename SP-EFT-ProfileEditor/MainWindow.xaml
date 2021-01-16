@@ -437,12 +437,24 @@
                             </Button.ContentTemplate>
                         </Button>
                     </StackPanel>
-                    <DataGrid x:Name="stashGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10">
+                    <DataGrid x:Name="stashGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10" ColumnHeaderStyle="{StaticResource MyColumnHeader}">
                         <DataGrid.Resources>
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="{Binding Data.locale[tab_examineditems_item], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Content, RelativeSource={RelativeSource Mode=TemplatedParent}}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            <TextBox x:Name="itemNameFilter" Text="{Binding Data.characterInventory.NameFilter, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}" Margin="10,0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Controls:TextBoxHelper.ClearTextButton="True" TextChanged="itemFilter_TextChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=name}"/>
@@ -450,6 +462,18 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTemplateColumn Header="{Binding Data.locale[tab_info_id], Source={StaticResource proxy}}" Width="*">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Content, RelativeSource={RelativeSource Mode=TemplatedParent}}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            <TextBox x:Name="itemIdFilter" Text="{Binding Data.characterInventory.IdFilter, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}" Margin="10,0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Controls:TextBoxHelper.ClearTextButton="True" TextChanged="itemFilter_TextChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=id}"/>

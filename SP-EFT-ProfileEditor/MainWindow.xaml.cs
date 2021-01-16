@@ -19,6 +19,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Net;
 using System.Diagnostics;
+using System.Collections.ObjectModel;
+using System.Windows.Data;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -36,7 +38,7 @@ namespace SP_EFT_ProfileEditor
         private string lastdata = null;
         private List<BackupFile> backups;
         private List<SkillInfo> commonSkills;
-        private List<SkillInfo> masteringSkills;
+        private ObservableCollection<SkillInfo> masteringSkills;
         private List<CharacterHideoutArea> HideoutAreas;
         private List<TraderInfo> traderInfos;
         private List<Quest> Quests;
@@ -44,7 +46,7 @@ namespace SP_EFT_ProfileEditor
         private List<ExaminedItem> examinedItems;
         private Dictionary<string, Dictionary<string, string>> ItemsForAdd;
         private ServerGlobals serverGlobals;
-        private List<SuitInfo> Suits;
+        private ObservableCollection<SuitInfo> Suits;
         private List<PresetInfo> Presets;
         public Dictionary<string, BotType> BotTypes;
 
@@ -152,7 +154,7 @@ namespace SP_EFT_ProfileEditor
             if (Lang.Character.Skills != null)
             {
                 commonSkills = new List<SkillInfo>();
-                masteringSkills = new List<SkillInfo>();
+                masteringSkills = new ObservableCollection<SkillInfo>();
                 List<Character.Character_Skills.Character_Skill> forAdd = new List<Character.Character_Skills.Character_Skill>();
                 foreach (var skill in Lang.Character.Skills.Common)
                 {
@@ -215,7 +217,7 @@ namespace SP_EFT_ProfileEditor
             Lang.characterInventory.Rubles = 0;
             if (Lang.Character.Inventory != null)
             {
-                Lang.characterInventory.InventoryItems = new List<InventoryItem>();
+                Lang.characterInventory.InventoryItems = new ObservableCollection<InventoryItem>();
                 foreach (var item in Lang.Character.Inventory.Items)
                 {
                     if (item.Tpl == moneyDol) Lang.characterInventory.Dollars += (int)item.Upd.StackObjectsCount;
@@ -237,7 +239,7 @@ namespace SP_EFT_ProfileEditor
             }
             if (Lang.Character.Suits != null)
             {
-                Suits = new List<SuitInfo>();
+                Suits = new ObservableCollection<SuitInfo>();
                 foreach (var s in Directory.GetDirectories(Path.Combine(Lang.options.EftServerPath, Lang.options.DirsList["dir_traders"])).Where(x => File.Exists(Path.Combine(x, "suits.json"))))
                 {
                     var temp = JsonConvert.DeserializeObject<TraderSuit[]>(File.ReadAllText(Path.Combine(s, "suits.json")));
@@ -312,6 +314,7 @@ namespace SP_EFT_ProfileEditor
                 DollarsLabel.Text = Lang.characterInventory.Dollars.ToString("N0");
                 if (Lang.characterInventory.InventoryItems != null)
                     stashGrid.ItemsSource = Lang.characterInventory.InventoryItems;
+                ApplyStashFilter();
                 if (ItemsForAdd != null)
                     ItemCatSelector.ItemsSource = ItemsForAdd.OrderBy(x => x.Key);
                 ItemCatSelector.SelectedIndex = 0;
@@ -1400,5 +1403,24 @@ namespace SP_EFT_ProfileEditor
             if (_shutdown)
                 System.Windows.Application.Current.Shutdown();
         }
+
+        #region DataGridFilters
+        private void itemFilter_TextChanged(object sender, TextChangedEventArgs e) => ApplyStashFilter();
+
+        private void ApplyStashFilter()
+        {
+            ICollectionView cv = CollectionViewSource.GetDefaultView(stashGrid.ItemsSource);
+            if (string.IsNullOrEmpty(Lang.characterInventory.NameFilter) && string.IsNullOrEmpty(Lang.characterInventory.IdFilter))
+                cv.Filter = null;
+            else
+            {
+                cv.Filter = o =>
+                {
+                    InventoryItem p = o as InventoryItem;
+                    return ((string.IsNullOrEmpty(Lang.characterInventory.NameFilter) ? true : p.name.ToUpper().Contains(Lang.characterInventory.NameFilter.ToUpper())) && (string.IsNullOrEmpty(Lang.characterInventory.IdFilter) ? true : p.id.ToUpper().Contains(Lang.characterInventory.IdFilter.ToUpper())));
+                };
+            }
+        }
+        #endregion
     }
 }

@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -131,7 +132,9 @@ namespace SP_EFT_ProfileEditor
         public int Rubles { get; set; }
         public int Euros { get; set; }
         public int Dollars { get; set; }
-        public List<InventoryItem> InventoryItems { get; set; }
+        public string IdFilter { get; set; }
+        public string NameFilter { get; set; }
+        public ObservableCollection<InventoryItem> InventoryItems { get; set; }
     }
 
     public class InventoryItem
