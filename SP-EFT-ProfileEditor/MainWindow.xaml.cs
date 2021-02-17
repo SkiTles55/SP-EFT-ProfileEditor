@@ -395,22 +395,25 @@ namespace SP_EFT_ProfileEditor
                 ShutdownCozServerRunned();
             else
             {
-                var GroupedInventory = Lang.Character.Inventory.Items.GroupBy(x => x.Id).Where(x => x.Count() > 1);
-                if (GroupedInventory.Count() > 0)
+                if (Lang.Character.Inventory != null)
                 {
-                    var mySettings = new MetroDialogSettings { AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateShow = true, AnimateHide = true, DefaultButtonFocus = MessageDialogResult.Affirmative };
-                    var result = await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["message_duplicateditems"], MessageDialogStyle.AffirmativeAndNegative, mySettings);
-                    if (result == MessageDialogResult.Affirmative)
+                    var GroupedInventory = Lang.Character.Inventory.Items.GroupBy(x => x.Id).Where(x => x.Count() > 1);
+                    if (GroupedInventory.Count() > 0)
                     {
-                        RemoveDuplicatedIds(GroupedInventory.Select(x => x.Key).ToList());
-                        PrepareForLoadData();
+                        var mySettings = new MetroDialogSettings { AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateShow = true, AnimateHide = true, DefaultButtonFocus = MessageDialogResult.Affirmative };
+                        var result = await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["message_duplicateditems"], MessageDialogStyle.AffirmativeAndNegative, mySettings);
+                        if (result == MessageDialogResult.Affirmative)
+                        {
+                            RemoveDuplicatedIds(GroupedInventory.Select(x => x.Key).ToList());
+                            PrepareForLoadData();
+                        }
                     }
-                }
-                else
-                {
-                    Worker.ErrorTitle = Lang.locale["invalid_server_location_caption"];
-                    Worker.ErrorConfirm = Lang.locale["saveprofiledialog_ok"];
-                    Worker.AddAction(new WorkerTask { Action = LoadData, Title = Lang.locale["progressdialog_title"], Description = Lang.locale["progressdialog_caption"] });
+                    else
+                    {
+                        Worker.ErrorTitle = Lang.locale["invalid_server_location_caption"];
+                        Worker.ErrorConfirm = Lang.locale["saveprofiledialog_ok"];
+                        Worker.AddAction(new WorkerTask { Action = LoadData, Title = Lang.locale["progressdialog_title"], Description = Lang.locale["progressdialog_caption"] });
+                    }
                 }
             }
         }
@@ -449,6 +452,7 @@ namespace SP_EFT_ProfileEditor
                 ShowNewFolderButton = false
             };
             bool pathOK = false;
+            string previusPath = Lang.options.EftServerPath;
             do
             {
                 if (!string.IsNullOrWhiteSpace(Lang.options.EftServerPath) && Directory.Exists(Lang.options.EftServerPath))
@@ -468,6 +472,8 @@ namespace SP_EFT_ProfileEditor
                 Lang.options.EftServerPath = folderBrowserDialogSPT.SelectedPath;
                 SaveAndReload();
             }
+            else
+                Lang.options.EftServerPath = previusPath;
         }
 
         private void profileSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1114,8 +1120,6 @@ namespace SP_EFT_ProfileEditor
                     }
                 });
             }
-            
-            
         }
 
         private void ShowRublesAddDialog(object sender, RoutedEventArgs e) => AddMoneyDialog(moneyRub);

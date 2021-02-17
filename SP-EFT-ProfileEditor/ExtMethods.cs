@@ -10,7 +10,7 @@ namespace SP_EFT_ProfileEditor
     {
         public static bool PathIsEftServerBase(PEOptions options)
         {
-            if (string.IsNullOrWhiteSpace(options.EftServerPath)) return false;
+            if (string.IsNullOrEmpty(options.EftServerPath)) return false;
             if (!Directory.Exists(options.EftServerPath)) return false;
             if (options.FilesList.Any(x => !File.Exists(Path.Combine(options.EftServerPath, x.Value)))) return false;
             if (options.DirsList.Any(x => !Directory.Exists(Path.Combine(options.EftServerPath, x.Value)))) return false;
@@ -20,6 +20,7 @@ namespace SP_EFT_ProfileEditor
 
         public static bool ServerHaveProfiles(PEOptions options)
         {
+            if (string.IsNullOrEmpty(options.EftServerPath)) return false;
             if (!Directory.Exists(Path.Combine(options.EftServerPath, options.DirsList["dir_profiles"]))) return false;
             if (Directory.GetFiles(Path.Combine(options.EftServerPath, options.DirsList["dir_profiles"])).Count() < 1) return false;
             return true;
