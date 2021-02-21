@@ -111,6 +111,17 @@ namespace SP_EFT_ProfileEditor
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
     }
 
+    public class RevertedButtonBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null) return Visibility.Visible;
+            return (ExtMethods.PathIsEftServerBase((PEOptions)value) && ExtMethods.ServerHaveProfiles((PEOptions)value)) ? Visibility.Hidden : Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
+    }
+
     public class ProfileBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

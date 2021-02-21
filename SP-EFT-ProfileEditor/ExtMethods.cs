@@ -8,12 +8,13 @@ namespace SP_EFT_ProfileEditor
 {
     class ExtMethods
     {
-        public static bool PathIsEftServerBase(PEOptions options)
+        public static bool PathIsEftServerBase(PEOptions options, string path = null)
         {
-            if (string.IsNullOrEmpty(options.EftServerPath)) return false;
-            if (!Directory.Exists(options.EftServerPath)) return false;
-            if (options.FilesList.Any(x => !File.Exists(Path.Combine(options.EftServerPath, x.Value)))) return false;
-            if (options.DirsList.Any(x => !Directory.Exists(Path.Combine(options.EftServerPath, x.Value)))) return false;
+            if (string.IsNullOrEmpty(path)) path = options.EftServerPath;
+            if (string.IsNullOrEmpty(path)) return false;
+            if (!Directory.Exists(path)) return false;
+            if (options.FilesList.Any(x => !File.Exists(Path.Combine(path, x.Value)))) return false;
+            if (options.DirsList.Any(x => !Directory.Exists(Path.Combine(path, x.Value)))) return false;
 
             return true;
         }

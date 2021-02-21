@@ -335,6 +335,22 @@ namespace SP_EFT_ProfileEditor
             });
         }
 
+        private async void SettingsDialogShow()
+        {
+            var dialog = new CustomDialog(MetroDialogOptions) { Content = Resources["SettingsDialog"], Title = Lang.locale["tab_settings_title"], DialogContentWidth = new GridLength(500) };
+            await this.ShowMetroDialogAsync(dialog);
+            var langSelectBox = dialog.FindChild<System.Windows.Controls.ComboBox>("langSelectBox");
+            langSelectBox.ItemsSource = Langs;
+            langSelectBox.SelectedItem = new KeyValuePair<string, string>(Lang.options.Language, Langs[Lang.options.Language]);
+            var StyleChoicer = dialog.FindChild<System.Windows.Controls.ComboBox>("StyleChoicer");
+            foreach (var style in ThemeManager.Current.Themes.OrderBy(x => x.DisplayName))
+            {
+                var newItem = new AccentItem { Name = style.DisplayName, Color = style.PrimaryAccentColor.ToString(), Scheme = style.Name };
+                StyleChoicer.Items.Add(newItem);
+                if (ThemeManager.Current.DetectTheme(this).DisplayName == newItem.Name) StyleChoicer.SelectedItem = newItem;
+            }
+        }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             bool readyToLoad = false;
@@ -342,19 +358,11 @@ namespace SP_EFT_ProfileEditor
             if (string.IsNullOrWhiteSpace(Lang.options.Language) || string.IsNullOrWhiteSpace(Lang.options.EftServerPath)
                 || !Directory.Exists(Lang.options.EftServerPath) || !ExtMethods.PathIsEftServerBase(Lang.options)
                 || string.IsNullOrWhiteSpace(Lang.options.DefaultProfile) || !File.Exists(Path.Combine(Lang.options.EftServerPath, Lang.options.DirsList["dir_profiles"], Lang.options.DefaultProfile + ".json")))
-                SettingsBorder.Visibility = Visibility.Visible;
+                SettingsDialogShow();
             else
                 readyToLoad = true;
-            langSelectBox.ItemsSource = Langs;
-            langSelectBox.SelectedItem = new KeyValuePair<string, string>(Lang.options.Language, Langs[Lang.options.Language]);
             if (!string.IsNullOrEmpty(Lang.options.ColorScheme))
                 ThemeManager.Current.ChangeTheme(this, Lang.options.ColorScheme);
-            foreach (var style in ThemeManager.Current.Themes.OrderBy(x => x.DisplayName))
-            {
-                var newItem = new AccentItem { Name = style.DisplayName, Color = style.PrimaryAccentColor.ToString(), Scheme = style.Name };
-                StyleChoicer.Items.Add(newItem);
-                if (ThemeManager.Current.DetectTheme(this).DisplayName == newItem.Name) StyleChoicer.SelectedItem = newItem;
-            }
             DataContext = Lang;
             CheckPockets();
             if (readyToLoad && Lang.Character != null)
@@ -423,8 +431,14 @@ namespace SP_EFT_ProfileEditor
         {
             if (!IsLoaded)
                 return;
-            Lang.options.Language = langSelectBox.SelectedValue.ToString();
-            SaveAndReload();
+            string lang = (sender as System.Windows.Controls.ComboBox).SelectedValue.ToString();
+            if (Lang.options.Language != lang)
+            {
+                Lang.options.Language = lang;
+                SaveAndReload();
+                var dialog = (sender as DependencyObject).TryFindParent<BaseMetroDialog>();
+                dialog.Title = Lang.locale["tab_settings_title"];
+            }
         }
 
         private void SaveAndReload()
@@ -460,9 +474,7 @@ namespace SP_EFT_ProfileEditor
                     folderBrowserDialogSPT.SelectedPath = Lang.options.EftServerPath;
                 if (folderBrowserDialogSPT.ShowDialog() != System.Windows.Forms.DialogResult.OK) 
                     pathOK = false;
-                else
-                    Lang.options.EftServerPath = folderBrowserDialogSPT.SelectedPath;
-                if (ExtMethods.PathIsEftServerBase(Lang.options)) pathOK = true;
+                if (ExtMethods.PathIsEftServerBase(Lang.options, folderBrowserDialogSPT.SelectedPath)) pathOK = true;
             } while (
                 !pathOK &&
                 (await this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["invalid_server_location_text"], MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = Lang.locale["button_yes"], NegativeButtonText = Lang.locale["button_no"], AnimateHide = true, AnimateShow = true }) == MessageDialogResult.Affirmative)
@@ -474,14 +486,19 @@ namespace SP_EFT_ProfileEditor
                 SaveAndReload();
             }
             else
+            {
+                var dialog = (sender as DependencyObject).TryFindParent<BaseMetroDialog>();
+                var serverPath = dialog.FindChild<System.Windows.Controls.TextBox>("serverPath");
+                serverPath.Text = previusPath;
                 Lang.options.EftServerPath = previusPath;
+            }
         }
 
         private void profileSelectBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!IsLoaded)
                 return;
-            if (profileSelectBox.SelectedValue != null) Lang.options.DefaultProfile = profileSelectBox.SelectedValue.ToString();
+            if ((sender as System.Windows.Controls.ComboBox).SelectedValue != null) Lang.options.DefaultProfile = (sender as System.Windows.Controls.ComboBox).SelectedValue.ToString();
             SaveAndReload();
         }
 
@@ -489,16 +506,17 @@ namespace SP_EFT_ProfileEditor
         {
             if (!IsLoaded)
                 return;
-            var selectedAccent = StyleChoicer.SelectedItem as AccentItem;
+            var selectedAccent = (sender as System.Windows.Controls.ComboBox).SelectedItem as AccentItem;
             if (selectedAccent.Name == ThemeManager.Current.DetectTheme(this).DisplayName) return;
             ThemeManager.Current.ChangeTheme(this, selectedAccent.Scheme);
             Lang.options.ColorScheme = selectedAccent.Scheme;
             Lang.SaveOptions();
         }
 
-        private void TabSettingsClose_Click(object sender, RoutedEventArgs e)
+        private async void TabSettingsClose_Click(object sender, RoutedEventArgs e)
         {
-            SettingsBorder.Visibility = Visibility.Collapsed;
+            var dialog = (sender as DependencyObject).TryFindParent<BaseMetroDialog>();
+            await this.HideMetroDialogAsync(dialog);
             if (lastdata != Lang.options.EftServerPath + Lang.options.Language + Lang.Character?.Aid)
             {
                 if (Lang.Character != null) PrepareForLoadData();
@@ -506,7 +524,7 @@ namespace SP_EFT_ProfileEditor
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e) => SettingsBorder.Visibility = Visibility.Visible;
+        private void Button_Click(object sender, RoutedEventArgs e) => SettingsDialogShow();
 
         private void infotab_Side_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -1465,5 +1483,7 @@ namespace SP_EFT_ProfileEditor
                 textBox.Text = Int32.MaxValue.ToString();
             }
         }
+
+        private void SettingsExit_Click(object sender, RoutedEventArgs e) => System.Windows.Application.Current.Shutdown();
     }
 }
