@@ -21,6 +21,7 @@ using System.Net;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
+using MahApps.Metro.IconPacks;
 
 namespace SP_EFT_ProfileEditor
 {
@@ -1103,6 +1104,19 @@ namespace SP_EFT_ProfileEditor
             await this.ShowMetroDialogAsync(dialog);
             var textBlock = dialog.FindChild<TextBlock>("MoneyTpl");
             textBlock.Text = moneytpl;
+            var icon = dialog.FindChild<PackIconFontAwesome>("MoneyIcon");
+            switch (moneytpl)
+            {
+                case "5449016a4bdc2d6f028b456f":
+                    icon.Kind = PackIconFontAwesomeKind.RubleSignSolid;
+                    break;
+                case "5696686a4bdc2da3298b456a":
+                    icon.Kind = PackIconFontAwesomeKind.DollarSignSolid;
+                    break;
+                case "569668774bdc2da2298b4568":
+                    icon.Kind = PackIconFontAwesomeKind.EuroSignSolid;
+                    break;
+            }
         }
 
         private async void MoneyDialogOk_Click(object sender, RoutedEventArgs e)
@@ -1110,12 +1124,13 @@ namespace SP_EFT_ProfileEditor
             var dialog = (sender as DependencyObject).TryFindParent<BaseMetroDialog>();
             string tpl = dialog.FindChild<TextBlock>("MoneyTpl").Text;
             int count = Convert.ToInt32(dialog.FindChild<System.Windows.Controls.TextBox>("MoneyDialogInput").Text);
+            bool fir = dialog.FindChild<System.Windows.Controls.CheckBox>("MoneyFiR").IsChecked.Value;
             await this.HideMetroDialogAsync(dialog);
             Worker.AddAction(new WorkerTask
             {
                 Action = () =>
                 {
-                    if (AddNewItems(tpl, count).Result)
+                    if (AddNewItems(tpl, count, fir).Result)
                         PrepareForLoadData();
                     return;
                 }
@@ -1145,7 +1160,7 @@ namespace SP_EFT_ProfileEditor
             });
         }
 
-        private Task<bool> AddNewItems(string tpl, int count, bool fir = false)
+        private Task<bool> AddNewItems(string tpl, int count, bool fir)
         {
             var mItem = itemsDB[tpl];
             var Stash = getPlayerStashSlotMap();
@@ -1168,7 +1183,7 @@ namespace SP_EFT_ProfileEditor
                 Dispatcher.Invoke(() => 
                 {
                     _ = this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
-                });                
+                });
                 return Task.FromResult(false);
             }
             else
@@ -1247,7 +1262,7 @@ namespace SP_EFT_ProfileEditor
                     Dispatcher.Invoke(() =>
                     {
                         _ = this.ShowMessageAsync(Lang.locale["invalid_server_location_caption"], Lang.locale["tab_stash_noslots"], MessageDialogStyle.Affirmative, new MetroDialogSettings { AffirmativeButtonText = Lang.locale["saveprofiledialog_ok"], AnimateShow = true, AnimateHide = true });
-                    });                    
+                    });
                     return Task.FromResult(false);
                 }
             }

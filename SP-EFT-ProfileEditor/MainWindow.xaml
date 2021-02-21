@@ -28,14 +28,21 @@
         <local:BackupDateConverter x:Key="BackupDateConverter"/>
         <UserControl x:Key="MoneyDialog" x:Name="MoneyDialog">
             <Grid Margin="0 10 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <TextBox Grid.Row="0" x:Name="MoneyDialogInput" Height="30" Margin="0,0,0,4" Text="500000" PreviewTextInput="NumberValidationTextBox" TextChanged="MoneyInput_TextChanged"/>
-                <TextBlock Grid.Row="1" x:Name="MoneyTpl" Visibility="Collapsed"/>
-                <StackPanel Grid.Row="2" Orientation="Horizontal" MinHeight="85" HorizontalAlignment="Right">
+                <TextBox Grid.Row="0" Grid.Column="0" x:Name="MoneyDialogInput" Height="30" Margin="0,0,10,0" Text="500000" PreviewTextInput="NumberValidationTextBox" TextChanged="MoneyInput_TextChanged"/>
+                <iconPacks:PackIconFontAwesome Grid.Row="0" Grid.Column="1" x:Name="MoneyIcon" Width="15" Height="15" VerticalAlignment="Center" Kind="RubleSignSolid" HorizontalAlignment="Center" Margin="0,0,10,0" />
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" x:Name="MoneyTpl" Visibility="Collapsed"/>
+                <CheckBox Grid.Row="2"  Grid.ColumnSpan="2" x:Name="MoneyFiR" Content="{Binding locale[tab_stash_fir]}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,10,0,0"/>
+                <StackPanel Grid.Row="3"  Grid.ColumnSpan="2" Orientation="Horizontal" MinHeight="85" HorizontalAlignment="Right">
                     <Button x:Name="MoneyDialogOk" Margin="0 0 5 0" Style="{DynamicResource MahApps.Styles.Button.Dialogs.Accent}" Content="{Binding locale[saveprofiledialog_ok]}" Click="MoneyDialogOk_Click"/>
                     <Button x:Name="MoneyDialogCancel" Margin="5 0 5 0" Style="{DynamicResource MahApps.Styles.Button.Dialogs}" Content="{Binding locale[button_close]}" Click="CloseMoneyDialog"/>
                 </StackPanel>
