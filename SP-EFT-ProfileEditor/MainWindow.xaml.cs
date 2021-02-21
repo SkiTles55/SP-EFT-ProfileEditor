@@ -1097,29 +1097,29 @@ namespace SP_EFT_ProfileEditor
             e.Handled = true;
         }
 
-        private void AddMoneyDialog(string moneytpl)
+        private async void AddMoneyDialog(string moneytpl)
         {
-            AddMoneyDialog AddMoneys = new AddMoneyDialog
+            var dialog = new CustomDialog(MetroDialogOptions) { Content = Resources["MoneyDialog"], Title = Lang.locale["tab_stash_dialogmoney"] };
+            await this.ShowMetroDialogAsync(dialog);
+            var textBlock = dialog.FindChild<TextBlock>("MoneyTpl");
+            textBlock.Text = moneytpl;
+        }
+
+        private async void MoneyDialogOk_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = (sender as DependencyObject).TryFindParent<BaseMetroDialog>();
+            string tpl = dialog.FindChild<TextBlock>("MoneyTpl").Text;
+            int count = Convert.ToInt32(dialog.FindChild<System.Windows.Controls.TextBox>("MoneyDialogInput").Text);
+            await this.HideMetroDialogAsync(dialog);
+            Worker.AddAction(new WorkerTask
             {
-                OkButtonText = Lang.locale["saveprofiledialog_ok"],
-                CancelButtonText = Lang.locale["button_close"],
-                Owner = this,
-                ColorScheme = ThemeManager.Current.DetectTheme(this).Name,
-                MoneyTitle = Lang.locale["tab_stash_dialogmoney"]
-            };
-            if (AddMoneys.ShowDialog() == true)
-            {
-                int count = AddMoneys.MoneyCount;
-                Worker.AddAction(new WorkerTask
+                Action = () =>
                 {
-                    Action = () =>
-                    {
-                        if (AddNewItems(moneytpl, count).Result)
-                            PrepareForLoadData();
-                        return;
-                    }
-                });
-            }
+                    if (AddNewItems(tpl, count).Result)
+                        PrepareForLoadData();
+                    return;
+                }
+            });
         }
 
         private void ShowRublesAddDialog(object sender, RoutedEventArgs e) => AddMoneyDialog(moneyRub);
@@ -1426,5 +1426,29 @@ namespace SP_EFT_ProfileEditor
             }
         }
         #endregion
+
+        private async void CloseMoneyDialog(object sender, RoutedEventArgs e)
+        {
+            var dialog = (sender as DependencyObject).TryFindParent<BaseMetroDialog>();
+            await this.HideMetroDialogAsync(dialog);
+        }
+
+        private void MoneyInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            if (string.IsNullOrEmpty(textBox.Text))
+            {
+                textBox.Text = "1";
+                return;
+            }
+            if (Int32.TryParse(textBox.Text, out int money))
+            {
+                if (money < 1) textBox.Text = "1";
+            }
+            else
+            {
+                textBox.Text = Int32.MaxValue.ToString();
+            }
+        }
     }
 }
