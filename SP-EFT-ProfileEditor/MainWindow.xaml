@@ -480,12 +480,12 @@
             <TabItem Header="{Binding locale[tab_stash_title]}" Name="tabstash" HeaderTemplate="{StaticResource HeaderTemplate}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition MaxHeight="50"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition/>
-                        <RowDefinition MaxHeight="50"/>
-                        <RowDefinition  MaxHeight="120"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition  Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" x:Name="MoneysPanel">
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" x:Name="MoneysPanel" Margin="0,0,0,5">
                         <iconPacks:PackIconFontAwesome Width="15" Height="15" VerticalAlignment="Center" Kind="RubleSignSolid" />
                         <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="5,0,0,0">
                             <Label.Content>
@@ -581,7 +581,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     <Button x:Name="DeleteAllButton" Grid.Row="2" Content="{Binding locale[tab_stash_remove]}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" Click="DeleteAllButton_Click"/>
-                    <Grid Grid.Row="3" x:Name="AddItemsGrid">
+                    <Grid x:Name="AddItemsGrid" Grid.Row="3">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition MaxWidth="120"/>
                             <ColumnDefinition/>

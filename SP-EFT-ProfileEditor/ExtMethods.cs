@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -84,5 +85,22 @@ namespace SP_EFT_ProfileEditor
         }
 
         public static bool ProfileChanged(MainData data) => data.ProfileHash != 0 && data.ProfileHash != JsonConvert.SerializeObject(data.Character).ToString().GetHashCode();
+
+        public static string GetWindowsCulture()
+        {
+            CultureInfo culture = CultureInfo.CurrentCulture;
+
+            switch (culture.Name)
+            {
+                case "de-DE":
+                    return "ge";
+                case "fr-FR":
+                    return "fr";
+                case "ru-RU":
+                    return "ru";
+                default:
+                    return "en";
+            }
+        }
     }
 }

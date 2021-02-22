@@ -87,11 +87,19 @@ namespace SP_EFT_ProfileEditor
 
         public MainWindow()
         {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             InitializeComponent();
             infotab_Side.ItemsSource = new List<string> { "Bear", "Usec" };
             QuestsStatusesBox.ItemsSource = new List<string> { "Locked", "AvailableForStart", "Started", "Fail", "AvailableForFinish", "Success" };
             QuestsStatusesBox.SelectedIndex = 0;
             Worker = new MyWorker();
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            System.Windows.MessageBox.Show(e.ExceptionObject.ToString(), "Terminating Exception", MessageBoxButton.OK, MessageBoxImage.Error);
+            ExtMethods.Log($"Terminating Exception | {e.ExceptionObject.ToString()}");
+            Environment.Exit(1);
         }
 
         private void SetHeadsAndVoices()
