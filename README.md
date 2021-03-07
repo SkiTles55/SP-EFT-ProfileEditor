@@ -1,3 +1,5 @@
+# Работа над программой окончена, в связи с потерей интереса к проекту SinglePlayerTarkov.
+
 # SP-EFT-ProfileEditor
 Программа для редактирования профиля игрока на сервере SPTarkov
 
@@ -48,6 +50,8 @@
 ![Скриншот3](https://github.com/SkiTles55/SP-EFT-ProfileEditor/blob/master/screenshots/3.JPG?raw=true)
 ![Скриншот4](https://github.com/SkiTles55/SP-EFT-ProfileEditor/blob/master/screenshots/4.JPG?raw=true)
 ![Скриншот5](https://github.com/SkiTles55/SP-EFT-ProfileEditor/blob/master/screenshots/5.JPG?raw=true)
+
+# Work on the program is over, due to loss of interest in the project SinglePlayerTarkov.
 
 # SP-EFT-ProfileEditor ENG Readme
 Program for editing player profile on the SPTarkov Server
