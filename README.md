@@ -23,12 +23,12 @@
 
 ```json
 "FilesList": {
-    "file_globals": "Aki_Data\\Server\\eft-database\\db\\globals.json",
-    "file_items": "Aki_Data\\Server\\eft-database\\db\\templates\\items.json",
-    "file_quests": "Aki_Data\\Server\\eft-database\\db\\templates\\quests.json",
-    "file_usec": "Aki_Data\\Server\\eft-database\\db\\bots\\types\\usec.json",
-    "file_bear": "Aki_Data\\Server\\eft-database\\db\\bots\\types\\bear.json",
-    "file_areas": "Aki_Data\\Server\\eft-database\\db\\hideout\\areas.json",
+    "file_globals": "Aki_Data\\Server\\Database\\globals.json",
+    "file_items": "Aki_Data\\Server\\Database\\templates\\items.json",
+    "file_quests": "Aki_Data\\Server\\Database\\templates\\quests.json",
+    "file_usec": "Aki_Data\\Server\\Database\\bots\\types\\usec.json",
+    "file_bear": "Aki_Data\\Server\\Database\\bots\\types\\bear.json",
+    "file_areas": "Aki_Data\\Server\\Database\\hideout\\areas.json",
     "file_serverexe": "Server.exe"
   }
 ```
@@ -85,6 +85,8 @@ Program for editing player profile on the SPTarkov Server
     "file_serverexe": "Server.exe"
   }
 ```
+
+[Version 1.7 for SPT-AKI 1.0.0 B1+]
 
 [Version 1.6 for SPT-AKI Alpha R7](https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/tag/1.6)
 
