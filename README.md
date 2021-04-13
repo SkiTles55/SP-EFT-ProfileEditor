@@ -19,8 +19,22 @@
 * Мультиязычность, с возможностью редактирования локализации
 * Автоматические бэкапы при каждом сохранении профиля
 
-## Начиная с версии 1.6 в конфигурационный файл PEOptions добавлены относительные пути к файлам сервера. Изменяя их, можно попробовать редактировать профиль на неподдерживаемом сервере (успех не гарантируется!!!). ##
+## Начиная с версии 1.6 в конфигурационный файл PEOptions добавлены относительные пути к файлам сервера. Изменяя их, можно попробовать редактировать профиль на неподдерживаемом сервере (успех не гарантируется!!!). Пути в версии 1.7 немного отличаются от предыдущих версий.##
 
+Версия 1.6 и более ранние
+```json
+"FilesList": {
+    "file_globals": "Aki_Data\\Server\\eft-database\\db\\globals.json",
+    "file_items": "Aki_Data\\Server\\eft-database\\db\\templates\\items.json",
+    "file_quests": "Aki_Data\\Server\\eft-database\\db\\templates\\quests.json",
+    "file_usec": "Aki_Data\\Server\\eft-database\\db\\bots\\types\\usec.json",
+    "file_bear": "Aki_Data\\Server\\eft-database\\db\\bots\\types\\bear.json",
+    "file_areas": "Aki_Data\\Server\\eft-database\\db\\hideout\\areas.json",
+    "file_serverexe": "Server.exe"
+  }
+```
+
+Версия 1.7
 ```json
 "FilesList": {
     "file_globals": "Aki_Data\\Server\\Database\\globals.json",
@@ -74,8 +88,22 @@ Program for editing player profile on the SPTarkov Server
 * Multilingual, with the ability to edit localization  
 * Automatic backups every time you save your profile  
 
-## Starting from version 1.6, relative paths to server files have been added to the PEOptions configuration file. By changing them, you can try to edit the profile on an unsupported server (success is not guaranteed !!!). ##
+## Starting from version 1.6, relative paths to server files have been added to the PEOptions configuration file. By changing them, you can try to edit the profile on an unsupported server (success is not guaranteed !!!). Version 1.7 paths differ slightly from previous versions.##
 
+Version 1.6 and Earlier
+```json
+"FilesList": {
+    "file_globals": "Aki_Data\\Server\\eft-database\\db\\globals.json",
+    "file_items": "Aki_Data\\Server\\eft-database\\db\\templates\\items.json",
+    "file_quests": "Aki_Data\\Server\\eft-database\\db\\templates\\quests.json",
+    "file_usec": "Aki_Data\\Server\\eft-database\\db\\bots\\types\\usec.json",
+    "file_bear": "Aki_Data\\Server\\eft-database\\db\\bots\\types\\bear.json",
+    "file_areas": "Aki_Data\\Server\\eft-database\\db\\hideout\\areas.json",
+    "file_serverexe": "Server.exe"
+  }
+```
+
+Version 1.7
 ```json
 "FilesList": {
     "file_globals": "Aki_Data\\Server\\Database\\globals.json",
