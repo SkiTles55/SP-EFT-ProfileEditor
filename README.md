@@ -19,8 +19,9 @@
 * Мультиязычность, с возможностью редактирования локализации
 * Автоматические бэкапы при каждом сохранении профиля
 
-## Начиная с версии 1.6 в конфигурационный файл PEOptions добавлены относительные пути к файлам сервера. Изменяя их, можно попробовать редактировать профиль на неподдерживаемом сервере (успех не гарантируется!!!). ##
+## Начиная с версии 1.6 в конфигурационный файл PEOptions добавлены относительные пути к файлам сервера. Изменяя их, можно попробовать редактировать профиль на неподдерживаемом сервере (успех не гарантируется!!!). Пути в версии 1.7 немного отличаются от предыдущих версий.##
 
+Версия 1.6 и более ранние
 ```json
 "FilesList": {
     "file_globals": "Aki_Data\\Server\\eft-database\\db\\globals.json",
@@ -32,6 +33,21 @@
     "file_serverexe": "Server.exe"
   }
 ```
+
+Версия 1.7
+```json
+"FilesList": {
+    "file_globals": "Aki_Data\\Server\\Database\\globals.json",
+    "file_items": "Aki_Data\\Server\\Database\\templates\\items.json",
+    "file_quests": "Aki_Data\\Server\\Database\\templates\\quests.json",
+    "file_usec": "Aki_Data\\Server\\Database\\bots\\types\\usec.json",
+    "file_bear": "Aki_Data\\Server\\Database\\bots\\types\\bear.json",
+    "file_areas": "Aki_Data\\Server\\Database\\hideout\\areas.json",
+    "file_serverexe": "Server.exe"
+  }
+```
+
+[Версия 1.7 для серверов 1.0.0 B1+](Sorry, I do not have a release for this revision)
 
 [Версия 1.6 для серверов SPT-AKI Alpha R7](https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/tag/1.6)
 
@@ -72,8 +88,9 @@ Program for editing player profile on the SPTarkov Server
 * Multilingual, with the ability to edit localization  
 * Automatic backups every time you save your profile  
 
-## Starting from version 1.6, relative paths to server files have been added to the PEOptions configuration file. By changing them, you can try to edit the profile on an unsupported server (success is not guaranteed !!!). ##
+## Starting from version 1.6, relative paths to server files have been added to the PEOptions configuration file. By changing them, you can try to edit the profile on an unsupported server (success is not guaranteed !!!). Version 1.7 paths differ slightly from previous versions.##
 
+Version 1.6 and Earlier
 ```json
 "FilesList": {
     "file_globals": "Aki_Data\\Server\\eft-database\\db\\globals.json",
@@ -85,6 +102,21 @@ Program for editing player profile on the SPTarkov Server
     "file_serverexe": "Server.exe"
   }
 ```
+
+Version 1.7
+```json
+"FilesList": {
+    "file_globals": "Aki_Data\\Server\\Database\\globals.json",
+    "file_items": "Aki_Data\\Server\\Database\\templates\\items.json",
+    "file_quests": "Aki_Data\\Server\\Database\\templates\\quests.json",
+    "file_usec": "Aki_Data\\Server\\Database\\bots\\types\\usec.json",
+    "file_bear": "Aki_Data\\Server\\Database\\bots\\types\\bear.json",
+    "file_areas": "Aki_Data\\Server\\Database\\hideout\\areas.json",
+    "file_serverexe": "Server.exe"
+  }
+```
+
+[Version 1.7 for SPT-AKI 1.0.0 B1+](Sorry, I do not have a release for this revision)
 
 [Version 1.6 for SPT-AKI Alpha R7](https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/tag/1.6)
 
