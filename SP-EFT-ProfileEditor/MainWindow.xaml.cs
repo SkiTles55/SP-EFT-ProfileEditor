@@ -165,7 +165,7 @@ namespace SP_EFT_ProfileEditor
                     if (Lang.Character.Skills.Mastering.Where(x => x.Id == md.Name).Count() > 0)
                     {
                         var mastering = Lang.Character.Skills.Mastering.Where(x => x.Id == md.Name).FirstOrDefault();
-                        masteringSkills.Add(new SkillInfo { progress = (int)mastering.Progress, name = weapons, id = mastering.Id, Max = md.Level3 });
+                        masteringSkills.Add(new SkillInfo { progress = (int)mastering.Progress, name = weapons, id = mastering.Id, Max = md.Level2 + md.Level3 });
                     }
                     else
                     {
@@ -180,7 +180,7 @@ namespace SP_EFT_ProfileEditor
                         temp.Add(add);
                     Lang.Character.Skills.Mastering = temp.ToArray();
                 }
-                Dispatcher.Invoke(() => { allmastering_exp.Maximum = serverGlobals.config.Mastering.OrderByDescending(x => x.Level3).First()?.Level3 ?? 1000; });
+                Dispatcher.Invoke(() => { allmastering_exp.Maximum = masteringSkills.OrderByDescending(x => x.Max).First()?.Max ?? 1000; });
             }
             if (Lang.Character.TraderStandings != null)
             {
@@ -552,9 +552,12 @@ namespace SP_EFT_ProfileEditor
                 return;
             var comboBox = sender as System.Windows.Controls.ComboBox;
             LoyaltyLevel level = (LoyaltyLevel)comboBox.SelectedItem;
-            Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentLevel = level.level;
-            if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum < level.SalesSum) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum = level.SalesSum;
-            if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding < level.Standing) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding = level.Standing;
+            if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentLevel != level.level)
+            {
+                Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentLevel = level.level;
+                if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum < level.SalesSum) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum = level.SalesSum;
+                if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding < level.Standing) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding = level.Standing;
+            }            
         }
 
         private void hideoutarea_Level_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

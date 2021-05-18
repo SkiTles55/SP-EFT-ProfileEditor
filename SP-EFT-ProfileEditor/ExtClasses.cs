@@ -224,6 +224,7 @@ namespace SP_EFT_ProfileEditor
     {
         public string Name { get; set; }
         public string[] Templates { get; set; }
+        public int Level2 { get; set; }
         public int Level3 { get; set; }
     }
 
