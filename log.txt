@@ -1,0 +1,55 @@
+2021-05-17 14:46:09.137 +06:00 [INF] MSBuild registered from C:\Program Files\dotnet\sdk\5.0.202\
+2021-05-17 14:46:09.286 +06:00 [INF] Registered 1 extensions:
+	Default extension
+2021-05-17 14:46:13.103 +06:00 [INF] Initializing upgrade step Select an entrypoint
+2021-05-17 14:46:13.108 +06:00 [INF] Setting entrypoint to only project in solution: C:\Users\Дмитрий\source\repos\SP-EFT-ProfileEditor\SP-EFT-ProfileEditor\SP-EFT-ProfileEditor.csproj
+2021-05-17 14:46:13.121 +06:00 [INF] Initializing upgrade step Select project to upgrade
+2021-05-17 14:46:13.222 +06:00 [INF] Initializing upgrade step Back up project
+2021-05-17 14:46:23.879 +06:00 [INF] Applying upgrade step Back up project
+2021-05-17 14:46:28.048 +06:00 [INF] Backing up C:\Users\Дмитрий\source\repos\SP-EFT-ProfileEditor\SP-EFT-ProfileEditor to C:\Users\Дмитрий\source\repos\SP-EFT-ProfileEditor\SP-EFT-ProfileEditor.backup
+2021-05-17 14:46:29.279 +06:00 [INF] Project backed up to C:\Users\Дмитрий\source\repos\SP-EFT-ProfileEditor\SP-EFT-ProfileEditor.backup
+2021-05-17 14:46:29.280 +06:00 [INF] Upgrade step Back up project applied successfully
+2021-05-17 14:46:30.959 +06:00 [INF] Initializing upgrade step Convert project file to SDK style
+2021-05-17 14:46:34.990 +06:00 [INF] Applying upgrade step Convert project file to SDK style
+2021-05-17 14:46:34.993 +06:00 [INF] Converting project file format with try-convert, version 0.7.222801
+2021-05-17 14:46:35.720 +06:00 [INF] [try-convert] C:\Users\Дмитрий\source\repos\SP-EFT-ProfileEditor\SP-EFT-ProfileEditor\SP-EFT-ProfileEditor.csproj contains a reference to System.Web, which is not supported on .NET Core. You may have significant work ahead of you to fully port this project.
+2021-05-17 14:46:35.721 +06:00 [INF] [try-convert] C:\Users\Дмитрий\source\repos\SP-EFT-ProfileEditor\SP-EFT-ProfileEditor\SP-EFT-ProfileEditor.csproj contains an App.config file. App.config is replaced by appsettings.json in .NET Core. You will need to delete App.config and migrate to appsettings.json if it's applicable to your project.
+2021-05-17 14:46:36.916 +06:00 [INF] [try-convert] This project has an unrecognized custom import which may need reviewed after conversion: Costura.Fody.props
+2021-05-17 14:46:36.917 +06:00 [INF] [try-convert] This project has an unrecognized custom import which may need reviewed after conversion: Fody.targets
+2021-05-17 14:46:36.919 +06:00 [INF] [try-convert] This project has an unrecognized custom import which may need reviewed after conversion: Costura.Fody.targets
+2021-05-17 14:46:38.769 +06:00 [INF] [try-convert] Conversion complete!
+2021-05-17 14:46:39.222 +06:00 [INF] Project file converted successfully! The project may require additional changes to build successfully against the new .NET target.
+2021-05-17 14:46:44.608 +06:00 [INF] Upgrade step Convert project file to SDK style applied successfully
+2021-05-17 14:47:01.227 +06:00 [INF] Initializing upgrade step Clean up NuGet package references
+2021-05-17 14:47:02.839 +06:00 [INF] Marking package Fody for removal because it appears to be a transitive dependency
+2021-05-17 14:47:02.892 +06:00 [INF] Marking package Microsoft.Xaml.Behaviors.Wpf for removal because it appears to be a transitive dependency
+2021-05-17 14:47:02.988 +06:00 [INF] Marking assembly reference System.Configuration for removal based on package mapping configuration System.Configuration
+2021-05-17 14:47:02.991 +06:00 [INF] Adding package System.Configuration.ConfigurationManager based on package mapping configuration System.Configuration
+2021-05-17 14:47:04.829 +06:00 [WRN] .NET Upgrade Assistant analyzer NuGet package reference cannot be added because the package cannot be found
+2021-05-17 14:47:04.839 +06:00 [INF] References to be removed: System.Configuration
+2021-05-17 14:47:04.840 +06:00 [INF] Packages to be removed: Fody, Version=6.5.1
+Microsoft.Xaml.Behaviors.Wpf, Version=1.1.31
+2021-05-17 14:47:04.841 +06:00 [INF] Packages to be added: System.Configuration.ConfigurationManager, Version=5.0.0
+2021-05-17 14:47:09.611 +06:00 [INF] Applying upgrade step Clean up NuGet package references
+2021-05-17 14:47:09.614 +06:00 [INF] Removing outdated assembly reference: System.Configuration
+2021-05-17 14:47:09.616 +06:00 [INF] Removing outdated package reference: Fody, Version=6.5.1
+2021-05-17 14:47:09.617 +06:00 [INF] Removing outdated package reference: Microsoft.Xaml.Behaviors.Wpf, Version=1.1.31
+2021-05-17 14:47:09.619 +06:00 [INF] Adding package reference: System.Configuration.ConfigurationManager, Version=5.0.0
+2021-05-17 14:47:15.625 +06:00 [WRN] .NET Upgrade Assistant analyzer NuGet package reference cannot be added because the package cannot be found
+2021-05-17 14:47:15.634 +06:00 [INF] Upgrade step Clean up NuGet package references applied successfully
+2021-05-17 14:47:17.373 +06:00 [INF] Initializing upgrade step Update TFM
+2021-05-17 14:47:17.386 +06:00 [INF] TFM needs updated to net5.0-windows
+2021-05-17 14:47:21.220 +06:00 [INF] Applying upgrade step Update TFM
+2021-05-17 14:47:32.108 +06:00 [INF] Updated TFM to net5.0-windows
+2021-05-17 14:47:32.108 +06:00 [INF] Upgrade step Update TFM applied successfully
+2021-05-17 14:47:40.920 +06:00 [INF] Initializing upgrade step Update NuGet Packages
+2021-05-17 14:47:42.682 +06:00 [INF] Marking assembly reference System.Web for removal based on package mapping configuration ASP.NET
+2021-05-17 14:47:42.683 +06:00 [INF] Adding framework reference Microsoft.AspNetCore.App based on package mapping configuration ASP.NET
+2021-05-17 14:47:42.684 +06:00 [INF] Marking assembly reference System.Web.Extensions for removal based on package mapping configuration ASP.NET
+2021-05-17 14:47:42.698 +06:00 [WRN] .NET Upgrade Assistant analyzer NuGet package reference cannot be added because the package cannot be found
+2021-05-17 14:47:43.528 +06:00 [INF] Adding Microsoft.Windows.Compatibility 5.0.2
+2021-05-17 14:47:43.534 +06:00 [INF] References to be removed: System.Web
+System.Web.Extensions
+2021-05-17 14:47:43.535 +06:00 [INF] Packages to be added: Microsoft.Windows.Compatibility, Version=5.0.2
+2021-05-17 14:47:43.535 +06:00 [INF] Framework references to be added: Microsoft.AspNetCore.App
+2021-05-17 14:47:49.755 +06:00 [INF] Saving upgrade progress file at C:\Users\Дмитрий\source\repos\SP-EFT-ProfileEditor\SP-EFT-ProfileEditor\.upgrade-assistant

@@ -270,7 +270,7 @@ namespace SP_EFT_ProfileEditor
                     public class Character_Inventory_Item_Upd_MedKit
                     {
                         [JsonProperty("HpResource")]
-                        public int HpResource { get; set; }
+                        public double HpResource { get; set; }
                     }
 
                     public class Character_Inventory_Item_Upd_FireMode

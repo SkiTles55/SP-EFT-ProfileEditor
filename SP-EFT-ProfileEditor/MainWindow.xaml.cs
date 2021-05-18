@@ -6,11 +6,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 using MahApps.Metro.Controls.Dialogs;
 using ControlzEx.Theming;
 using System.ComponentModel;
-using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
@@ -22,6 +20,8 @@ using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
 using MahApps.Metro.IconPacks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SP_EFT_ProfileEditor
 {
