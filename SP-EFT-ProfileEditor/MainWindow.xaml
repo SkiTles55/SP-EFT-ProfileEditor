@@ -417,7 +417,11 @@
                             <DataGridTemplateColumn Header="{Binding Data.locale[tab_mastering_weapon], Source={StaticResource proxy}}" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Label Content="{Binding Path=name}"/>
+                                        <Label HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <Label.Content>
+                                                <TextBlock TextWrapping="Wrap" Text="{Binding Path=name}"/>
+                                            </Label.Content>
+                                        </Label>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

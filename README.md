@@ -19,9 +19,9 @@
 * Мультиязычность, с возможностью редактирования локализации
 * Автоматические бэкапы при каждом сохранении профиля
 
-## Начиная с версии 1.6 в конфигурационный файл PEOptions добавлены относительные пути к файлам сервера. Изменяя их, можно попробовать редактировать профиль на неподдерживаемом сервере (успех не гарантируется!!!).##
+## Начиная с версии 1.6 в конфигурационный файл PEOptions добавлены относительные пути к файлам сервера. Изменяя их, можно попробовать редактировать профиль на неподдерживаемом сервере (успех не гарантируется!!!).
 
-Относительные пусти для сервера SPT-AKI Alpha R7
+Относительные пути для сервера SPT-AKI Alpha R7
 ```json
 "FilesList": {
     "file_globals": "Aki_Data\\Server\\eft-database\\db\\globals.json",
@@ -76,7 +76,7 @@ Program for editing player profile on the SPTarkov Server
 * Multilingual, with the ability to edit localization  
 * Automatic backups every time you save your profile  
 
-## Starting from version 1.6, relative paths to server files have been added to the PEOptions configuration file. By changing them, you can try to edit the profile on an unsupported server (success is not guaranteed !!!).##
+## Starting from version 1.6, relative paths to server files have been added to the PEOptions configuration file. By changing them, you can try to edit the profile on an unsupported server (success is not guaranteed !!!).
 
 Relative paths for server SPT-AKI Alpha R7
 ```json

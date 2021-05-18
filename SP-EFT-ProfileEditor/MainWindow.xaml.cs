@@ -104,20 +104,8 @@ namespace SP_EFT_ProfileEditor
 
         private void SetHeadsAndVoices()
         {
-            //infotab_Voice.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.voice;
-            //infotab_Head.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.head.Select(x => globalLang.Customization.ContainsKey(x) ? new KeyValuePair<string, string> (x, globalLang.Customization[x].Name) : new KeyValuePair<string, string>(x, x));
-            //while spt aki have bug with mixing heads
-            List<string> Voices = BotTypes[Lang.Character.Info.Side].appearance.voice.ToList();
-            if (!Voices.Contains(Lang.Character.Info.Voice))
-                Voices.Add(Lang.Character.Info.Voice);
-            infotab_Voice.ItemsSource = Voices;
-            Dictionary<string, string> Heads = new Dictionary<string, string>();
-            foreach (var type in BotTypes.Values)
-                foreach (var head in type.appearance.head)
-                    Heads.Add(head, globalLang.Customization.ContainsKey(head) ? globalLang.Customization[head].Name : head);
-            if (!Heads.ContainsKey(Lang.Character.Customization.Head))
-                Heads.Add(Lang.Character.Customization.Head, Lang.Character.Customization.Head);
-            infotab_Head.ItemsSource = Heads;
+            infotab_Voice.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.voice;
+            infotab_Head.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.head.Select(x => globalLang.Customization.ContainsKey(x) ? new KeyValuePair<string, string> (x, globalLang.Customization[x].Name) : new KeyValuePair<string, string>(x, x));
         }
 
         private void LoadData()
@@ -172,9 +160,7 @@ namespace SP_EFT_ProfileEditor
                 }
                 foreach (var md in serverGlobals.config.Mastering)
                 {
-                    string weapons = string.Empty;
-                    foreach (var tmp in md.Templates.Where(x => globalLang.Templates.ContainsKey(x)))
-                        weapons += globalLang.Templates[tmp].Name;
+                    string weapons = string.Join(Environment.NewLine, md.Templates.Where(x => globalLang.Templates.ContainsKey(x)).Select(y => globalLang.Templates[y].Name));
                     if (string.IsNullOrEmpty(weapons)) continue;
                     if (Lang.Character.Skills.Mastering.Where(x => x.Id == md.Name).Count() > 0)
                     {
@@ -540,12 +526,10 @@ namespace SP_EFT_ProfileEditor
                return;
             if (Lang.Character != null && Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
                 SetHeadsAndVoices();
-            //if (!infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
-            //    infotab_Voice.SelectedIndex = 0;
-            //if (infotab_Head.SelectedItem == null)
-            //    infotab_Head.SelectedIndex = 0;
-            //if (!infotab_Head.Items.Contains(infotab_Head.SelectedItem))
-            //    infotab_Head.SelectedIndex = 0; return this after fix mixing head bug
+            if (infotab_Voice.Items.Count > 0 && !infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
+                infotab_Voice.SelectedIndex = 0;
+            if (infotab_Head.Items.Count > 0 && !infotab_Head.Items.Contains(infotab_Head.SelectedItem))
+                infotab_Head.SelectedIndex = 0;
         }
 
         private void infotab_Level_TextChanged(object sender, TextChangedEventArgs e)
