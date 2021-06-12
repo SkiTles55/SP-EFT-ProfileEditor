@@ -60,7 +60,7 @@ namespace SP_EFT_ProfileEditor
             ["en"] = "English",
             ["ru"] = "Русский",
             ["fr"] = "Français",
-            ["ge"] = "Deutsch "
+            ["ge"] = "Deutsch"
         };
 
         private readonly List<string> BannedItems = new List<string>

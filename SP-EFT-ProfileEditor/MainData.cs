@@ -28,7 +28,13 @@ namespace SP_EFT_ProfileEditor
                 File.WriteAllText(Path.Combine(LangPath, "ge.json"), JsonConvert.SerializeObject(GE, Formatting.Indented));
             PEOptions eOptions = CreateOptions();
             if (string.IsNullOrEmpty(eOptions.Language))
-                eOptions.Language = ExtMethods.GetWindowsCulture();
+            {
+                var WLang = ExtMethods.GetWindowsCulture();
+                if (WLang == "en" || WLang == "ru" || WLang == "fr" || WLang == "ge")
+                    eOptions.Language = WLang;
+                else
+                    eOptions.Language = "en";
+            }
             Dictionary<string, string> Locale = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(LangPath, eOptions.Language + ".json")));
             Dictionary<string, string> Eth = new Dictionary<string, string>();
             switch (eOptions.Language)
