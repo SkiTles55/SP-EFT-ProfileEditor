@@ -241,21 +241,21 @@
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_merchants_name], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_merchants_name], Source={StaticResource proxy}}" Width="*" SortMemberPath="name">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=name}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_merchants_enabled], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_merchants_enabled], Source={StaticResource proxy}}" Width="*" SortMemberPath="Display">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <CheckBox x:Name="merchantDisplay" IsChecked="{Binding Path=Display}" Checked="merchantDisplay_Checked" Unchecked="merchantDisplay_Checked"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_merchants_level], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_merchants_level], Source={StaticResource proxy}}" Width="*" SortMemberPath="CurrentLevel">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <ComboBox x:Name="merchantLevel" ItemsSource="{Binding Path=Levels}" DisplayMemberPath="level" SelectedValuePath="level" SelectedValue="{Binding Path=CurrentLevel}" SelectionChanged="merchantLevel_SelectionChanged"/>
@@ -274,26 +274,62 @@
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
                     </Grid.RowDefinitions>
-                    <DataGrid x:Name="questsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <DataGrid x:Name="questsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False" ColumnHeaderStyle="{StaticResource MyColumnHeader}">
                         <DataGrid.Resources>
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_trader], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_trader], Source={StaticResource proxy}}" Width="*" SortMemberPath="trader">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Content, RelativeSource={RelativeSource Mode=TemplatedParent}}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            <TextBox x:Name="questTraderFilter" Text="{Binding Data.gridFilters.QuestTrader, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}" Margin="10,0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Controls:TextBoxHelper.ClearTextButton="True" TextChanged="questTraderFilter_TextChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=trader}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_name], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_name], Source={StaticResource proxy}}" Width="*" SortMemberPath="name">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Content, RelativeSource={RelativeSource Mode=TemplatedParent}}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            <TextBox x:Name="questNameFilter" Text="{Binding Data.gridFilters.QuestName, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}" Margin="10,0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Controls:TextBoxHelper.ClearTextButton="True" TextChanged="questNameFilter_TextChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=name}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_status], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_status], Source={StaticResource proxy}}" Width="*" SortMemberPath="status">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Content, RelativeSource={RelativeSource Mode=TemplatedParent}}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            <TextBox x:Name="statusTraderFilter" Text="{Binding Data.gridFilters.QuestStatus, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}" Margin="10,0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Controls:TextBoxHelper.ClearTextButton="True" TextChanged="statusTraderFilter_TextChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <ComboBox ItemsSource="{Binding ElementName=QuestsStatusesBox, Path=ItemsSource}" SelectedItem="{Binding Path=status}" SelectionChanged="ComboBox_SelectionChanged"/>
@@ -409,12 +445,24 @@
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
                     </Grid.RowDefinitions>
-                    <DataGrid x:Name="masteringsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <DataGrid x:Name="masteringsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False" ColumnHeaderStyle="{StaticResource MyColumnHeader}">
                         <DataGrid.Resources>
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_mastering_weapon], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_mastering_weapon], Source={StaticResource proxy}}" Width="*" SortMemberPath="name">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Content, RelativeSource={RelativeSource Mode=TemplatedParent}}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            <TextBox x:Name="masteringNameFilter" Text="{Binding Data.gridFilters.MasteringName, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}" Margin="10,0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Controls:TextBoxHelper.ClearTextButton="True" TextChanged="masteringNameFilter_TextChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -425,7 +473,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_mastering_exp], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_mastering_exp], Source={StaticResource proxy}}" Width="*" SortMemberPath="progress">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Grid Grid.Column="1" Grid.Row="5" Margin="10,0">
@@ -655,19 +703,31 @@
                         <RowDefinition/>
                         <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
-                    <DataGrid  x:Name="suitsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <DataGrid x:Name="suitsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False" ColumnHeaderStyle="{StaticResource MyColumnHeader}">
                         <DataGrid.Resources>
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_name], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_quests_name], Source={StaticResource proxy}}" Width="*" SortMemberPath="Name">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Content, RelativeSource={RelativeSource Mode=TemplatedParent}}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            <TextBox x:Name="suitNameFilter" Text="{Binding Data.gridFilters.SuitName, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}" Margin="10,0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Controls:TextBoxHelper.ClearTextButton="True" TextChanged="suitNameFilter_TextChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=Name}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_clothing_acquired], Source={StaticResource proxy}}" Width="150">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_clothing_acquired], Source={StaticResource proxy}}" Width="150" SortMemberPath="Bought">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <CheckBox x:Name="SuitBought" IsChecked="{Binding Path=Bought}" Checked="SuitBought_Checked" Unchecked="SuitBought_Unchecked"/>

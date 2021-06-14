@@ -137,6 +137,15 @@ namespace SP_EFT_ProfileEditor
         public ObservableCollection<InventoryItem> InventoryItems { get; set; }
     }
 
+    public class GridFilters
+    {
+        public string QuestName { get; set; }
+        public string QuestStatus { get; set; }
+        public string QuestTrader { get; set; }
+        public string MasteringName { get; set; }
+        public string SuitName { get; set; }
+    }
+
     public class InventoryItem
     {
         public string id { get; set; }

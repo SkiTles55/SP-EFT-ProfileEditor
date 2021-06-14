@@ -63,7 +63,7 @@ namespace SP_EFT_ProfileEditor
             }
             if (needReSave)
                 File.WriteAllText(Path.Combine(LangPath, $"{eOptions.Language}.json"), JsonConvert.SerializeObject(Locale, Formatting.Indented));
-            MainData lang = new MainData { locale = Locale, options = eOptions, characterInventory = new CharacterInventory { Rubles = 0, Euros = 0, Dollars = 0 } };
+            MainData lang = new MainData { locale = Locale, options = eOptions, characterInventory = new CharacterInventory { Rubles = 0, Euros = 0, Dollars = 0 }, gridFilters = new GridFilters() };
             try
             {
                 if (!string.IsNullOrEmpty(eOptions.EftServerPath) && !ExtMethods.PathIsEftServerBase(eOptions))
@@ -150,6 +150,8 @@ namespace SP_EFT_ProfileEditor
         public Character Character { get; set; }
  
         public CharacterInventory characterInventory { get; set; }
+
+        public GridFilters gridFilters { get; set; }
 
         public int ProfileHash { get; set; }
 

@@ -41,7 +41,7 @@ namespace SP_EFT_ProfileEditor
         private List<SkillInfo> commonSkills;
         private ObservableCollection<SkillInfo> masteringSkills;
         private List<CharacterHideoutArea> HideoutAreas;
-        private List<TraderInfo> traderInfos;
+        private ObservableCollection<TraderInfo> traderInfos;
         private List<Quest> Quests;
         private Dictionary<string, Item> itemsDB;
         private List<ExaminedItem> examinedItems;
@@ -100,12 +100,6 @@ namespace SP_EFT_ProfileEditor
             System.Windows.MessageBox.Show(e.ExceptionObject.ToString(), "Terminating Exception", MessageBoxButton.OK, MessageBoxImage.Error);
             ExtMethods.Log($"Terminating Exception | {e.ExceptionObject.ToString()}");
             Environment.Exit(1);
-        }
-
-        private void SetHeadsAndVoices()
-        {
-            infotab_Voice.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.voice;
-            infotab_Head.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.head.Select(x => globalLang.Customization.ContainsKey(x) ? new KeyValuePair<string, string> (x, globalLang.Customization[x].Name) : new KeyValuePair<string, string>(x, x));
         }
 
         private void LoadData()
@@ -184,7 +178,7 @@ namespace SP_EFT_ProfileEditor
             }
             if (Lang.Character.TraderStandings != null)
             {
-                traderInfos = new List<TraderInfo>();
+                traderInfos = new ObservableCollection<TraderInfo>();
                 foreach (var mer in Lang.Character.TraderStandings)
                 {
                     if (mer.Key == "ragfair") continue;
@@ -443,15 +437,6 @@ namespace SP_EFT_ProfileEditor
             CheckPockets();
         }
 
-        private void CheckPockets()
-        {
-            if (Lang.Character == null || Lang.Character.Inventory == null) return;
-            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").Count() > 0)
-                Dispatcher.Invoke(() => { BigPocketsSwitcher.IsOn = false; });
-            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
-                Dispatcher.Invoke(() => { BigPocketsSwitcher.IsOn = true; });
-        }
-
         private async void serverSelect_Click(object sender, RoutedEventArgs e)
         {
             folderBrowserDialogSPT = new FolderBrowserDialog
@@ -520,46 +505,6 @@ namespace SP_EFT_ProfileEditor
 
         private void Button_Click(object sender, RoutedEventArgs e) => SettingsDialogShow();
 
-        private void infotab_Side_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (!IsLoaded)
-               return;
-            if (Lang.Character != null && Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
-                SetHeadsAndVoices();
-            if (infotab_Voice.Items.Count > 0 && !infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
-                infotab_Voice.SelectedIndex = 0;
-            if (infotab_Head.Items.Count > 0 && !infotab_Head.Items.Contains(infotab_Head.SelectedItem))
-                infotab_Head.SelectedIndex = 0;
-        }
-
-        private void infotab_Level_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            var textBox = sender as System.Windows.Controls.TextBox;
-            if (!string.IsNullOrEmpty(textBox.Text)) Lang.Character.Info.Level = Convert.ToInt32(textBox.Text);
-        }
-
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (!IsLoaded)
-                return;
-            var comboBox = sender as System.Windows.Controls.ComboBox;
-            Lang.Character.Quests.Where(x => x.Qid == ((Quest)comboBox.DataContext).qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();
-        }
-
-        private void merchantLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (!IsLoaded)
-                return;
-            var comboBox = sender as System.Windows.Controls.ComboBox;
-            LoyaltyLevel level = (LoyaltyLevel)comboBox.SelectedItem;
-            if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentLevel != level.level)
-            {
-                Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentLevel = level.level;
-                if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum < level.SalesSum) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum = level.SalesSum;
-                if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding < level.Standing) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding = level.Standing;
-            }            
-        }
-
         private void hideoutarea_Level_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (!IsLoaded)
@@ -576,73 +521,6 @@ namespace SP_EFT_ProfileEditor
             var skill = (SkillInfo)slider.DataContext;
             if (Math.Abs(skill.progress - Lang.Character.Skills.Common.Where(x => x.Id == skill.id).FirstOrDefault().Progress) > 1)
                 Lang.Character.Skills.Common.Where(x => x.Id == skill.id).FirstOrDefault().Progress = (float)slider.Value;
-        }
-
-        private void masteringskill_exp_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (!IsLoaded)
-                return;
-            var slider = sender as Slider;
-            var skill = (SkillInfo)slider.DataContext;
-            if (Math.Abs(skill.progress - Lang.Character.Skills.Mastering.Where(x => x.Id == skill.id).FirstOrDefault().Progress) > 1)
-                Lang.Character.Skills.Mastering.Where(x => x.Id == skill.id).FirstOrDefault().Progress = (int)slider.Value <= skill.Max ? (int)slider.Value : skill.Max;
-        }
-
-        private void SuitBought_Checked(object sender, RoutedEventArgs e) => ProcessSuit(sender);
-
-        private void SuitBought_Unchecked(object sender, RoutedEventArgs e) => ProcessSuit(sender);
-
-        private void SuitsAcquireAll_Click(object sender, RoutedEventArgs e)
-        {
-            if (Lang.Character.Suits == null || Suits == null) return;
-            foreach (var suit in Suits)
-            {
-                suit.Bought = true;
-                if (!Lang.Character.Suits.Contains(suit.ID)) Lang.Character.Suits.Add(suit.ID);
-            }
-            suitsGrid.ItemsSource = null;
-            suitsGrid.ItemsSource = Suits;
-        }
-
-        private void ProcessSuit(object sender)
-        {
-            if (!IsLoaded)
-                return;
-            var checkBox = sender as System.Windows.Controls.CheckBox;
-            var suit = (SuitInfo)checkBox.DataContext;
-            suit.Bought = checkBox.IsChecked == true ? true : false;
-            switch (suit.Bought)
-            {
-                case true:
-                    if (!Lang.Character.Suits.Contains(suit.ID)) Lang.Character.Suits.Add(suit.ID);
-                    break;
-                case false:
-                    if (Lang.Character.Suits.Contains(suit.ID)) Lang.Character.Suits.Remove(suit.ID);
-                    break;
-            }
-        }
-
-        private void merchantDisplay_Checked(object sender, RoutedEventArgs e)
-        {
-            var checkBox = sender as System.Windows.Controls.CheckBox;
-            Lang.Character.TraderStandings[((TraderInfo)checkBox.DataContext).id].Display = checkBox.IsChecked == true ? true : false;
-        }
-
-        private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
-        {
-            if (!IsLoaded)
-                return;
-            if (Lang.Character.Inventory.Items == null) return;
-            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f" || x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
-                Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f" || x.Tpl == "5af99e9186f7747c447120b8").FirstOrDefault().Tpl = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
-        }
-
-        private void QuestsStatusesButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (Lang.Character.Quests == null) return;
-            foreach (var q in Lang.Character.Quests)
-                q.Status = QuestsStatusesBox.SelectedItem.ToString();
-            PrepareForLoadData();
         }
 
         private async void ResetProfileButton_Click(object sender, RoutedEventArgs e)
@@ -676,28 +554,6 @@ namespace SP_EFT_ProfileEditor
             if (commonSkills == null) return;
             foreach (var exp in Lang.Character.Skills.Common.Where(x => globalLang.Interface.ContainsKey(x.Id)))
                 exp.Progress = (float)allskill_exp.Value;
-            PrepareForLoadData();
-        }
-
-        private void MasteringsExpButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (masteringSkills == null) return;
-            foreach (var ms in Lang.Character.Skills.Mastering)
-                ms.Progress = (int)allmastering_exp.Value <= masteringSkills.Where(x => x.id == ms.Id).FirstOrDefault().Max ? (int)allmastering_exp.Value : masteringSkills.Where(x => x.id == ms.Id).FirstOrDefault().Max;
-            PrepareForLoadData();
-        }
-
-        private void MerchantsMaximumButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (traderInfos == null) return;
-            foreach (var tr in Lang.Character.TraderStandings)
-            {
-                var max = tr.Value.LoyaltyLevels.Last();
-                tr.Value.CurrentLevel = Int32.Parse(max.Key) + 1;
-                tr.Value.Display = true;
-                if (tr.Value.CurrentSalesSum < max.Value.MinSalesSum + 1000) tr.Value.CurrentSalesSum = max.Value.MinSalesSum + 1000;
-                if (tr.Value.CurrentStanding < max.Value.MinStanding + 0.01f) tr.Value.CurrentStanding = max.Value.MinStanding + 0.01f;
-            }
             PrepareForLoadData();
         }
 
@@ -1449,7 +1305,7 @@ namespace SP_EFT_ProfileEditor
                 cv.Filter = o =>
                 {
                     InventoryItem p = o as InventoryItem;
-                    return ((string.IsNullOrEmpty(Lang.characterInventory.NameFilter) ? true : p.name.ToUpper().Contains(Lang.characterInventory.NameFilter.ToUpper())) && (string.IsNullOrEmpty(Lang.characterInventory.IdFilter) ? true : p.id.ToUpper().Contains(Lang.characterInventory.IdFilter.ToUpper())));
+                    return (string.IsNullOrEmpty(Lang.characterInventory.NameFilter) || p.name.ToUpper().Contains(Lang.characterInventory.NameFilter.ToUpper())) && (string.IsNullOrEmpty(Lang.characterInventory.IdFilter) ? true : p.id.ToUpper().Contains(Lang.characterInventory.IdFilter.ToUpper()));
                 };
             }
         }
@@ -1480,5 +1336,215 @@ namespace SP_EFT_ProfileEditor
         }
 
         private void SettingsExit_Click(object sender, RoutedEventArgs e) => System.Windows.Application.Current.Shutdown();
+
+        #region Tab Info
+        private void SetHeadsAndVoices()
+        {
+            infotab_Voice.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.voice;
+            infotab_Head.ItemsSource = BotTypes[Lang.Character.Info.Side].appearance.head.Select(x => globalLang.Customization.ContainsKey(x) ? new KeyValuePair<string, string>(x, globalLang.Customization[x].Name) : new KeyValuePair<string, string>(x, x));
+        }
+
+        private void CheckPockets()
+        {
+            if (Lang.Character == null || Lang.Character.Inventory == null) return;
+            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").Count() > 0)
+                Dispatcher.Invoke(() => { BigPocketsSwitcher.IsOn = false; });
+            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
+                Dispatcher.Invoke(() => { BigPocketsSwitcher.IsOn = true; });
+        }
+
+        private void infotab_Side_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!IsLoaded)
+                return;
+            if (Lang.Character != null && Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
+                SetHeadsAndVoices();
+            if (infotab_Voice.Items.Count > 0 && !infotab_Voice.Items.Contains(infotab_Voice.SelectedItem))
+                infotab_Voice.SelectedIndex = 0;
+            if (infotab_Head.Items.Count > 0 && !infotab_Head.Items.Contains(infotab_Head.SelectedItem))
+                infotab_Head.SelectedIndex = 0;
+        }
+
+        private void infotab_Level_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            if (!string.IsNullOrEmpty(textBox.Text)) Lang.Character.Info.Level = Convert.ToInt32(textBox.Text);
+        }
+
+        private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (!IsLoaded)
+                return;
+            if (Lang.Character.Inventory.Items == null) return;
+            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f" || x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
+                Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f" || x.Tpl == "5af99e9186f7747c447120b8").FirstOrDefault().Tpl = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
+        }
+        #endregion
+
+        #region Tab Merchants
+        private void merchantLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!IsLoaded)
+                return;
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            LoyaltyLevel level = (LoyaltyLevel)comboBox.SelectedItem;
+            if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentLevel != level.level)
+            {
+                ((TraderInfo)comboBox.DataContext).CurrentLevel = level.level;
+                Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentLevel = level.level;
+                if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum < level.SalesSum) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentSalesSum = level.SalesSum;
+                if (Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding < level.Standing) Lang.Character.TraderStandings[((TraderInfo)comboBox.DataContext).id].CurrentStanding = level.Standing;
+            }
+        }
+
+        private void merchantDisplay_Checked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as System.Windows.Controls.CheckBox;
+            ((TraderInfo)checkBox.DataContext).Display = checkBox.IsChecked == true ? true : false;
+            Lang.Character.TraderStandings[((TraderInfo)checkBox.DataContext).id].Display = checkBox.IsChecked == true ? true : false;
+        }
+
+        private void MerchantsMaximumButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (traderInfos == null) return;
+            foreach (var tr in Lang.Character.TraderStandings)
+            {
+                var max = tr.Value.LoyaltyLevels.Last();
+                tr.Value.CurrentLevel = Int32.Parse(max.Key) + 1;
+                tr.Value.Display = true;
+                if (tr.Value.CurrentSalesSum < max.Value.MinSalesSum + 1000) tr.Value.CurrentSalesSum = max.Value.MinSalesSum + 1000;
+                if (tr.Value.CurrentStanding < max.Value.MinStanding + 0.01f) tr.Value.CurrentStanding = max.Value.MinStanding + 0.01f;
+            }
+            PrepareForLoadData();
+        }
+        #endregion
+
+        #region Tab Quests
+        private void ApplyQuestFilter()
+        {
+            ICollectionView cv = CollectionViewSource.GetDefaultView(questsGrid.ItemsSource);
+            if (string.IsNullOrEmpty(Lang.gridFilters.QuestName) && string.IsNullOrEmpty(Lang.gridFilters.QuestStatus) && string.IsNullOrEmpty(Lang.gridFilters.QuestTrader))
+                cv.Filter = null;
+            else
+            {
+                cv.Filter = o =>
+                {
+                    Quest p = o as Quest;
+                    return (string.IsNullOrEmpty(Lang.gridFilters.QuestName) || p.name.ToUpper().Contains(Lang.gridFilters.QuestName.ToUpper())) && (string.IsNullOrEmpty(Lang.gridFilters.QuestTrader) || p.trader.ToUpper().Contains(Lang.gridFilters.QuestTrader.ToUpper())) && (string.IsNullOrEmpty(Lang.gridFilters.QuestStatus) || p.status.ToUpper().Contains(Lang.gridFilters.QuestStatus.ToUpper()));
+                };
+            }
+        }
+
+        private void questTraderFilter_TextChanged(object sender, TextChangedEventArgs e) => ApplyQuestFilter();
+        private void questNameFilter_TextChanged(object sender, TextChangedEventArgs e) => ApplyQuestFilter();
+        private void statusTraderFilter_TextChanged(object sender, TextChangedEventArgs e) => ApplyQuestFilter();
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!IsLoaded)
+                return;
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            ((Quest)comboBox.DataContext).status = comboBox.SelectedItem.ToString();
+            Lang.Character.Quests.Where(x => x.Qid == ((Quest)comboBox.DataContext).qid).FirstOrDefault().Status = comboBox.SelectedItem.ToString();
+        }
+
+        private void QuestsStatusesButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (Lang.Character.Quests == null) return;
+            foreach (var q in Lang.Character.Quests)
+                q.Status = QuestsStatusesBox.SelectedItem.ToString();
+            PrepareForLoadData();
+        }
+        #endregion
+
+        #region Tab Mastering
+        private void masteringskill_exp_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!IsLoaded)
+                return;
+            var slider = sender as Slider;
+            var skill = (SkillInfo)slider.DataContext;
+            if (Math.Abs(skill.progress - Lang.Character.Skills.Mastering.Where(x => x.Id == skill.id).FirstOrDefault().Progress) > 1)
+                Lang.Character.Skills.Mastering.Where(x => x.Id == skill.id).FirstOrDefault().Progress = (int)slider.Value <= skill.Max ? (int)slider.Value : skill.Max;
+        }
+
+        private void MasteringsExpButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (masteringSkills == null) return;
+            foreach (var ms in Lang.Character.Skills.Mastering)
+                ms.Progress = (int)allmastering_exp.Value <= masteringSkills.Where(x => x.id == ms.Id).FirstOrDefault().Max ? (int)allmastering_exp.Value : masteringSkills.Where(x => x.id == ms.Id).FirstOrDefault().Max;
+            PrepareForLoadData();
+        }
+
+        private void ApplyMasteringFilter()
+        {
+            ICollectionView cv = CollectionViewSource.GetDefaultView(masteringsGrid.ItemsSource);
+            if (string.IsNullOrEmpty(Lang.gridFilters.MasteringName))
+                cv.Filter = null;
+            else
+            {
+                cv.Filter = o =>
+                {
+                    SkillInfo p = o as SkillInfo;
+                    return string.IsNullOrEmpty(Lang.gridFilters.MasteringName) || p.name.ToUpper().Contains(Lang.gridFilters.MasteringName.ToUpper());
+                };
+            }
+        }
+
+        private void masteringNameFilter_TextChanged(object sender, TextChangedEventArgs e) => ApplyMasteringFilter();
+        #endregion
+
+        #region Tab Suits
+        private void SuitBought_Checked(object sender, RoutedEventArgs e) => ProcessSuit(sender);
+
+        private void SuitBought_Unchecked(object sender, RoutedEventArgs e) => ProcessSuit(sender);
+
+        private void SuitsAcquireAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (Lang.Character.Suits == null || Suits == null) return;
+            foreach (var suit in Suits)
+            {
+                suit.Bought = true;
+                if (!Lang.Character.Suits.Contains(suit.ID)) Lang.Character.Suits.Add(suit.ID);
+            }
+            suitsGrid.ItemsSource = null;
+            suitsGrid.ItemsSource = Suits;
+        }
+
+        private void ProcessSuit(object sender)
+        {
+            if (!IsLoaded)
+                return;
+            var checkBox = sender as System.Windows.Controls.CheckBox;
+            var suit = (SuitInfo)checkBox.DataContext;
+            suit.Bought = checkBox.IsChecked == true ? true : false;
+            switch (suit.Bought)
+            {
+                case true:
+                    if (!Lang.Character.Suits.Contains(suit.ID)) Lang.Character.Suits.Add(suit.ID);
+                    break;
+                case false:
+                    if (Lang.Character.Suits.Contains(suit.ID)) Lang.Character.Suits.Remove(suit.ID);
+                    break;
+            }
+        }
+
+        private void ApplySuitFilter()
+        {
+            ICollectionView cv = CollectionViewSource.GetDefaultView(suitsGrid.ItemsSource);
+            if (string.IsNullOrEmpty(Lang.gridFilters.SuitName))
+                cv.Filter = null;
+            else
+            {
+                cv.Filter = o =>
+                {
+                    SuitInfo p = o as SuitInfo;
+                    return string.IsNullOrEmpty(Lang.gridFilters.SuitName) || p.Name.ToUpper().Contains(Lang.gridFilters.SuitName.ToUpper());
+                };
+            }
+        }
+
+        private void suitNameFilter_TextChanged(object sender, TextChangedEventArgs e) => ApplySuitFilter();
+        #endregion
     }
 }
