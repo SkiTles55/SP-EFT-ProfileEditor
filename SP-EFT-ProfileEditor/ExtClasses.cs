@@ -144,6 +144,9 @@ namespace SP_EFT_ProfileEditor
         public string QuestTrader { get; set; }
         public string MasteringName { get; set; }
         public string SuitName { get; set; }
+        public string HideoutArea { get; set; }
+        public string SkillName { get; set; }
+        public string ExaminedItem { get; set; }
     }
 
     public class InventoryItem

@@ -360,19 +360,31 @@
                         <RowDefinition/>
                         <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
-                    <DataGrid x:Name="hideoutGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <DataGrid x:Name="hideoutGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False" ColumnHeaderStyle="{StaticResource MyColumnHeader}">
                         <DataGrid.Resources>
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_hideout_area], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_hideout_area], Source={StaticResource proxy}}" Width="*" SortMemberPath="name">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Content, RelativeSource={RelativeSource Mode=TemplatedParent}}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            <TextBox x:Name="hideoutAreaFilter" Text="{Binding Data.gridFilters.HideoutArea, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}" Margin="10,0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Controls:TextBoxHelper.ClearTextButton="True" TextChanged="hideoutAreaFilter_TextChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=name}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_hideout_level], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_hideout_level], Source={StaticResource proxy}}" Width="*" SortMemberPath="CurrentLevel">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Grid Grid.Column="1" Grid.Row="5" Margin="10,0">
@@ -398,19 +410,31 @@
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
                     </Grid.RowDefinitions>
-                    <DataGrid x:Name="skillsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <DataGrid x:Name="skillsGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False" ColumnHeaderStyle="{StaticResource MyColumnHeader}">
                         <DataGrid.Resources>
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_skills_skill], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_skills_skill], Source={StaticResource proxy}}" Width="*" SortMemberPath="name">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Content, RelativeSource={RelativeSource Mode=TemplatedParent}}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            <TextBox x:Name="skillNameFilter" Text="{Binding Data.gridFilters.SkillName, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}" Margin="10,0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Controls:TextBoxHelper.ClearTextButton="True" TextChanged="skillNameFilter_TextChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=name}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_skills_exp], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_skills_exp], Source={StaticResource proxy}}" Width="*" SortMemberPath="progress">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Grid Grid.Column="1" Grid.Row="5" Margin="10,0">
@@ -512,12 +536,24 @@
                         <RowDefinition/>
                         <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
-                    <DataGrid x:Name="examinedGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <DataGrid x:Name="examinedGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False" ColumnHeaderStyle="{StaticResource MyColumnHeader}">
                         <DataGrid.Resources>
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_examineditems_item], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_examineditems_item], Source={StaticResource proxy}}" Width="*" SortMemberPath="name">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Content, RelativeSource={RelativeSource Mode=TemplatedParent}}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            <TextBox x:Name="ExaminedItemFilter" Text="{Binding Data.gridFilters.ExaminedItem, Source={StaticResource proxy}, UpdateSourceTrigger=PropertyChanged}" Margin="10,0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Controls:TextBoxHelper.ClearTextButton="True" TextChanged="ExaminedItemFilter_TextChanged"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=name}"/>
@@ -583,7 +619,7 @@
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_examineditems_item], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_examineditems_item], Source={StaticResource proxy}}" Width="*" SortMemberPath="name">
                                 <DataGridTemplateColumn.HeaderTemplate>
                                     <DataTemplate>
                                         <Grid Margin="0,5">
@@ -602,7 +638,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_info_id], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_info_id], Source={StaticResource proxy}}" Width="*" SortMemberPath="id">
                                 <DataGridTemplateColumn.HeaderTemplate>
                                     <DataTemplate>
                                         <Grid Margin="0,5">
@@ -811,7 +847,7 @@
                             <local:BindingProxy x:Key="proxy" Data="{Binding}" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_backups_date], Source={StaticResource proxy}}" Width="*">
+                            <DataGridTemplateColumn Header="{Binding Data.locale[tab_backups_date], Source={StaticResource proxy}}" Width="*" SortMemberPath="date">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Label Content="{Binding Path=date, Converter={StaticResource BackupDateConverter}}"/>
@@ -861,15 +897,15 @@
                         </Label.Content>
                     </Label>
                     <TextBlock Margin="6,0,0,5">
-                        <Hyperlink NavigateUri="HZ" RequestNavigate="Hyperlink_RequestNavigate" Style="{DynamicResource LinkStyle}">HZ</Hyperlink>
+                        <Hyperlink NavigateUri="https://yoomoney.ru/to/410015658095326" RequestNavigate="Hyperlink_RequestNavigate" Style="{DynamicResource LinkStyle}">https://yoomoney.ru/to/410015658095326</Hyperlink>
                     </TextBlock>
                     <Label Style="{DynamicResource DescriptionHeaderStyle}" Margin="0,5,0,0">
                         <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="JRT Russian Community Discord"/>
+                            <TextBlock TextWrapping="Wrap" Text="SPT-AKI Project Site"/>
                         </Label.Content>
                     </Label>
                     <TextBlock Margin="6,0,0,5">
-                        <Hyperlink NavigateUri="https://discord.gg/7JhZHcP" RequestNavigate="Hyperlink_RequestNavigate" Style="{DynamicResource LinkStyle}">https://discord.gg/7JhZHcP</Hyperlink>
+                        <Hyperlink NavigateUri="https://www.sp-tarkov.com/" RequestNavigate="Hyperlink_RequestNavigate" Style="{DynamicResource LinkStyle}">https://www.sp-tarkov.com/</Hyperlink>
                     </TextBlock>
                 </StackPanel>
             </TabItem>
