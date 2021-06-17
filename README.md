@@ -19,6 +19,10 @@
 * Мультиязычность, с возможностью редактирования локализации
 * Автоматические бэкапы при каждом сохранении профиля
 
+### Требования:
+Версия 1.8 и выше - .NET 5.0
+Версии 1.0 - 1.7 - .NET Framework 4.6.1
+
 ## Начиная с версии 1.6 в конфигурационный файл PEOptions добавлены относительные пути к файлам сервера. Изменяя их, можно попробовать редактировать профиль на неподдерживаемом сервере (успех не гарантируется!!!).
 
 Относительные пути для сервера SPT-AKI Alpha R7
@@ -74,7 +78,11 @@ Program for editing player profile on the SPTarkov Server
 ### Features:  
 * Simple, intuitive interface  
 * Multilingual, with the ability to edit localization  
-* Automatic backups every time you save your profile  
+* Automatic backups every time you save your profile
+
+### Requirements:
+Version 1.8 and higher - .NET 5.0
+Versions 1.0 - 1.7 - .NET Framework 4.6.1  
 
 ## Starting from version 1.6, relative paths to server files have been added to the PEOptions configuration file. By changing them, you can try to edit the profile on an unsupported server (success is not guaranteed !!!).
 
