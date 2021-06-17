@@ -20,8 +20,8 @@
 * Автоматические бэкапы при каждом сохранении профиля
 
 ### Требования:
-Версия 1.8 и выше - .NET 5.0
-Версии 1.0 - 1.7 - .NET Framework 4.6.1
+* .NET 5.0 (Версия 1.8 и выше)
+* .NET Framework 4.6.1 (Версии 1.0 - 1.7)
 
 ## Начиная с версии 1.6 в конфигурационный файл PEOptions добавлены относительные пути к файлам сервера. Изменяя их, можно попробовать редактировать профиль на неподдерживаемом сервере (успех не гарантируется!!!).
 
@@ -39,7 +39,7 @@
 ```
 
 
-[Версия 1.7 для серверов SPT-AKI 1.0.0 B*, 1.0.0 - 1.3.0](https://github.com/jbs4bmx/SP-EFT-ProfileEditor/releases/tag/v1.7)
+[Версия 1.8 для серверов SPT-AKI 1.0.0 B*, 1.0.0 - 1.3.0](https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/tag/1.8)
 
 [Версия 1.6 для серверов SPT-AKI Alpha R7](https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/tag/1.6)
 
@@ -81,8 +81,8 @@ Program for editing player profile on the SPTarkov Server
 * Automatic backups every time you save your profile
 
 ### Requirements:
-Version 1.8 and higher - .NET 5.0
-Versions 1.0 - 1.7 - .NET Framework 4.6.1  
+* .NET 5.0 (Version 1.8 and higher)
+* .NET Framework 4.6.1 (Versions 1.0 - 1.7) 
 
 ## Starting from version 1.6, relative paths to server files have been added to the PEOptions configuration file. By changing them, you can try to edit the profile on an unsupported server (success is not guaranteed !!!).
 
@@ -99,7 +99,7 @@ Relative paths for server SPT-AKI Alpha R7
   }
 ```
 
-[Version 1.7 for SPT-AKI 1.0.0 B*, 1.0.0 - 1.3.0](https://github.com/jbs4bmx/SP-EFT-ProfileEditor/releases/tag/v1.7)
+[Version 1.8 for SPT-AKI 1.0.0 B*, 1.0.0 - 1.3.0](https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/tag/1.8)
 
 [Version 1.6 for SPT-AKI Alpha R7](https://github.com/SkiTles55/SP-EFT-ProfileEditor/releases/tag/1.6)
 
