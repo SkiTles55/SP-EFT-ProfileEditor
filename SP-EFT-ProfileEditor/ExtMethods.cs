@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,13 @@ namespace SP_EFT_ProfileEditor
 {
     class ExtMethods
     {
+        public static List<long> ExpTable = new List<long>  { 0, 1000,
+                2743,3999,5256,6494,7658,8851,10025,11098,12226,13336,16814,19924,23053,26283,29219,32045,34466,37044
+                ,39162,41492,44002,46900,51490,56080,60670,65260,69850,74440,79030,83620,90964,98308,105652,112996,120340
+                ,127684,135028,142372,149716,157060,167158,177256,187354,197452,207550,217648,227746,237844,247942,258040
+                ,271810,285580,299350,313120,323450,362111,369536,386978,407174,430124,457664,494384,549464,622904,760604
+                ,1036004,1449104,10000000 };
+
         public static bool PathIsEftServerBase(PEOptions options, string path = null)
         {
             if (string.IsNullOrEmpty(path)) path = options.EftServerPath;
@@ -101,6 +109,11 @@ namespace SP_EFT_ProfileEditor
                 default:
                     return "en";
             }
+        }
+
+        public static void SetExpTable(List<long> value)
+        {
+            ExpTable = value;
         }
     }
 }

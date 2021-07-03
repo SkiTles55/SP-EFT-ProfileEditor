@@ -230,6 +230,7 @@ namespace SP_EFT_ProfileEditor
     public class Global
     {
         public Mastering[] Mastering { get; set; }
+        public Exp exp { get; set; }
     }
 
     public class Mastering
@@ -238,6 +239,21 @@ namespace SP_EFT_ProfileEditor
         public string[] Templates { get; set; }
         public int Level2 { get; set; }
         public int Level3 { get; set; }
+    }
+
+    public class Exp
+    {
+        public Level level { get; set; }
+    }
+
+    public class Level
+    {
+        public ExpTable[] exp_table { get; set; }
+    }
+
+    public class ExpTable
+    {
+        public long exp { get; set; }
     }
 
     public class SuitInfo

@@ -309,6 +309,7 @@ namespace SP_EFT_ProfileEditor
         private void LoadData()
         {
             serverGlobals = JsonConvert.DeserializeObject<ServerGlobals>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, Lang.options.FilesList["file_globals"])));
+            ExtMethods.SetExpTable(serverGlobals.config.exp.level.exp_table.Select(x => x.exp).ToList());
             globalLang = JsonConvert.DeserializeObject<GlobalLang>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, Lang.options.DirsList["dir_globals"], Lang.options.Language + ".json")));
             itemsDB = new Dictionary<string, Item>();
             itemsDB = JsonConvert.DeserializeObject<Dictionary<string, Item>>(File.ReadAllText(Path.Combine(Lang.options.EftServerPath, Lang.options.FilesList["file_items"])));
