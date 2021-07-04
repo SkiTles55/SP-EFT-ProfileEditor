@@ -50,6 +50,7 @@ namespace SP_EFT_ProfileEditor
         private ObservableCollection<SuitInfo> Suits;
         private List<PresetInfo> Presets;
         public Dictionary<string, BotType> BotTypes;
+        private Dictionary<string, string> Pockets;
 
         private readonly string moneyRub = "5449016a4bdc2d6f028b456f";
         private readonly string moneyDol = "5696686a4bdc2da3298b456a";
@@ -59,8 +60,10 @@ namespace SP_EFT_ProfileEditor
         {
             ["en"] = "English",
             ["ru"] = "Русский",
-            ["fr"] = "Français",
-            ["ge"] = "Deutsch"
+            ["fr"] = "French",
+            ["ge"] = "German",
+            ["ch"] = "Chinese",
+            ["es"] = "Spanish"
         };
 
         private readonly List<string> BannedItems = new List<string>
@@ -87,7 +90,7 @@ namespace SP_EFT_ProfileEditor
 
         public MainWindow()
         {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            //AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             InitializeComponent();
             infotab_Side.ItemsSource = new List<string> { "Bear", "Usec" };
             QuestsStatusesBox.ItemsSource = new List<string> { "Locked", "AvailableForStart", "Started", "Fail", "AvailableForFinish", "Success" };
@@ -115,7 +118,6 @@ namespace SP_EFT_ProfileEditor
             if (!string.IsNullOrEmpty(Lang.options.ColorScheme))
                 ThemeManager.Current.ChangeTheme(this, Lang.options.ColorScheme);
             DataContext = Lang;
-            CheckPockets();
             if (readyToLoad && Lang.Character != null)
             {
                 lastdata = Lang.options.EftServerPath + Lang.options.Language + Lang.Character.Aid;
@@ -246,8 +248,15 @@ namespace SP_EFT_ProfileEditor
         {
             if (!IsLoaded)
                 return;
-            if ((sender as System.Windows.Controls.ComboBox).SelectedValue != null) Lang.options.DefaultProfile = (sender as System.Windows.Controls.ComboBox).SelectedValue.ToString();
-            SaveAndReload();
+            if ((sender as System.Windows.Controls.ComboBox).SelectedValue != null)
+            {
+                string pf = (sender as System.Windows.Controls.ComboBox).SelectedValue.ToString();
+                if (Lang.options.DefaultProfile != pf)
+                {
+                    Lang.options.DefaultProfile = (sender as System.Windows.Controls.ComboBox).SelectedValue.ToString();
+                    SaveAndReload();
+                }
+            }
         }
 
         private void StyleChoicer_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -486,6 +495,8 @@ namespace SP_EFT_ProfileEditor
             LoadBackups();
             Dispatcher.Invoke(() =>
             {
+                infotab_Experience.Maximum = serverGlobals.config.exp.level.exp_table.Sum(x => x.exp) - serverGlobals.config.exp.level.exp_table.Last().exp;
+                infotab_Level.Text = Lang.Character.Info.Level.ToString();
                 MoneysPanel.IsEnabled = true;
                 AddItemsGrid.IsEnabled = true;
                 ModItemsWarning.Visibility = Visibility.Hidden;
@@ -523,6 +534,7 @@ namespace SP_EFT_ProfileEditor
                     if (!_modItemNotif)
                         ModItemsWarning.Visibility = Visibility.Visible;
                 }
+                CheckPockets();
                 if (Lang.Character.Info != null && BotTypes != null && BotTypes.ContainsKey(Lang.Character.Info.Side))
                     SetHeadsAndVoices();
             });
@@ -568,11 +580,33 @@ namespace SP_EFT_ProfileEditor
 
         private void CheckPockets()
         {
-            if (Lang.Character == null || Lang.Character.Inventory == null) return;
-            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f").Count() > 0)
-                Dispatcher.Invoke(() => { BigPocketsSwitcher.IsOn = false; });
-            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
-                Dispatcher.Invoke(() => { BigPocketsSwitcher.IsOn = true; });
+            if (itemsDB != null)
+            {
+                Pockets = new Dictionary<string, string>();
+                foreach (var item in itemsDB.Where(x => x.Value.parent == "557596e64bdc2dc2118b4571" && itemsDB.ContainsKey(x.Key)))
+                    Pockets.Add(item.Key, $"{globalLang.Templates[item.Key].Name} ({GetSlotsCount(itemsDB[item.Key])})");
+                Dispatcher.Invoke(() =>
+                {
+                    infotab_Pockets.ItemsSource = null;
+                    infotab_Pockets.ItemsSource = Pockets;
+                });                
+                if (Lang.Character == null || Lang.Character.Inventory == null) return;
+                var pockets = Lang.Character.Inventory.Items.Where(x => x.SlotId == "Pockets").FirstOrDefault();
+                if (pockets != null)
+                    Dispatcher.Invoke(() => { infotab_Pockets.SelectedValue = pockets.Tpl; });
+            }
+        }
+
+        private void infotab_Pockets_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            if (comboBox.SelectedItem != null)
+            {
+                KeyValuePair<string, string> selected = (KeyValuePair<string, string>)comboBox.SelectedItem;
+                var pockets = Lang.Character.Inventory.Items.Where(x => x.SlotId == "Pockets").FirstOrDefault();
+                if (pockets != null)
+                    pockets.Tpl = selected.Key;
+            }            
         }
 
         private void infotab_Side_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -591,15 +625,6 @@ namespace SP_EFT_ProfileEditor
         {
             var textBox = sender as System.Windows.Controls.TextBox;
             if (!string.IsNullOrEmpty(textBox.Text)) Lang.Character.Info.Level = Convert.ToInt32(textBox.Text);
-        }
-
-        private void BigPocketsSwitcher_Toggled(object sender, RoutedEventArgs e)
-        {
-            if (!IsLoaded)
-                return;
-            if (Lang.Character.Inventory.Items == null) return;
-            if (Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f" || x.Tpl == "5af99e9186f7747c447120b8").Count() > 0)
-                Lang.Character.Inventory.Items.Where(x => x.Tpl == "557ffd194bdc2d28148b457f" || x.Tpl == "5af99e9186f7747c447120b8").FirstOrDefault().Tpl = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f";
         }
         #endregion
 
@@ -817,6 +842,14 @@ namespace SP_EFT_ProfileEditor
         #endregion
 
         #region Tab Stash
+        private int GetSlotsCount(Item item)
+        {
+            int slots = 0;
+            foreach (var grid in item.props.Grids)
+                slots += grid.gridProps.cellsH * grid.gridProps.cellsV;
+            return slots;
+        }
+
         private void RemoveDuplicatedIds(List<string> itemsId)
         {
             JsonSerializerSettings seriSettings = new JsonSerializerSettings { Formatting = Formatting.Indented };
@@ -1464,9 +1497,11 @@ namespace SP_EFT_ProfileEditor
             for (int index = 0; index < Stash.Count(); index++)
             {
                 var probe = Stash[index];
-                if (probe.Tpl == "557ffd194bdc2d28148b457f" || probe.Tpl == "5af99e9186f7747c447120b8")
+                if (probe.SlotId == "Pockets")
                 {
-                    Dispatcher.Invoke(() => jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = BigPocketsSwitcher.IsOn ? "5af99e9186f7747c447120b8" : "557ffd194bdc2d28148b457f");
+                    var pockets = Lang.Character.Inventory.Items.Where(x => x.SlotId == "Pockets").FirstOrDefault();
+                    if (pockets != null)
+                        jobject.SelectToken("characters")["pmc"].SelectToken("Inventory").SelectToken("items")[index]["_tpl"] = pockets.Tpl;
                     continue;
                 }
                 if (!iDs.Contains(probe.Id))

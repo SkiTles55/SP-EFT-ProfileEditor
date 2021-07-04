@@ -139,6 +139,7 @@ namespace SP_EFT_ProfileEditor
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (ExtMethods.ExpTable == null) return null;
             if (value == null) return null;
             long exp = 0;
             int level = 0;
@@ -154,6 +155,7 @@ namespace SP_EFT_ProfileEditor
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (ExtMethods.ExpTable == null) return null;
             var st = value.ToString();
             if (string.IsNullOrEmpty(st))
                 st = "0";

@@ -224,10 +224,10 @@
                     <ComboBox x:Name="infotab_Head" Grid.Column="1" Grid.Row="7" Margin="10,0" VerticalAlignment="Center" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding Character.Customization.Head, Mode=TwoWay}"/>
                     <Label Grid.Column="0" Grid.Row="8" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="10,0,0,0">
                         <Label.Content>
-                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_bigpockets]}"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding locale[tab_info_pockets]}"/>
                         </Label.Content>
                     </Label>
-                    <mah:ToggleSwitch x:Name="BigPocketsSwitcher" Grid.Column="1" Grid.Row="8" HorizontalAlignment="Stretch" Margin="10,0" OnContent="" OffContent="" Foreground="{DynamicResource MahApps.Brushes.Accent}" Toggled="BigPocketsSwitcher_Toggled"/>
+                    <ComboBox x:Name="infotab_Pockets" Grid.Column="1" Grid.Row="8" Margin="10,0" VerticalAlignment="Center" DisplayMemberPath="Value" SelectedValuePath="Key" SelectionChanged="infotab_Pockets_SelectionChanged"/>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding locale[tab_merchants_title]}" x:Name="tabmerchants" HeaderTemplate="{StaticResource HeaderTemplate}">
